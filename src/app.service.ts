@@ -38,7 +38,7 @@ export class AppService {
     const countryCodes = Object.keys(data);
 
     countryCodes.forEach((code) => {
-      const country = {
+      const country: ICountry = {
         flag: data[code].flag,
         name: code,
       };

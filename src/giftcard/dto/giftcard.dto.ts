@@ -72,3 +72,20 @@ export class CreateGiftCardDto {
   @ApiPropertyOptional()
   denomination: CreateCardDenominationDto;
 }
+
+export class SetCardRateDto {
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  rate: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  cardId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  denominationId: string;
+}

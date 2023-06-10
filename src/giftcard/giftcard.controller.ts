@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -13,7 +14,7 @@ import { HttpResponse } from 'src/reponses/http.response';
 import { Response } from 'express';
 import { ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { GetAccount } from 'src/decorators/account.decorator';
-import { CreateGiftCardDto } from './dto/giftcard.dto';
+import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
 
 @Controller('giftcards')
 @ApiTags('Giftcard')
@@ -23,7 +24,7 @@ export class GiftcardController {
   constructor(
     private readonly giftcardService: GiftcardService,
     private response: HttpResponse,
-  ) { }
+  ) {}
 
   @Get('')
   async fetchAllCards(@Res() res: Response) {
@@ -54,4 +55,79 @@ export class GiftcardController {
       null,
     );
   }
+
+  @Post('disable/:id')
+  async disableCard(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.disableCard(profile.userId, id);
+
+    return this.response.okResponse(
+      res,
+      'giftcard disabled successfully',
+      null,
+    );
+  }
+
+  @Post('set-rate')
+  async setDenominationRate(
+    @GetAccount() profile: { userId: string },
+    @Body() data: SetCardRateDto,
+    @Res() res: Response,
+  ) {
+    const card = await this.giftcardService.setCardRate(profile.userId, data);
+
+    return this.response.okResponse(
+      res,
+      'denomination rate set successfully',
+      card,
+    );
+  }
+
+  @Delete('delete/currency/:id')
+  async deleteCardCurrency(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardCurrency(profile.userId, id);
+
+    return this.response.okResponse(res, 'card currency deleted successfully');
+  }
+
+  @Delete('delete/denomination/:id')
+  async deleteCardDenomination(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardDenomination(profile.userId, id);
+
+    return this.response.okResponse(res, 'denomination deleted successfully');
+  }
+
+  @Delete('delete/number/:id')
+  async deleteCardNumber(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardNumber(profile.userId, id);
+
+    return this.response.okResponse(res, 'card number deleted successfully');
+  }
+
+  @Delete('delete/receipt/:id')
+  async deleteCardReceipt(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardReceipt(profile.userId, id);
+
+    return this.response.okResponse(res, 'card receipt deleted successfully');
+  }
 }
+
