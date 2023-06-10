@@ -7,10 +7,19 @@ import { GiftcardModule } from './giftcard/giftcard.module';
 import { TradeModule } from './trade/trade.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { DatabaseModule } from './database/database.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [AuthModule, UserModule, GiftcardModule, TradeModule, CryptoModule, DatabaseModule],
+  imports: [
+    HttpModule,
+    AuthModule,
+    UserModule,
+    GiftcardModule,
+    TradeModule,
+    CryptoModule,
+    DatabaseModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
