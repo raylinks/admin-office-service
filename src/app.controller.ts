@@ -16,4 +16,11 @@ export class AppController {
 
     return countries;
   }
+
+  @Get('currencies')
+  async fetchCurrencies() {
+    const currencies = await this.appService.fetchCurrencies();
+
+    return currencies;
+  }
 }

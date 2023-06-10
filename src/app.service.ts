@@ -7,6 +7,12 @@ export interface ICountry {
   flag: string;
 }
 
+export interface ICurrency {
+  currency: string;
+  symbol: string;
+  code: string;
+}
+
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
@@ -40,5 +46,32 @@ export class AppService {
     });
 
     return countries;
+  }
+
+  async fetchCurrencies() {
+    const currencies: ICurrency[] = [];
+    const { data } = await firstValueFrom(
+      this.http
+        .get('https://furex.fra1.digitaloceanspaces.com/currencies.json')
+        .pipe(
+          catchError((err) => {
+            this.logger.error(err);
+            throw 'There was an error fetching countries';
+          }),
+        ),
+    );
+
+    const currencyCodes = Object.keys(data);
+
+    currencyCodes.forEach((code) => {
+      const currency: ICurrency = {
+        currency: code,
+        symbol: data[code].symbol,
+        code: data[code].symbol,
+      };
+      currencies.push(currency);
+    });
+
+    return currencies;
   }
 }
