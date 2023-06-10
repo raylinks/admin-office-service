@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("ADMIN_SERVICE_DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName        String
+  email           String
+  emailVerified   Boolean  @default(false)
+  avatar          String?
+  hasFurexAccount Boolean  @default(false)
+  furexId         String?
+  authEnabled     Boolean  @default(false)
+  roleId          String   @db.ObjectId
+  role            Role?    @relation(fields: [roleId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Auth {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  secret    Bytes
+  userId    String   @unique @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@map("auths")
+}
+
+model AuditLog {
+  id         String         @id @default(auto()) @map("_id") @db.ObjectId
+  operatorId String         @db.ObjectId
+  action     AuditLogAction
+  details    Json
+
+  @@map("audit_logs")
+}
+
+model Role {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  namw        String   @unique
+  permissions String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+enum AuditLogAction {
+  GIFTCARD_CREATE
+  GIFTCARD_UPDATE
+  GIFTCARD_DELETE
+  TRANSACTION_UPDATE
+}
+
+enum Permission {
+  OPERATION
+  ADMIN
+  SUPER_ADMIN
+}
