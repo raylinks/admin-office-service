@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientRMQ } from '@nestjs/microservices';
 import { RMQ_NAMES } from 'src/utils/constants';
 import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
 import { AuditLogAction, PrismaClient } from '@prisma/client';
@@ -10,7 +10,7 @@ export class GiftcardService {
   private readonly logger = new Logger(GiftcardService.name);
   constructor(
     private prisma: PrismaClient,
-    @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientProxy,
+    @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
   ) {}
 
   async createCard(operatorId: string, data: CreateGiftCardDto) {
