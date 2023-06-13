@@ -17,9 +17,8 @@ import { HttpModule } from '@nestjs/axios';
     GiftcardModule,
     TradeModule,
     CryptoModule,
-    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
