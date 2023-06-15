@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function seed() {
-  // create roles with permissions
   await prisma.role.upsert({
     where: { namw: 'OPERATION' },
     update: {},

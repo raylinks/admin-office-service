@@ -39,7 +39,7 @@ model AuditLog {
   action     AuditLogAction
   details    Json
 
-  @@map("audit_logs")
+  @@map("auditLogs")
 }
 
 model Role {
