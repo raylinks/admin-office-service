@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Put, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { GetAccount } from 'src/decorators/account.decorator';
@@ -9,9 +18,10 @@ import {
   SetCryptoTransactionFeesDto,
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('crypto')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiTags('Crypto')
 @ApiSecurity('auth')
 export class CryptoController {
