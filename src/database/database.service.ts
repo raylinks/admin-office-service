@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Pool } from 'mysql2';
+import { Pool } from 'mysql2/promise';
 
 @Injectable()
 export class DatabaseService {

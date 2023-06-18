@@ -8,6 +8,7 @@ import { TradeModule } from './trade/trade.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { DatabaseModule } from './database/database.module';
 import { HttpModule } from '@nestjs/axios';
+import { FiatModule } from './fiat/fiat.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { HttpModule } from '@nestjs/axios';
     GiftcardModule,
     TradeModule,
     CryptoModule,
+    FiatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

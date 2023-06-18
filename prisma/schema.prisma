@@ -34,9 +34,9 @@ model Auth {
 }
 
 model AuditLog {
-  id         String         @id @default(auto()) @map("_id") @db.ObjectId
-  operatorId String         @db.ObjectId
-  action     AuditLogAction
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  operatorId String @db.ObjectId
+  action     String
   details    Json
 
   @@map("auditLogs")
@@ -51,13 +51,6 @@ model Role {
   users       User[]
 
   @@map("roles")
-}
-
-enum AuditLogAction {
-  GIFTCARD_CREATE
-  GIFTCARD_UPDATE
-  GIFTCARD_DELETE
-  TRANSACTION_UPDATE
 }
 
 enum Permission {

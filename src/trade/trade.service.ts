@@ -6,8 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
-import { AuditLogAction, PrismaClient } from '@prisma/client';
-import { RMQ_NAMES } from 'src/utils/constants';
+import { PrismaClient } from '@prisma/client';
+import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import {
   ApproveDeclineTradeDto,
   CreateMessageDto,
@@ -25,13 +25,10 @@ export class TradeService {
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-  ) {}
+  ) { }
 
   async approveDeclineTrade(operatorId: string, data: ApproveDeclineTradeDto) {
     const trade = await this.fetchTradeDetails(data.tradeId);
-
-    if (!trade.rate && data.status === 'approve')
-      throw new BadRequestException('Trade rate is not set');
 
     if (trade.status === 'APPROVED')
       throw new BadRequestException('Trade is already approved');
@@ -42,15 +39,10 @@ export class TradeService {
 
     this.giftcardClient.emit(`trade.state.${data.status}`, data.tradeId);
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
-        operatorId,
-        details: `Set trade as ${data.status} \n id: ${trade.id}`,
-      },
-    });
-
-    if (data.status === 'approve') await this.approveTrade(trade, data.comment);
+    if (data.status === 'approve')
+      await this.approveTrade(operatorId, trade, data.comment);
+    if (data.status === 'decline')
+      await this.declineTrade(operatorId, trade, data.comment);
 
     return trade;
   }
@@ -64,7 +56,7 @@ export class TradeService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.CLOSE_GIFTCARD_TRADE,
         operatorId,
         details: `Trade set as closed \n id: ${tradeId}`,
       },
@@ -107,14 +99,6 @@ export class TradeService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
-        operatorId,
-        details: `New message sent for trade \n id: ${trade.id}`,
-      },
-    });
-
     return await this.fetchAllTradeMessages(trade.id);
   }
 
@@ -136,7 +120,7 @@ export class TradeService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.SET_CRYPTO_RATE,
         operatorId,
         details: `Trade rate set \n id: ${trade.id}`,
       },
@@ -145,9 +129,18 @@ export class TradeService {
     return await this.fetchTradeDetails(tradeId);
   }
 
-  private async approveTrade(trade: any, comment: string) {
+  private async approveTrade(operatorId: string, trade: any, comment: string) {
+    if (!trade.rate) throw new BadRequestException('Trade rate is not set');
+
     const finalAmount = trade.quantity * trade.denomination * trade.rate;
 
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.APPROVE_GIFTCARD_TRADE,
+        operatorId,
+        details: `Set trade as approved \n id: ${trade.id}`,
+      },
+    });
     this.walletClient.emit('external-transaction-action', {
       thirdPartyTxId: trade.id,
       status: 'INIT',
@@ -157,6 +150,18 @@ export class TradeService {
         amount: finalAmount,
         symbol: 'NGN',
         userId: trade.userId,
+      },
+    });
+  }
+
+  private async declineTrade(operatorId: string, trade: any, comment: string) {
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.DECLINE_GIFTCARD_TRADE,
+        operatorId,
+        details: `Set trade as approved
+          id: ${trade.id}
+          comment: ${comment}`,
       },
     });
   }

@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
-import { RMQ_NAMES } from 'src/utils/constants';
+import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
-import { AuditLogAction, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { lastValueFrom, timeout } from 'rxjs';
 
 @Injectable()
@@ -11,14 +11,14 @@ export class GiftcardService {
   constructor(
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
-  ) {}
+  ) { }
 
   async createCard(operatorId: string, data: CreateGiftCardDto) {
     this.giftcardClient.emit('giftcard.create', data).pipe(timeout(5_000));
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_CREATED,
         operatorId,
         details: `Added a new giftcard details for ${data.card.card}`,
       },
@@ -46,7 +46,7 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
         operatorId,
         details: `Disabled giftcard \n id: ${cardId}`,
       },
@@ -58,7 +58,7 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_RATE_SET,
         operatorId,
         details: `Rate set for giftcard\n ${data}`,
       },
@@ -72,7 +72,7 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_UPDATED,
         operatorId,
         details: `Card number deleted\n id: ${numberId}`,
       },
@@ -84,7 +84,7 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_DELETED,
         operatorId,
         details: `Card denomination deleted\n id: ${denominationId}`,
       },
@@ -96,7 +96,7 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_DELETED,
         operatorId,
         details: `Card receipt deleted\n id: ${receiptId}`,
       },
@@ -108,7 +108,7 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AuditLogAction.GIFTCARD_CREATE,
+        action: AUDIT_ACTIONS.GIFTCARD_DELETED,
         operatorId,
         details: `Card currency deleted\n id: ${currencyId}`,
       },

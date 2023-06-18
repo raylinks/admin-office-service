@@ -6,11 +6,15 @@ import { parseDbUrl } from './database.util';
 import { ModuleRef } from '@nestjs/core';
 
 const walletService = async () => {
+  const opts = parseDbUrl(config.db.walletService);
   return createPool({
-    ...parseDbUrl(config.db.walletService),
+    host: opts.host,
+    user: opts.username,
+    password: opts.password,
+    database: opts.database,
     waitForConnections: true,
     connectionLimit: 15,
-  });
+  }).promise();
 };
 
 @Module({
@@ -24,7 +28,7 @@ const walletService = async () => {
   exports: [DatabaseService],
 })
 export class DatabaseModule implements OnApplicationShutdown {
-  constructor(private readonly moduleRef: ModuleRef) { }
+  constructor(private readonly moduleRef: ModuleRef) {}
   private readonly logger = new Logger(DatabaseModule.name);
 
   onApplicationShutdown(signal?: string) {
