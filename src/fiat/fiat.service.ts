@@ -9,7 +9,6 @@ import { lastValueFrom } from 'rxjs';
 export class FiatService {
   constructor(
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-    @Inject(RMQ_NAMES.FIAT_SERVICE) private fiatClient: ClientRMQ,
     private prisma: PrismaClient,
   ) { }
 
