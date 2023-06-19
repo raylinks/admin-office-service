@@ -12,7 +12,7 @@ import { IGoogleProfile } from 'src/google/google.guard';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaClient, private jwt: JwtService) { }
+  constructor(private prisma: PrismaClient, private jwt: JwtService) {}
 
   async login(data: IGoogleProfile) {
     let user = await this.findByEmail(data.email.toLowerCase());
@@ -112,8 +112,11 @@ export class AuthService {
         avatar: data.avatar,
         emailVerified: data.emailVerified,
         role: {
-          connect: {
-            namw: 'OPERATION',
+          connectOrCreate: {
+            where: { namw: 'OPERATION' },
+            create: {
+              namw: 'OPERATION',
+            },
           },
         },
       },
