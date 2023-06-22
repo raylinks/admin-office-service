@@ -6,9 +6,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { PrismaClient } from '@prisma/client';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   imports: [
+    DatabaseModule,
     ClientsModule.register([
       {
         name: RMQ_NAMES.WALLET_SERVICE,

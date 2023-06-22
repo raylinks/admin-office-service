@@ -28,7 +28,7 @@ export class CryptoController {
   constructor(
     private readonly cryptoService: CryptoService,
     private readonly response: HttpResponse,
-  ) { }
+  ) {}
 
   @Get('balance')
   async fetchCryptoBalance(@Res() res: Response) {

@@ -1,20 +1,17 @@
 import { Logger, Module, OnApplicationShutdown } from '@nestjs/common';
 import { DatabaseService } from './database.service';
-import { createPool, Pool } from 'mysql2';
-import config from 'src/config';
 import { parseDbUrl } from './database.util';
 import { ModuleRef } from '@nestjs/core';
+import { Pool, createConnection, createPool } from 'mysql2/promise';
 
 const walletService = async () => {
-  const opts = parseDbUrl(config.db.walletService);
+  const opts = parseDbUrl(process.env.WALLET_SERVICE_DATABASE_URL);
   return createPool({
     host: opts.host,
     user: opts.username,
     password: opts.password,
     database: opts.database,
-    waitForConnections: true,
-    connectionLimit: 15,
-  }).promise();
+  });
 };
 
 @Module({

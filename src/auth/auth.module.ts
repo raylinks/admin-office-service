@@ -13,10 +13,10 @@ import { JwtStrategy } from 'src/strategies/jwt.strategy';
     HttpModule,
     JwtModule.register({
       secret: config.jwt.secret,
-      signOptions: { expiresIn: config.jwt.expiresIn },
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaClient, HttpResponse, JwtStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}
