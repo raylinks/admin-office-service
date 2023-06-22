@@ -16,7 +16,7 @@ export class CryptoService {
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private prisma: PrismaClient,
     private dbService: DatabaseService,
-  ) {}
+  ) { }
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
     return await lastValueFrom(
       this.walletClient.send(
@@ -79,14 +79,14 @@ export class CryptoService {
 
   async fetchRates() {
     const assets = await this.dbService.getAssets();
-    const symbols = assets.map((asset) => asset.symbol) as string[];
+    const symbols = assets.map((asset) => asset.symbol);
 
     const allRates = [];
     const rates = await this.dbService.getTxFees();
 
     const buySellRates = rates.filter(
       (rate) => rate.event === 'BuyEvent' || rate.event === 'SellEvent',
-    ) as any[];
+    );
 
     symbols.forEach((symbol) => {
       const rates = [];
