@@ -6,9 +6,9 @@ import { UserModule } from './user/user.module';
 import { GiftcardModule } from './giftcard/giftcard.module';
 import { TradeModule } from './trade/trade.module';
 import { CryptoModule } from './crypto/crypto.module';
-import { DatabaseModule } from './database/database.module';
 import { HttpModule } from '@nestjs/axios';
 import { FiatModule } from './fiat/fiat.module';
+import { HttpResponse } from './reponses/http.response';
 
 @Module({
   imports: [
@@ -21,6 +21,6 @@ import { FiatModule } from './fiat/fiat.module';
     FiatModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, HttpResponse],
 })
 export class AppModule {}

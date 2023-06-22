@@ -25,7 +25,7 @@ import { GetAccount } from 'src/decorators/account.decorator';
 
 @Controller('trades')
 @ApiSecurity('auth')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiTags('Trades')
 export class TradeController {
   constructor(

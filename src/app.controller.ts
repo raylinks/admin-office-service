@@ -1,9 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Response } from 'express';
+import { HttpResponse } from './reponses/http.response';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(
+    private readonly appService: AppService,
+    private response: HttpResponse,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -11,16 +16,16 @@ export class AppController {
   }
 
   @Get('countries')
-  async fetchCountries() {
+  async fetchCountries(@Res() res: Response) {
     const countries = await this.appService.fetchCountries();
 
-    return countries;
+    return this.response.okResponse(res, 'fetched all countries', countries);
   }
 
   @Get('currencies')
-  async fetchCurrencies() {
+  async fetchCurrencies(@Res() res: Response) {
     const currencies = await this.appService.fetchCurrencies();
 
-    return currencies;
+    return this.response.okResponse(res, 'fetched all currencies', currencies);
   }
 }
