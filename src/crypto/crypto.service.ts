@@ -8,14 +8,13 @@ import {
   QueryCryptoTransactionsDto,
   SetCryptoTransactionFeesDto,
 } from './crypto.dto';
-import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class CryptoService {
   constructor(
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
+    @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     private prisma: PrismaClient,
-    private dbService: DatabaseService,
   ) { }
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
     return await lastValueFrom(
@@ -78,11 +77,15 @@ export class CryptoService {
   }
 
   async fetchRates() {
-    const assets = await this.dbService.getAssets();
+    const assets = await lastValueFrom(
+      this.walletClient.send({ cmd: 'assets.get' }, {}),
+    );
     const symbols = assets.map((asset) => asset.symbol);
 
     const allRates = [];
-    const rates = await this.dbService.getTxFees();
+    const rates = await lastValueFrom(
+      this.walletClient.send({ cmd: 'tx_fees.get' }, {}),
+    );
 
     const buySellRates = rates.filter(
       (rate) => rate.event === 'BuyEvent' || rate.event === 'SellEvent',

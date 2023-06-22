@@ -1,14 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Pool } from 'mysql2/promise';
+import { Connection, Pool } from 'mysql2/promise';
 
 @Injectable()
 export class DatabaseService {
   private logger = new Logger(DatabaseService.name);
 
-  constructor(@Inject('WALLET_DB_CONNECTION') private walletDb: Pool) {}
+  constructor(@Inject('WALLET_DB_CONNECTION') private walletDb: Connection) { }
 
   async getAssets() {
-    const [assets] = await this.walletDb.execute(`SELECT * FROM assets`);
+    const [assets] = await this.walletDb.query(`SELECT * FROM assets`);
 
     return (assets as any[]).map((asset) => {
       return {
@@ -29,7 +29,7 @@ export class DatabaseService {
   }
 
   async getTxFees() {
-    const [fees] = await this.walletDb.execute(`SELECT * FROM tx_fees`);
+    const [fees] = await this.walletDb.query(`SELECT * FROM tx_fees`);
 
     return (fees as any[]).map((fee) => {
       return {
