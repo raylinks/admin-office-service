@@ -55,10 +55,6 @@ export class CreateMessageDto {
   @ApiPropertyOptional({ type: AddFileToMessageDto })
   @IsOptional()
   files?: AddFileToMessageDto[];
-
-  @ApiHideProperty()
-  @IsNotEmpty()
-  user: Record<string, any>;
 }
 
 export class SetTradeRateDto {
