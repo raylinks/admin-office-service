@@ -80,20 +80,16 @@ export class CryptoService {
     const assets = await lastValueFrom(
       this.walletClient.send({ cmd: 'assets.get' }, { service: 'admin' }),
     );
-    console.log(assets);
     const symbols = assets.map((asset) => asset.symbol);
-    console.log(symbols);
 
     const allRates = [];
     const rates = await lastValueFrom(
       this.walletClient.send({ cmd: 'tx_fees.get' }, { service: 'admin' }),
     );
-    console.log(rates);
 
     const buySellRates = rates.filter(
       (rate) => rate.event === 'BuyEvent' || rate.event === 'SellEvent',
     );
-    console.log(buySellRates);
 
     symbols.forEach((symbol) => {
       const rates = [];
