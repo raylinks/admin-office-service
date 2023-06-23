@@ -41,7 +41,7 @@ export class GiftcardController {
     return this.response.okResponse(res, 'fetched giftcard details', card);
   }
 
-  @Post('create')
+  @Post('new')
   async createCard(
     @GetAccount() profile: { userId: string },
     @Body() data: CreateGiftCardDto,
