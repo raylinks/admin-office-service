@@ -25,7 +25,7 @@ export class TradeService {
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-  ) { }
+  ) {}
 
   async approveDeclineTrade(operatorId: string, data: ApproveDeclineTradeDto) {
     const trade = await this.fetchTradeDetails(data.tradeId);
@@ -76,6 +76,11 @@ export class TradeService {
       this.giftcardClient.send('trade.details.get', id),
     );
     if (!trade) throw new BadRequestException('Trade does not exist');
+
+    if (trade.rate) {
+      const creditAmount = trade.quantity * trade.denomination * trade.rate;
+      Object.assign(trade, { creditAmount });
+    }
 
     return trade;
   }
