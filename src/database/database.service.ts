@@ -5,7 +5,8 @@ import { Connection, Pool } from 'mysql2/promise';
 export class DatabaseService {
   private logger = new Logger(DatabaseService.name);
 
-  constructor(@Inject('WALLET_DB_CONNECTION') private walletDb: Connection) { }
+  constructor(@Inject('WALLET_DB_CONNECTION') private walletDb: Connection,
+   @Inject('USER_DB_CONNECTION') private userServicePool: Pool) { }
 
   async getAssets() {
     const [assets] = await this.walletDb.query(`SELECT * FROM assets`);
