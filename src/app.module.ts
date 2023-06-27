@@ -19,7 +19,6 @@ import { HttpResponse } from './reponses/http.response';
     TradeModule,
     CryptoModule,
     FiatModule,
-     UserModule
   ],
   controllers: [AppController],
   providers: [AppService, HttpResponse],
