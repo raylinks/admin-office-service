@@ -5,9 +5,31 @@ import { ModuleRef } from '@nestjs/core';
 import { Pool, createConnection, createPool } from 'mysql2';
 import config from 'src/config';
 
+const walletService = async () => {
+  return createPool({
+    ...parseDbUrl(config.db.walletService),
+    waitForConnections: true,
+    connectionLimit: 15,
+  });
+};
+
+const userService = async () => {
+  return createPool({
+    ...parseDbUrl(config.db.userService),
+    waitForConnections: true,
+    connectionLimit: 15,
+  });
+};
+
+
 @Module({
   providers: [
     DatabaseService,
+  
+    {
+      provide: 'USER_DB_CONNECTION',
+      useFactory: userService,
+    },
     {
       provide: 'WALLET_DB_CONNECTION',
       useFactory: async () => {
@@ -32,5 +54,7 @@ export class DatabaseModule implements OnApplicationShutdown {
     this.logger.log(`Shutting down on signal ${signal}`);
     // const pool = this.moduleRef.get('WALLET_DB_CONNECTION') as Pool;
     // return pool.end();
+    const pool = this.moduleRef.get('USER_DB_CONNECTION') as Pool;
+    return pool.end();
   }
 }
