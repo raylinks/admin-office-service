@@ -11,6 +11,7 @@ import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import {
   ApproveDeclineTradeDto,
   CreateMessageDto,
+  ExternalTransactionActionDto,
   QueryMessageDto,
   QueryTradesDto,
   SetTradeRateDto,
@@ -25,7 +26,7 @@ export class TradeService {
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-  ) { }
+  ) {}
 
   async approveDeclineTrade(operatorId: string, data: ApproveDeclineTradeDto) {
     const trade = await this.fetchTradeDetails(data.tradeId);
@@ -37,14 +38,17 @@ export class TradeService {
     if (trade.status === 'CLOSED')
       throw new BadRequestException('Trade is already closed');
 
-    this.giftcardClient.emit(`trade.state.${data.status}`, data.tradeId);
+    this.giftcardClient.emit(
+      `trade.state.${data.status.toLowerCase()}`,
+      data.tradeId,
+    );
 
     if (data.status === 'approve')
       await this.approveTrade(operatorId, trade, data.comment);
     if (data.status === 'decline')
       await this.declineTrade(operatorId, trade, data.comment);
 
-    return trade;
+    return this.fetchTradeDetails(data.tradeId);
   }
 
   async closeTrade(operatorId: string, tradeId: string) {
@@ -146,9 +150,11 @@ export class TradeService {
         details: `Set trade as approved \n id: ${trade.id}`,
       },
     });
-    this.walletClient.emit('external-transaction-action', {
+    this.walletClient.emit('external-transaction-action', <
+      ExternalTransactionActionDto
+    >{
       thirdPartyTxId: trade.id,
-      status: 'INIT',
+      status: 'CONFIRMED',
       txType: 'GiftcardEvent',
       data: {
         note: comment || 'Giftcard trade approved',

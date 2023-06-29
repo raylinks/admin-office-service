@@ -141,13 +141,3 @@ export class GiftcardController {
     return this.response.okResponse(res, 'card receipt deleted successfully');
   }
 }
-
-// ApproveDeclineTrade(ctx *fiber.Ctx) error
-// CloseTrade(ctx *fiber.Ctx) error
-// CreateNewMessage(ctx *fiber.Ctx) error
-// DisableCard(ctx *fiber.Ctx) error
-// FetchTrade(ctx *fiber.Ctx) error
-// GetAllMessages(ctx *fiber.Ctx) error
-// ListChats(ctx *fiber.Ctx) error
-// ListTrades(ctx *fiber.Ctx) error
-// SetTradeRate(ctx *fiber.Ctx) error

@@ -11,6 +11,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUppercase,
 } from 'class-validator';
 import { OkResponseDto } from 'src/reponses/response.dto';
 
@@ -160,3 +161,19 @@ export class FetchAllTradesResponseDto extends PartialType(OkResponseDto) {
   })
   data: any;
 }
+
+export type TransactionTypeActionDto = {
+  symbol: string;
+  amount: number;
+  userId: string;
+  accountId?: string;
+  note?: string;
+};
+
+export type ExternalTransactionActionDto = {
+  thirdPartyTxId: string;
+  txType: string;
+  status: string;
+  data: TransactionTypeActionDto;
+  thirdPartyDetails?: any;
+};
