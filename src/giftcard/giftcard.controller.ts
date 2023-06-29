@@ -71,6 +71,17 @@ export class GiftcardController {
     );
   }
 
+  @Post('enable/:id')
+  async enableCard(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.enableCard(profile.userId, id);
+
+    return this.response.okResponse(res, 'giftcard enabled successfully', null);
+  }
+
   @Post('set-rate')
   async setDenominationRate(
     @GetAccount() profile: { userId: string },

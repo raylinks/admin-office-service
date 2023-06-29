@@ -11,7 +11,7 @@ export class GiftcardService {
   constructor(
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
-  ) { }
+  ) {}
 
   async createCard(operatorId: string, data: CreateGiftCardDto) {
     this.giftcardClient.emit('giftcard.create', data).pipe(timeout(5_000));
@@ -49,6 +49,18 @@ export class GiftcardService {
         action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
         operatorId,
         details: `Disabled giftcard \n id: ${cardId}`,
+      },
+    });
+  }
+
+  async enableCard(operatorId: string, cardId: string) {
+    this.giftcardClient.emit('giftcard.enable', cardId);
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
+        operatorId,
+        details: `Enabled giftcard \n id: ${cardId}`,
       },
     });
   }

@@ -25,7 +25,7 @@ export class TradeService {
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-  ) {}
+  ) { }
 
   async approveDeclineTrade(operatorId: string, data: ApproveDeclineTradeDto) {
     const trade = await this.fetchTradeDetails(data.tradeId);
@@ -104,7 +104,7 @@ export class TradeService {
       },
     });
 
-    return await this.fetchAllTradeMessages(trade.id);
+    return this.fetchAllTradeMessages(trade.id);
   }
 
   async fetchAllTradeMessages(tradeId: string, query?: QueryMessageDto) {
