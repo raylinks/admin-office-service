@@ -1,11 +1,12 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Response } from 'express';
 import { GetUsersDTO } from './dto/get-users.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { HttpResponse } from 'src/reponses/http.response';
 import { UserService } from './user.service';
 import { GetNairaWalletTransactionsDto } from './dto/get-naira-wallet-transactions.dto';
+import { UpdateAccountInformationDTO } from './dto/update-account-information.dto';
 
 @Controller('user')
 export class UserController {
@@ -16,9 +17,8 @@ export class UserController {
 
 
   @Get('/')
-  async fetchUsersDetails(@Res() res: Response,@Query() query: GetUsersDTO) {
-    const user =  await this.userService.index(query);
-     return this.response.okResponse(res, 'Fetched users successfully', user);
+  async fetchUsersDetails(@Query() query: GetUsersDTO) {
+    return await this.userService.index(query);
   }
 
    @Get('/:id')
@@ -38,5 +38,10 @@ export class UserController {
      @Query() query: GetNairaWalletTransactionsDto,
   ) {
     return await this.userService.userNairaWalletTransactions(query);
+  }
+
+   @Post('update/:id')
+  async updateUserInformation(@Param('id') id: string,  @Body() payload:  UpdateAccountInformationDTO) {
+    return  await this.userService.updateUserInformation(id,payload); 
   }
 }

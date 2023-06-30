@@ -12,36 +12,26 @@ export class UserService {
      constructor(
     @Inject('USER_DB_CONNECTION') private userDb: Db,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
+    @Inject(RMQ_NAMES.USERDATA_SERVICE) private userClient: ClientRMQ,
   ) {}
 
-    async index(query: GetUsersDTO) {
-       var pageLen: number, pageNo: number;
-      if (query.pageLen && query.pageNo) (pageLen = parseInt(query.pageLen)), (pageNo = parseInt(query.pageNo));
-      else throw new BadRequestException('Please provide pageNo and pageLen!')
-
-      const user = await this.userDb.collection('users').aggregate([ 
-        {
-          $lookup: {
-          from: "kyc",
-          localField: "id",
-          foreignField: "userId",
-          as: "kyc_details",
-        }
-      }
-    ]);
-
-      if(!user.toArray()){throw new BadRequestException('user not found')}
-
-        const users = await user.skip((pageNo - 1) * pageLen).limit(pageLen).toArray();
-
-    return users; 
+  async index(query: GetUsersDTO) {
+      try{
+      const users = await lastValueFrom(
+      this.userClient.send({ cmd:'admin.user'},query)
+    );
+       return users;
+    }
+    catch(error){
+    }
+ 
   }
 
   async getUserById(id: any) {
 
-       const user = await this.userDb.collection('users').find({_id: id});
+    const user = await this.userDb.collection('users').find({_id: id});
 
-      if(!user.toArray()){throw new BadRequestException('user not found')}
+    if(!user.toArray()){throw new BadRequestException('user not found')}
 
     return user.toArray(); 
   }
@@ -63,6 +53,16 @@ export class UserService {
       this.walletClient.send('admin.naira.transactions',query),
     );
        return balances;
+    }catch(error){
+    }
+  }
+
+   async updateUserInformation(id:any, payload) {
+    try{
+    const upatedInfo = await lastValueFrom(
+      this.userClient.send('admin.update.user-account',{id,payload})
+    );
+       return upatedInfo;
     }catch(error){
     }
   }
