@@ -18,6 +18,14 @@ import { HttpResponse } from 'src/reponses/http.response';
           queue: QUEUE_NAMES.FUREX_WALLET_QUEUE,
         },
       },
+      {
+        name: RMQ_NAMES.USERDATA_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: config.rmq.urls,
+          queue: QUEUE_NAMES.FUREX_USERDATA_QUEUE,
+        },
+      },
     ]),
   ],
   controllers: [UserController],
