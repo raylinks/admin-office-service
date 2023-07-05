@@ -7,13 +7,14 @@ import {
   EnableDisableCryptoAssetDto,
   QueryCryptoTransactionsDto,
   SetCryptoTransactionFeesDto,
+  SetCryptoFees,
+  TransactionEventType,
 } from './crypto.dto';
 
 @Injectable()
 export class CryptoService {
   constructor(
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-    @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     private prisma: PrismaClient,
   ) {}
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
@@ -97,15 +98,29 @@ export class CryptoService {
       if (rate.length > 0) {
         const sell = rate.find((rs) => rs.event === 'BuyEvent');
         const buy = rate.find((rb) => rb.event === 'SellEvent');
+        const withdrawal = rate.find(
+          (rw) => rw.event === 'CryptoWithdrawalEvent',
+        );
 
         rates.push({
-          sell: {
-            percentage: (sell && sell.feePercentage) || null,
-            flat: (sell && sell.feeFlat) || null,
+          sell: sell && {
+            id: sell.id,
+            percentage: sell.feePercentage || null,
+            flat: sell.feeFlat || null,
+            minAmount: sell.minAmount || null,
+            maxAmount: sell.maxAmount || null,
           },
-          buy: {
-            percentage: (buy && buy.feePercentage) || null,
-            flat: (buy && buy.feeFlat) || null,
+          buy: buy && {
+            percentage: buy.feePercentage || null,
+            flat: buy.feeFlat || null,
+            minAmount: buy.minAmount || null,
+            maxAmount: buy.maxAmount || null,
+          },
+          withdrawal: withdrawal && {
+            percentage: withdrawal.feePercentage || null,
+            flat: withdrawal.feeFlat || null,
+            minAmount: withdrawal.minAmount || null,
+            maxAmount: withdrawal.maxAmount || null,
           },
         });
       } else {
@@ -114,10 +129,20 @@ export class CryptoService {
           sell: {
             percentage: null,
             flat: null,
+            minAmount: null,
+            maxAmount: null,
           },
           buy: {
             percentage: null,
             flat: null,
+            minAmount: null,
+            maxAmount: null,
+          },
+          withdrawal: {
+            percentage: null,
+            flat: null,
+            minAmount: null,
+            maxAmount: null,
           },
         });
       }
@@ -130,10 +155,39 @@ export class CryptoService {
     return allRates;
   }
 
-  async setTransactionFees(
-    operatorId: string,
-    data: SetCryptoTransactionFeesDto,
-  ) {
+  async setBuySellRate(operatorId: string, data: SetCryptoTransactionFeesDto) {
+    await Promise.all([
+      this.setTransactionFees(operatorId, {
+        event: TransactionEventType.BuyEvent,
+        symbol: data.symbol,
+        feeFlat: data.buy.feeFlat,
+        maxAmount: data.buy.maxAmount,
+        minAmount: data.buy.minAmount,
+        feePercentage: data.buy.feePercentage,
+      }),
+      this.setTransactionFees(operatorId, {
+        event: TransactionEventType.SellEvent,
+        symbol: data.symbol,
+        feeFlat: data.sell.feeFlat,
+        maxAmount: data.sell.maxAmount,
+        minAmount: data.sell.minAmount,
+        feePercentage: data.sell.feePercentage,
+      }),
+    ]);
+  }
+
+  async setWithdrawalRate(operatorId: string, data: SetCryptoFees) {
+    await this.setTransactionFees(operatorId, {
+      event: TransactionEventType.SellEvent,
+      symbol: data.symbol,
+      feeFlat: data.feeFlat,
+      maxAmount: data.maxAmount,
+      minAmount: data.minAmount,
+      feePercentage: data.feePercentage,
+    });
+  }
+
+  async setTransactionFees(operatorId: string, data: SetCryptoFees) {
     this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
 
     await this.prisma.auditLog.create({

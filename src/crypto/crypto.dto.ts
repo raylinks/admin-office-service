@@ -1,4 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
@@ -48,7 +52,42 @@ export class EnableDisableCryptoAssetDto {
   type: CryptoAssetType;
 }
 
+export class SetFeeDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  minAmount?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  maxAmount?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  feeFlat?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  feePercentage?: number;
+}
+
 export class SetCryptoTransactionFeesDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  symbol: string;
+
+  @ApiProperty({ type: SetFeeDto })
+  buy: SetFeeDto;
+
+  @ApiProperty({ type: SetFeeDto })
+  sell: SetFeeDto;
+}
+
+export class SetCryptoFees {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -74,8 +113,6 @@ export class SetCryptoTransactionFeesDto {
   @IsNumber()
   feePercentage?: number;
 
-  @ApiProperty({ enum: TransactionEventType })
-  @IsEnum(TransactionEventType)
-  @IsNotEmpty()
+  @ApiHideProperty()
   event: TransactionEventType;
 }

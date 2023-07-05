@@ -16,6 +16,7 @@ import {
   CryptoAssetType,
   QueryCryptoTransactionsDto,
   SetCryptoTransactionFeesDto,
+  SetCryptoFees,
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
@@ -104,8 +105,21 @@ export class CryptoController {
     @Body() data: SetCryptoTransactionFeesDto,
     @Res() res: Response,
   ) {
-    await this.cryptoService.setTransactionFees(profile.userId, data);
+    await this.cryptoService.setBuySellRate(profile.userId, data);
     return this.response.okResponse(res, 'Crypto rate set successfully');
+  }
+
+  @Put('set-withdrawal-rate')
+  async setWithdrawalRate(
+    @GetAccount() profile: { userId: string },
+    @Body() data: SetCryptoFees,
+    @Res() res: Response,
+  ) {
+    await this.cryptoService.setTransactionFees(profile.userId, data);
+    return this.response.okResponse(
+      res,
+      'Crypto Withdrawal rate set successfully',
+    );
   }
 
   @Get('rates')
