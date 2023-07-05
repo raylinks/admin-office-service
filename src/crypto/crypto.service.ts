@@ -111,12 +111,14 @@ export class CryptoService {
             maxAmount: sell.maxAmount || null,
           },
           buy: buy && {
+            id: buy.id,
             percentage: buy.feePercentage || null,
             flat: buy.feeFlat || null,
             minAmount: buy.minAmount || null,
             maxAmount: buy.maxAmount || null,
           },
           withdrawal: withdrawal && {
+            id: withdrawal.id,
             percentage: withdrawal.feePercentage || null,
             flat: withdrawal.feeFlat || null,
             minAmount: withdrawal.minAmount || null,
