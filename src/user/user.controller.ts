@@ -44,4 +44,19 @@ export class UserController {
   async updateUserInformation(@Param('id') id: string,  @Body() payload:  UpdateAccountInformationDTO) {
     return  await this.userService.updateUserInformation(id,payload); 
   }
+
+   @Post('delete/:id')
+  async deleteUserAccount(@Param('id') id: string) {
+    return  await this.userService.deleteUserAccount(id); 
+  }
+
+   @Post('blacklist/:id')
+  async blacklistUserAccount(@Param('id') id: string) {
+    return  await this.userService.blacklistUserAccount(id); 
+  }
+
+   @Post('disable/2fa/:id')
+  async disable2FA(@Param('id') id: string) {
+    return  await this.userService.disable2FA(id); 
+  }
 }

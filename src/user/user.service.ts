@@ -57,12 +57,42 @@ export class UserService {
     }
   }
 
-   async updateUserInformation(id:any, payload) {
+   async updateUserInformation(id:string, payload) {
     try{
     const upatedInfo = await lastValueFrom(
       this.userClient.send('admin.update.user-account',{id,payload})
     );
        return upatedInfo;
+    }catch(error){
+    }
+  }
+
+  async deleteUserAccount(id:string) {
+    try{
+    const deletedUser = await lastValueFrom(
+      this.userClient.send('admin.delete.user-account',{id})
+    );
+       return deletedUser;
+    }catch(error){
+    }
+  }
+
+   async blacklistUserAccount(id:string) {
+    try{
+    const blacklistedUser = await lastValueFrom(
+      this.userClient.send('admin.blacklist.user-account',{id})
+    );
+       return blacklistedUser;
+    }catch(error){
+    }
+  }
+
+  async disable2FA(id:string) {
+    try{
+    const disabledUser2FA = await lastValueFrom(
+      this.userClient.send('admin.disable.2fa',{id})
+    );
+       return disabledUser2FA;
     }catch(error){
     }
   }
