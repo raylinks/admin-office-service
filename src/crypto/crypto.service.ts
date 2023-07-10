@@ -180,7 +180,7 @@ export class CryptoService {
 
   async setWithdrawalRate(operatorId: string, data: SetCryptoFees) {
     await this.setTransactionFees(operatorId, {
-      event: TransactionEventType.SellEvent,
+      event: TransactionEventType.CryptoWithdrawalEvent,
       symbol: data.symbol,
       feeFlat: data.feeFlat,
       maxAmount: data.maxAmount,
