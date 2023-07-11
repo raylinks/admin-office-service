@@ -7,6 +7,8 @@ import { HttpResponse } from 'src/reponses/http.response';
 import { UserService } from './user.service';
 import { GetNairaWalletTransactionsDto } from './dto/get-naira-wallet-transactions.dto';
 import { UpdateAccountInformationDTO } from './dto/update-account-information.dto';
+import { QueryTransactionsDto } from './dto/query-transactions.dto';
+import { TransactionAssetSymbolDto } from './dto/transaction-asset-symbol.dto';
 
 @Controller('user')
 export class UserController {
@@ -33,11 +35,13 @@ export class UserController {
      return this.response.okResponse(res, 'Fetched user balance successfully', user);
   }
 
-   @Get('nairawallet/transactions')
-  async getNairaWalletTransactions(
-     @Query() query: GetNairaWalletTransactionsDto,
+   @Get('wallet/transactions/:id')
+  async getWalletTransactions(
+    @Param('id') id: string,
+    @Body() payload:  TransactionAssetSymbolDto,
+    @Query() query: QueryTransactionsDto,
   ) {
-    return await this.userService.userNairaWalletTransactions(query);
+    return await this.userService.userWalletTransactions(id,payload,query);
   }
 
    @Post('update/:id')

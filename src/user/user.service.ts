@@ -46,13 +46,12 @@ export class UserService {
     }
   }
 
-  async userNairaWalletTransactions(query) {
+  async userWalletTransactions(id:string, payload, query) {
     try{
-      console.log("here");
-    const balances = await lastValueFrom(
-      this.walletClient.send('admin.naira.transactions',query),
+    const userTransaction = await lastValueFrom(
+      this.walletClient.send('admin.transaction',{id,payload,query})
     );
-       return balances;
+       return userTransaction;
     }catch(error){
     }
   }
@@ -96,5 +95,4 @@ export class UserService {
     }catch(error){
     }
   }
-
 }
