@@ -96,8 +96,8 @@ export class CryptoService {
       const rates = [];
       const rate = buySellRates.filter((r) => r.symbol === symbol);
       if (rate.length > 0) {
-        const sell = rate.find((rs) => rs.event === 'BuyEvent');
-        const buy = rate.find((rb) => rb.event === 'SellEvent');
+        const sell = rate.find((rs) => rs.event === 'SellEvent');
+        const buy = rate.find((rb) => rb.event === 'BuyEvent');
         const withdrawal = rate.find(
           (rw) => rw.event === 'CryptoWithdrawalEvent',
         );
