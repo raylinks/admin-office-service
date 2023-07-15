@@ -76,10 +76,10 @@ export class UserService {
     }
   }
 
-   async blacklistUserAccount(id:string) {
+   async blacklistUserAccount(id:string,payload) {
     try{
     const blacklistedUser = await lastValueFrom(
-      this.userClient.send('admin.blacklist.user-account',{id})
+      this.userClient.send('admin.blacklist.user-account',{id,payload})
     );
        return blacklistedUser;
     }catch(error){

@@ -9,6 +9,7 @@ import { GetNairaWalletTransactionsDto } from './dto/get-naira-wallet-transactio
 import { UpdateAccountInformationDTO } from './dto/update-account-information.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { TransactionAssetSymbolDto } from './dto/transaction-asset-symbol.dto';
+import { BlacklistUserDTO } from './dto/blacklist-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -55,8 +56,8 @@ export class UserController {
   }
 
    @Post('blacklist/:id')
-  async blacklistUserAccount(@Param('id') id: string) {
-    return  await this.userService.blacklistUserAccount(id); 
+  async blacklistUserAccount(@Param('id') id: string, @Body() payload:BlacklistUserDTO) {
+    return  await this.userService.blacklistUserAccount(id,payload); 
   }
 
    @Post('disable/2fa/:id')
