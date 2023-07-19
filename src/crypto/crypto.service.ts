@@ -194,9 +194,9 @@ export class CryptoService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AUDIT_ACTIONS.ENABLE_CRYPTO,
+        action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
         operatorId,
-        details: `${data.symbol} rate set by ${operatorId}`,
+        details: `${data.symbol} fee set by ${operatorId}`,
       },
     });
   }
