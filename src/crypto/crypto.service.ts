@@ -190,6 +190,7 @@ export class CryptoService {
   }
 
   async setTransactionFees(operatorId: string, data: SetCryptoFees) {
+    data.event = TransactionEventType.CryptoWithdrawalEvent;
     this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
 
     await this.prisma.auditLog.create({
