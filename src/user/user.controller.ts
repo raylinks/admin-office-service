@@ -20,8 +20,9 @@ export class UserController {
 
 
   @Get('/')
-  async fetchUsersDetails(@Query() query: GetUsersDTO) {
-    return await this.userService.index(query);
+  async fetchUsersDetails(@Query() query: GetUsersDTO,@Res() res: Response) {
+    const users = await this.userService.index(query);
+     return this.response.okResponse(res, 'Fetched users successfully', users);
   }
 
    @Get('/:id')
@@ -41,27 +42,33 @@ export class UserController {
     @Param('id') id: string,
     @Body() payload:  TransactionAssetSymbolDto,
     @Query() query: QueryTransactionsDto,
+    @Res() res: Response
   ) {
-    return await this.userService.userWalletTransactions(id,payload,query);
+    const userWallet =  await this.userService.userWalletTransactions(id,payload,query);
+    return this.response.okResponse(res, 'Fetched user wallet successfully', userWallet);
   }
 
    @Post('update/:id')
-  async updateUserInformation(@Param('id') id: string,  @Body() payload:  UpdateAccountInformationDTO) {
-    return  await this.userService.updateUserInformation(id,payload); 
+  async updateUserInformation(@Res() res: Response,@Param('id') id: string,  @Body() payload:  UpdateAccountInformationDTO) {
+    const updatedUserInformation = await this.userService.updateUserInformation(id,payload); 
+     return this.response.okResponse(res, 'User information updated successfully', updatedUserInformation);
   }
 
    @Post('delete/:id')
-  async deleteUserAccount(@Param('id') id: string) {
-    return  await this.userService.deleteUserAccount(id); 
+  async deleteUserAccount(@Res() res: Response, @Param('id') id: string) {
+    const deletedUser = await this.userService.deleteUserAccount(id); 
+     return this.response.okResponse(res, 'User deleted successfully', deletedUser);
   }
 
    @Post('blacklist/:id')
-  async blacklistUserAccount(@Param('id') id: string, @Body() payload:BlacklistUserDTO) {
-    return  await this.userService.blacklistUserAccount(id,payload); 
+  async blacklistUserAccount(@Res() res: Response,@Param('id') id: string, @Body() payload:BlacklistUserDTO) {
+    const blacklist = await this.userService.blacklistUserAccount(id,payload); 
+    return this.response.okResponse(res, 'User blacklisted successfully', blacklist);
   }
 
    @Post('disable/2fa/:id')
-  async disable2FA(@Param('id') id: string) {
-    return  await this.userService.disable2FA(id); 
+  async disable2FA(@Res() res: Response,@Param('id') id: string) {
+    const disable2FA = await this.userService.disable2FA(id); 
+     return this.response.okResponse(res, 'User 2FA disabled successfully', disable2FA);
   }
 }
