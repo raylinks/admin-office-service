@@ -36,6 +36,19 @@ export class UserService {
     return user.toArray(); 
   }
 
+  async exportUsers() {
+      try{
+      const exportedUsers = await lastValueFrom(
+      this.userClient.send('admin.user.export', true)
+    );
+       return exportedUsers;
+    }
+    catch(error){
+   
+    }
+ 
+  }
+
   async usersBalance(userId: string) {
     try{
     const balances = await lastValueFrom(

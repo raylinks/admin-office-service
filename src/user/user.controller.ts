@@ -31,13 +31,19 @@ export class UserController {
      return this.response.okResponse(res, 'Fetched user successfully', user);
   }
 
+  @Get('/export/users')
+  async exportUsers(@Query() query: GetUsersDTO,@Res() res: Response) {
+    const exportedUsers = await this.userService.exportUsers();
+     return this.response.okResponse(res, 'Users exported successfully', exportedUsers);
+  }
+
    @Get('balance/:id')
   async fetchUserBalance(@Res() res: Response, @Param('id') id: string) {
     const user =  await this.userService.usersBalance(id); 
      return this.response.okResponse(res, 'Fetched user balance successfully', user);
   }
 
-   @Get('wallet/transactions/:id')
+   @Post('wallet/transactions/:id')
   async getWalletTransactions(
     @Param('id') id: string,
     @Body() payload:  TransactionAssetSymbolDto,
