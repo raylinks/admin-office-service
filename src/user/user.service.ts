@@ -129,4 +129,14 @@ export class UserService {
     }catch(error){
     }
   }
+
+   async flagTransaction(id:string,payload) {
+    try{
+    const flaggedTransaction = await lastValueFrom(
+      this.walletClient.send('admin.flag.transaction',{id,payload})
+    );
+       return flaggedTransaction;
+    }catch(error){
+    }
+  }
 }
