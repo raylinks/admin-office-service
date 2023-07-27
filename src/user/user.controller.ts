@@ -10,6 +10,8 @@ import { UpdateAccountInformationDTO } from './dto/update-account-information.dt
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { TransactionAssetSymbolDto } from './dto/transaction-asset-symbol.dto';
 import { BlacklistUserDTO } from './dto/blacklist-user.dto';
+import { PassThrough } from 'stream';
+import { ExportDataDto } from './dto/export-data.dto';
 
 @Controller('user')
 export class UserController {
@@ -31,10 +33,50 @@ export class UserController {
      return this.response.okResponse(res, 'Fetched user successfully', user);
   }
 
-  @Get('/export/users')
-  async exportUsers(@Query() query: GetUsersDTO,@Res() res: Response) {
-    const exportedUsers = await this.userService.exportUsers();
-     return this.response.okResponse(res, 'Users exported successfully', exportedUsers);
+  @Post('/export/users')
+  async exportUsers(@Body() payload:  ExportDataDto,@Res() res: Response) {
+     const buffer =  await this.userService.exportUsers(payload);
+
+     const fileName = `furex_${Date.now()}.csv`;
+        
+        const readStream = new PassThrough();
+        readStream.end(buffer);
+     res.set({
+          'Content-Type': 'application/csv',
+          'Content-disposition': `attachment; filename=${fileName}`,
+          'Content-Length': buffer.length,
+        });
+          readStream.pipe(res);
+  }
+
+  @Post('/export/fiat-assets')
+  async exportFiatAssets(@Body() payload:  ExportDataDto,@Res() res: Response) {
+     const buffer =  await this.userService.exportFiatAssets(payload);
+
+     const fileName = `furex_${Date.now()}.csv`;
+        
+        const readStream = new PassThrough();
+        readStream.end(buffer);
+     res.set({
+          'Content-Type': 'text/csv',
+          'Content-disposition': `attachment; filename=${fileName}`,
+        });
+          readStream.pipe(res);
+  }
+
+  @Post('/export/crypto-assets')
+  async exportCryptoAssets(@Body() payload:  ExportDataDto,@Res() res: Response) {
+     const buffer =  await this.userService.exportCryptoAssets(payload);
+
+     const fileName = `furex_${Date.now()}.csv`;
+        
+        const readStream = new PassThrough();
+        readStream.end(buffer);
+     res.set({
+          'Content-Type': 'application/csv',
+          'Content-disposition': `attachment; filename=${fileName}`,
+        });
+          readStream.pipe(res);
   }
 
    @Get('balance/:id')

@@ -5,6 +5,7 @@ import { RMQ_NAMES } from 'src/utils/constants';
 import { Db } from 'mongodb';
 import { GetUsersDTO } from './dto/get-users.dto';
 import { lastValueFrom } from 'rxjs';
+import { ExportDataDto } from './dto/export-data.dto';
 
 @Injectable()
 export class UserService {
@@ -36,12 +37,38 @@ export class UserService {
     return user.toArray(); 
   }
 
-  async exportUsers() {
+  async exportUsers(payload:ExportDataDto) {
       try{
       const exportedUsers = await lastValueFrom(
-      this.userClient.send('admin.user.export', true)
+      this.userClient.send('admin.user.export', payload)
     );
        return exportedUsers;
+    }
+    catch(error){
+   
+    }
+ 
+  }
+
+  async exportFiatAssets(payload:ExportDataDto) {
+      try{
+      const exportedFiatAssets = await lastValueFrom(
+      this.walletClient.send('admin.export.fiat', payload)
+    );
+       return exportedFiatAssets;
+    }
+    catch(error){
+   
+    }
+ 
+  }
+
+  async exportCryptoAssets(payload:ExportDataDto) {
+      try{
+      const exportedCryptoAssets = await lastValueFrom(
+      this.walletClient.send('admin.export.crypto', payload)
+    );
+       return exportedCryptoAssets;
     }
     catch(error){
    
