@@ -7,22 +7,11 @@ export enum Exportype {
 }
 
 export class ExportDataDto {
- 
-//   @ApiProperty({
-//     type: String,
-//     example: Exportype,
-//      enum: Exportype,
-//     required: true,
-//   })
-//   @IsNotEmpty()
-//   @IsEnum(Exportype, { message: 'payload must be a valid type' })
-//   type: string;
- 
 
   @ApiProperty({
     type: String,
     example: Exportype,
   })
-   @IsNotEmpty()
+  @IsNotEmpty()
   type: string;
 }

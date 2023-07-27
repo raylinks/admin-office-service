@@ -45,9 +45,7 @@ export class UserService {
        return exportedUsers;
     }
     catch(error){
-   
     }
- 
   }
 
   async exportFiatAssets(payload:ExportDataDto) {
@@ -58,9 +56,7 @@ export class UserService {
        return exportedFiatAssets;
     }
     catch(error){
-   
     }
- 
   }
 
   async exportCryptoAssets(payload:ExportDataDto) {
@@ -71,9 +67,7 @@ export class UserService {
        return exportedCryptoAssets;
     }
     catch(error){
-   
     }
- 
   }
 
   async usersBalance(userId: string) {

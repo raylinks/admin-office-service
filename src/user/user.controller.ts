@@ -42,7 +42,7 @@ export class UserController {
         const readStream = new PassThrough();
         readStream.end(buffer);
      res.set({
-          'Content-Type': 'application/csv',
+          'Content-Type': 'text/csv',
           'Content-disposition': `attachment; filename=${fileName}`,
           'Content-Length': buffer.length,
         });
@@ -73,7 +73,7 @@ export class UserController {
         const readStream = new PassThrough();
         readStream.end(buffer);
      res.set({
-          'Content-Type': 'application/csv',
+          'Content-Type': 'text/csv',
           'Content-disposition': `attachment; filename=${fileName}`,
         });
           readStream.pipe(res);
