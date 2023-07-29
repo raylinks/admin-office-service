@@ -82,10 +82,14 @@ export class QueryTradesDto {
   @ApiPropertyOptional()
   @IsOptional()
   cardType?: string;
-
   @ApiPropertyOptional()
-  @IsOptional()
-  receiptType?: string;
+  userId?: string;
+  @ApiPropertyOptional()
+  from?: Date;
+  @ApiPropertyOptional()
+  to?: Date;
+  @ApiPropertyOptional()
+  tradeId?: string;
 }
 
 export class QueryMessageDto {
