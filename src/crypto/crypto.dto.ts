@@ -58,6 +58,10 @@ export class QueryCryptoTransactionsDto {
   amount?: number;
   @ApiPropertyOptional()
   pairSwap?: string;
+  @ApiPropertyOptional({
+    enum: TransactionEventType,
+  })
+  event?: TransactionEventType;
 }
 
 export class EnableDisableCryptoAssetDto {
