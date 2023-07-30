@@ -9,6 +9,7 @@ import { CryptoModule } from './crypto/crypto.module';
 import { HttpModule } from '@nestjs/axios';
 import { FiatModule } from './fiat/fiat.module';
 import { HttpResponse } from './reponses/http.response';
+import { BannerModule } from './banner/banner.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { HttpResponse } from './reponses/http.response';
     TradeModule,
     CryptoModule,
     FiatModule,
+    BannerModule,
   ],
   controllers: [AppController],
   providers: [AppService, HttpResponse],
