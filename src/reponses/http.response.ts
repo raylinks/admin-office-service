@@ -2,7 +2,11 @@ import { HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 
 export class HttpResponse {
-  createdResponse(res: Response, data: any, message: string) {
+  createdResponse(
+    res: Response,
+    message: string,
+    data?: Record<string, unknown>,
+  ) {
     return res.status(HttpStatus.CREATED).send({
       success: true,
       statusCode: HttpStatus.CREATED,
