@@ -1,4 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export enum ETransactionType {
   NGN = 'NGN',
@@ -14,6 +15,7 @@ export class TransactionAssetSymbolDto {
     type: String,
     example: ETransactionType,
   })
+   @IsNotEmpty()
   assetSymbol: string;
  
 }

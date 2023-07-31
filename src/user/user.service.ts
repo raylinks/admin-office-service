@@ -28,13 +28,15 @@ export class UserService {
  
   }
 
-  async getUserById(id: any) {
-
-    const user = await this.userDb.collection('users').find({_id: id});
-
-    if(!user.toArray()){throw new BadRequestException('user not found')}
-
-    return user.toArray(); 
+  async getUserById(id: string) {
+    try{
+      const user = await lastValueFrom(
+      this.userClient.send('admin.account.id',{id})
+    );
+       return user;
+    }
+    catch(error){
+    }
   }
 
   async exportUsers(payload:ExportDataDto) {
@@ -136,6 +138,16 @@ export class UserService {
       this.walletClient.send('admin.flag.transaction',{id,payload})
     );
        return flaggedTransaction;
+    }catch(error){
+    }
+  }
+
+  async getTransactionId(id:string) {
+    try{
+    const transaction = await lastValueFrom(
+      this.walletClient.send('admin.transaction.id',{id})
+    );
+       return transaction;
     }catch(error){
     }
   }

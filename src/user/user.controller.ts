@@ -86,6 +86,12 @@ export class UserController {
      return this.response.okResponse(res, 'Fetched user balance successfully', user);
   }
 
+   @Get('transaction/:id')
+  async getTransactionById(@Res() res: Response, @Param('id') id: string) {
+    const transaction =  await this.userService.getTransactionId(id); 
+     return this.response.okResponse(res, 'Fetched transaction details successfully', transaction);
+  }
+
    @Post('wallet/transactions/:id')
   async getWalletTransactions(
     @Param('id') id: string,
@@ -126,4 +132,6 @@ export class UserController {
     const flaggedTransaction = await this.userService.flagTransaction(id,payload); 
     return this.response.okResponse(res, 'Transaction  flagged successfully', flaggedTransaction);
   }
+
+
 }
