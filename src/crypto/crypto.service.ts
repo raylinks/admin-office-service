@@ -78,23 +78,28 @@ export class CryptoService {
   }
 
   async fetchRates() {
-    const assets = await lastValueFrom(
-      this.walletClient.send({ cmd: 'assets.get' }, { service: 'admin' }),
-    );
-    const symbols = assets.map((asset) => asset.symbol);
-
     const allRates = [];
-    const rates = await lastValueFrom(
-      this.walletClient.send({ cmd: 'tx_fees.get' }, { service: 'admin' }),
-    );
 
-    const buySellRates = rates.filter(
-      (rate) => rate.event === 'BuyEvent' || rate.event === 'SellEvent',
+    const [assets, rates] = await Promise.all([
+      lastValueFrom(
+        this.walletClient.send({ cmd: 'assets.get' }, { service: 'admin' }),
+      ) as Promise<any[]>,
+      lastValueFrom(
+        this.walletClient.send({ cmd: 'tx_fees.get' }, { service: 'admin' }),
+      ) as Promise<any[]>,
+    ]);
+
+    const symbols = assets.map((asset) => asset.symbol);
+    const eventRates = rates.filter(
+      (rate) =>
+        rate.event === 'BuyEvent' ||
+        rate.event === 'SellEvent' ||
+        rate.event === 'CryptoWithdrawalEvent',
     );
 
     symbols.forEach((symbol) => {
       const rates = [];
-      const rate = buySellRates.filter((r) => r.symbol === symbol);
+      const rate = eventRates.filter((r) => r.symbol === symbol);
       if (rate.length > 0) {
         const sell = rate.find((rs) => rs.event === 'SellEvent');
         const buy = rate.find((rb) => rb.event === 'BuyEvent');
