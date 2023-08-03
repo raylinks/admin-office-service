@@ -110,24 +110,24 @@ export class CryptoService {
         rates.push({
           sell: sell && {
             id: sell.id,
-            percentage: sell.feePercentage || null,
-            flat: sell.feeFlat || null,
-            minAmount: sell.minAmount || null,
-            maxAmount: sell.maxAmount || null,
+            percentage: sell.feePercentage,
+            flat: sell.feeFlat,
+            minAmount: sell.minAmount,
+            maxAmount: sell.maxAmount,
           },
           buy: buy && {
             id: buy.id,
-            percentage: buy.feePercentage || null,
-            flat: buy.feeFlat || null,
-            minAmount: buy.minAmount || null,
-            maxAmount: buy.maxAmount || null,
+            percentage: buy.feePercentage,
+            flat: buy.feeFlat,
+            minAmount: buy.minAmount,
+            maxAmount: buy.maxAmount,
           },
           withdrawal: withdrawal && {
             id: withdrawal.id,
-            percentage: withdrawal.feePercentage || null,
-            flat: withdrawal.feeFlat || null,
-            minAmount: withdrawal.minAmount || null,
-            maxAmount: withdrawal.maxAmount || null,
+            percentage: withdrawal.feePercentage,
+            flat: withdrawal.feeFlat,
+            minAmount: withdrawal.minAmount,
+            maxAmount: withdrawal.maxAmount,
           },
         });
       } else {
@@ -195,7 +195,6 @@ export class CryptoService {
   }
 
   async setTransactionFees(operatorId: string, data: SetCryptoFees) {
-    data.event = TransactionEventType.CryptoWithdrawalEvent;
     this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
 
     await this.prisma.auditLog.create({
