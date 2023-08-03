@@ -115,7 +115,7 @@ export class CryptoController {
     @Body() data: SetCryptoFees,
     @Res() res: Response,
   ) {
-    await this.cryptoService.setTransactionFees(profile.userId, data);
+    await this.cryptoService.setWithdrawalRate(profile.userId, data);
     return this.response.okResponse(
       res,
       'Crypto Withdrawal rate set successfully',
