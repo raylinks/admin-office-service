@@ -16,122 +16,176 @@ import { FlagTransactionDTO } from './dto/flag-transaction.dto';
 
 @Controller('user')
 export class UserController {
-   constructor(
+  constructor(
     private readonly userService: UserService,
-       private response: HttpResponse,
-     ) {}
-
+    private response: HttpResponse,
+  ) {}
 
   @Get('/')
-  async fetchUsersDetails(@Query() query: GetUsersDTO,@Res() res: Response) {
+  async fetchUsersDetails(@Query() query: GetUsersDTO, @Res() res: Response) {
     const users = await this.userService.index(query);
-     return this.response.okResponse(res, 'Fetched users successfully', users);
+    return this.response.okResponse(res, 'Fetched users successfully', users);
   }
 
-   @Get('/:id')
+  @Get('/:id')
   async fetchUsersDetailsById(@Res() res: Response, @Param('id') id: string) {
-    const user =  await this.userService.getUserById(id);
-     return this.response.okResponse(res, 'Fetched user successfully', user);
+    const user = await this.userService.getUserById(id);
+    return this.response.okResponse(res, 'Fetched user successfully', user);
   }
 
   @Post('/export/users')
-  async exportUsers(@Body() payload:  ExportDataDto,@Res() res: Response) {
-     const buffer =  await this.userService.exportUsers(payload);
+  async exportUsers(@Body() payload: ExportDataDto, @Res() res: Response) {
+    const buffer = await this.userService.exportUsers(payload);
 
-     const fileName = `furex_${Date.now()}.csv`;
-        
-        const readStream = new PassThrough();
-        readStream.end(buffer);
-     res.set({
-          'Content-Type': 'text/csv',
-          'Content-disposition': `attachment; filename=${fileName}`,
-          'Content-Length': buffer.length,
-        });
-          readStream.pipe(res);
+    const fileName = `furex_${Date.now()}.csv`;
+
+    const readStream = new PassThrough();
+    readStream.end(buffer);
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-disposition': `attachment; filename=${fileName}`,
+      'Content-Length': buffer.length,
+    });
+    readStream.pipe(res);
   }
 
   @Post('/export/fiat-assets')
-  async exportFiatAssets(@Body() payload:  ExportDataDto,@Res() res: Response) {
-     const buffer =  await this.userService.exportFiatAssets(payload);
+  async exportFiatAssets(@Body() payload: ExportDataDto, @Res() res: Response) {
+    const buffer = await this.userService.exportFiatAssets(payload);
 
-     const fileName = `furex_${Date.now()}.csv`;
-        
-        const readStream = new PassThrough();
-        readStream.end(buffer);
-     res.set({
-          'Content-Type': 'text/csv',
-          'Content-disposition': `attachment; filename=${fileName}`,
-        });
-          readStream.pipe(res);
+    const fileName = `furex_${Date.now()}.csv`;
+
+    const readStream = new PassThrough();
+    readStream.end(buffer);
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-disposition': `attachment; filename=${fileName}`,
+    });
+    readStream.pipe(res);
   }
 
   @Post('/export/crypto-assets')
-  async exportCryptoAssets(@Body() payload:  ExportDataDto,@Res() res: Response) {
-     const buffer =  await this.userService.exportCryptoAssets(payload);
+  async exportCryptoAssets(
+    @Body() payload: ExportDataDto,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.userService.exportCryptoAssets(payload);
 
-     const fileName = `furex_${Date.now()}.csv`;
-        
-        const readStream = new PassThrough();
-        readStream.end(buffer);
-     res.set({
-          'Content-Type': 'text/csv',
-          'Content-disposition': `attachment; filename=${fileName}`,
-        });
-          readStream.pipe(res);
+    const fileName = `furex_${Date.now()}.csv`;
+
+    const readStream = new PassThrough();
+    readStream.end(buffer);
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-disposition': `attachment; filename=${fileName}`,
+    });
+    readStream.pipe(res);
   }
 
-   @Get('balance/:id')
+  @Get('balance/:id')
   async fetchUserBalance(@Res() res: Response, @Param('id') id: string) {
-    const user =  await this.userService.usersBalance(id); 
-     return this.response.okResponse(res, 'Fetched user balance successfully', user);
+    const user = await this.userService.usersBalance(id);
+    return this.response.okResponse(
+      res,
+      'Fetched user balance successfully',
+      user,
+    );
   }
 
-   @Get('transaction/:id')
+  @Get('transaction/:id')
   async getTransactionById(@Res() res: Response, @Param('id') id: string) {
-    const transaction =  await this.userService.getTransactionId(id); 
-     return this.response.okResponse(res, 'Fetched transaction details successfully', transaction);
+    const transaction = await this.userService.getTransactionId(id);
+    return this.response.okResponse(
+      res,
+      'Fetched transaction details successfully',
+      transaction,
+    );
   }
 
-   @Post('wallet/transactions/:id')
+  @Post('wallet/transactions/:id')
   async getWalletTransactions(
     @Param('id') id: string,
-    @Body() payload:  TransactionAssetSymbolDto,
+    @Body() payload: TransactionAssetSymbolDto,
     @Query() query: QueryTransactionsDto,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
-    const userWallet =  await this.userService.userWalletTransactions(id,payload,query);
-    return this.response.okResponse(res, 'Fetched user wallet successfully', userWallet);
+    const userWallet = await this.userService.userWalletTransactions(
+      id,
+      payload,
+      query,
+    );
+    return this.response.okResponse(
+      res,
+      'Fetched user wallet successfully',
+      userWallet,
+    );
   }
 
-   @Post('update/:id')
-  async updateUserInformation(@Res() res: Response,@Param('id') id: string,  @Body() payload:  UpdateAccountInformationDTO) {
-    const updatedUserInformation = await this.userService.updateUserInformation(id,payload); 
-     return this.response.okResponse(res, 'User information updated successfully', updatedUserInformation);
+  @Post('update/:id')
+  async updateUserInformation(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() payload: UpdateAccountInformationDTO,
+  ) {
+    const updatedUserInformation = await this.userService.updateUserInformation(
+      id,
+      payload,
+    );
+    return this.response.okResponse(
+      res,
+      'User information updated successfully',
+      updatedUserInformation,
+    );
   }
 
-   @Post('delete/:id')
+  @Post('delete/:id')
   async deleteUserAccount(@Res() res: Response, @Param('id') id: string) {
-    const deletedUser = await this.userService.deleteUserAccount(id); 
-     return this.response.okResponse(res, 'User deleted successfully', deletedUser);
+    const deletedUser = await this.userService.deleteUserAccount(id);
+    return this.response.okResponse(
+      res,
+      'User deleted successfully',
+      deletedUser,
+    );
   }
 
-   @Post('blacklist/:id')
-  async blacklistUserAccount(@Res() res: Response,@Param('id') id: string, @Body() payload:BlacklistUserDTO) {
-    const blacklist = await this.userService.blacklistUserAccount(id,payload); 
-    return this.response.okResponse(res, 'User blacklisted successfully', blacklist);
+  @Post('blacklist/:id')
+  async blacklistUserAccount(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() payload: BlacklistUserDTO,
+  ) {
+    const blacklist = await this.userService.blacklistUserAccount(id, payload);
+    return this.response.okResponse(
+      res,
+      'User blacklisted successfully',
+      blacklist,
+    );
   }
 
-   @Post('disable/2fa/:id')
-  async disable2FA(@Res() res: Response,@Param('id') id: string) {
-    const disable2FA = await this.userService.disable2FA(id); 
-     return this.response.okResponse(res, 'User 2FA disabled successfully', disable2FA);
+  @Post('disable/2fa/:id')
+  async disable2FA(@Res() res: Response, @Param('id') id: string) {
+    const disable2FA = await this.userService.disable2FA(id);
+    return this.response.okResponse(
+      res,
+      'User 2FA disabled successfully',
+      disable2FA,
+    );
   }
 
   @Post('flag/transaction/:id')
-  async flagTransaction(@Res() res: Response,@Param('id') id: string, @Body() payload:FlagTransactionDTO) {
-    const flaggedTransaction = await this.userService.flagTransaction(id,payload); 
-    return this.response.okResponse(res, 'Transaction  flagged successfully', flaggedTransaction);
+  async flagTransaction(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() payload: FlagTransactionDTO,
+  ) {
+    const flaggedTransaction = await this.userService.flagTransaction(
+      id,
+      payload,
+    );
+    return this.response.okResponse(
+      res,
+      'Transaction  flagged successfully',
+      flaggedTransaction,
+    );
   }
-
-
 }
