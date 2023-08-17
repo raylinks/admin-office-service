@@ -6,7 +6,7 @@ export enum FlagAction {
   UNFLAG = 0,
 }
 
-export class FlagTransactionDto {
+export class FlagTransactionDTO {
   @ApiProperty({
     type: String,
   })
