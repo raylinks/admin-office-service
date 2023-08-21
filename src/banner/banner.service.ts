@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientRMQ } from '@nestjs/microservices';
-import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
+import { ClientProxy } from '@nestjs/microservices';
+import { RMQ_NAMES } from 'src/utils/constants';
 import { CreateBannerDto } from './banner.dto';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class BannerService {
   constructor(
-    @Inject(RMQ_NAMES.USERDATA_SERVICE) private userClient: ClientRMQ,
+    @Inject(RMQ_NAMES.USERDATA_SERVICE) private userClient: ClientProxy,
   ) {}
 
   async createBanner(data: CreateBannerDto) {
@@ -15,11 +15,7 @@ export class BannerService {
   }
 
   async fetchAllBanners() {
-    const banners = await lastValueFrom(
-      this.userClient.send('banner.get.all', {}),
-    );
-
-    return banners;
+    return this.userClient.send('banner.get.all', { service: 'admin-service' });
   }
 
   async deleteBanner(id: string) {
