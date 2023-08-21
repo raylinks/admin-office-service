@@ -188,4 +188,14 @@ export class UserController {
       flaggedTransaction,
     );
   }
+
+  @Get('bank-account/:id')
+  async userBankAcounts(@Res() res: Response, @Param('id') id: string) {
+    const transaction = await this.userService.userBankAccounts(id);
+    return this.response.okResponse(
+      res,
+      'Fetched user bank accounts details successfully',
+      transaction,
+    );
+  }
 }
