@@ -15,7 +15,11 @@ export class BannerService {
   }
 
   async fetchAllBanners() {
-    return this.userClient.send('banner.get.all', { service: 'admin-service' });
+    const banners = await lastValueFrom(
+      this.userClient.send('banner.get.all', { service: 'admin-service' }),
+    );
+
+    return banners;
   }
 
   async deleteBanner(id: string) {
