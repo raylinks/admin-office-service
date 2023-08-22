@@ -8,15 +8,40 @@ export enum BannerType {
 }
 
 export class BannerPageDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   page: string;
+
+  @ApiProperty({ example: { featured: true } })
+  @IsOptional()
   params?: Record<string, unknown>;
 }
 
 export class BannerPopupDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   title: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   description: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   image: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   link?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   buttonTitle: string;
 }
 
