@@ -155,7 +155,7 @@ export class TradeService {
     >{
       thirdPartyTxId: trade.id,
       status: 'CONFIRMED',
-      txType: 'FiatDepositEvent',
+      txType: 'GiftcardEvent',
       data: {
         note: comment || 'Giftcard trade approved',
         amount: finalAmount,
