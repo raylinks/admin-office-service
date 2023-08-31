@@ -13,7 +13,7 @@ export class BannerPageDto {
   @IsNotEmpty()
   page: string;
 
-  @ApiProperty({ example: { featured: true } })
+  @ApiPropertyOptional({ example: { featured: true } })
   @IsOptional()
   params?: Record<string, unknown>;
 }
@@ -34,7 +34,7 @@ export class BannerPopupDto {
   @IsNotEmpty()
   image: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   link?: string;
@@ -55,6 +55,26 @@ export class CreateBannerDto {
   @IsOptional()
   @IsString()
   link?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  image: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  buttonTitle: string;
 
   @ApiPropertyOptional({ type: BannerPageDto })
   @IsOptional()
