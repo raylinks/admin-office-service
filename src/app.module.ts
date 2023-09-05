@@ -10,12 +10,14 @@ import { HttpModule } from '@nestjs/axios';
 import { FiatModule } from './fiat/fiat.module';
 import { HttpResponse } from './reponses/http.response';
 import { BannerModule } from './banner/banner.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
     HttpModule,
     AuthModule,
     UserModule,
+    FinanceModule,
     GiftcardModule,
     TradeModule,
     CryptoModule,
