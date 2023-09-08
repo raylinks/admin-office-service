@@ -11,8 +11,10 @@ import { BannerService } from './banner.service';
 import { CreateBannerDto } from './banner.dto';
 import { Response } from 'express';
 import { HttpResponse } from 'src/reponses/http.response';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('banner')
+@ApiTags('Banner')
 export class BannerController {
   constructor(
     private readonly bannerService: BannerService,
