@@ -99,6 +99,8 @@ export class TradeService {
     if (trade.status === 'CLOSED')
       throw new BadRequestException('Trade is closed');
 
+    console.log(data);
+
     this.giftcardClient.emit('trade.message.create', {
       ...data,
       user: {
