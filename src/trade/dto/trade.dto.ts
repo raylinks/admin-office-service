@@ -181,3 +181,13 @@ export type ExternalTransactionActionDto = {
   data: TransactionTypeActionDto;
   thirdPartyDetails?: any;
 };
+
+export type CreateMessage = {
+  sessionId: string;
+  files: {
+    fileMime: string;
+    url: string;
+  }[];
+  user: Record<string, any>;
+  text?: string;
+};

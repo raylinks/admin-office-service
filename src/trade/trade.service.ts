@@ -10,6 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import {
   ApproveDeclineTradeDto,
+  CreateMessage,
   CreateMessageDto,
   ExternalTransactionActionDto,
   QueryMessageDto,
@@ -99,10 +100,10 @@ export class TradeService {
     if (trade.status === 'CLOSED')
       throw new BadRequestException('Trade is closed');
 
-    console.log(data);
-
-    this.giftcardClient.emit('trade.message.create', {
-      ...data,
+    this.giftcardClient.emit('trade.message.create', <CreateMessage>{
+      files: data.files,
+      sessionId: data.sessionId,
+      text: data.text || null,
       user: {
         id: user.id,
         name: user.fullName,
