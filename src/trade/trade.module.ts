@@ -6,6 +6,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { HttpResponse } from 'src/reponses/http.response';
+import { createPool } from 'mysql2/promise';
 
 @Module({
   imports: [
@@ -29,6 +30,16 @@ import { HttpResponse } from 'src/reponses/http.response';
     ]),
   ],
   controllers: [TradeController],
-  providers: [TradeService, PrismaClient, HttpResponse],
+  providers: [
+    TradeService,
+    PrismaClient,
+    HttpResponse,
+    {
+      provide: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',
+      useFactory: async () => {
+        return createPool(process.env.GIFT_SERVICE_DATABASE_URL);
+      },
+    },
+  ],
 })
 export class TradeModule {}

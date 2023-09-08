@@ -55,7 +55,7 @@ export class CreateMessageDto {
 
   @ApiPropertyOptional({ type: AddFileToMessageDto })
   @IsOptional()
-  files?: AddFileToMessageDto[];
+  files?: AddFileToMessageDto;
 }
 
 export class SetTradeRateDto {

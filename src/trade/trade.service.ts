@@ -18,6 +18,7 @@ import {
   SetTradeRateDto,
 } from './dto/trade.dto';
 import { lastValueFrom } from 'rxjs';
+import { Pool } from 'mysql2/promise';
 
 @Injectable()
 export class TradeService {
@@ -27,6 +28,7 @@ export class TradeService {
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
+    @Inject('GIFTCARD_SERVICE_DATABASE_CONNECTION') private giftcardDB: Pool,
   ) {}
 
   async approveDeclineTrade(operatorId: string, data: ApproveDeclineTradeDto) {
@@ -100,7 +102,7 @@ export class TradeService {
     if (trade.status === 'CLOSED')
       throw new BadRequestException('Trade is closed');
 
-    this.giftcardClient.emit('trade.message.create', <CreateMessage>{
+    this.giftcardClient.emit('trade.message.create', {
       files: data.files,
       sessionId: data.sessionId,
       text: data.text || null,
@@ -181,9 +183,11 @@ export class TradeService {
   }
 
   async fetchTradeBySessionId(sessionId: string) {
-    const trade = await lastValueFrom(
-      this.giftcardClient.send('trade.session.get', sessionId),
+    const [result] = await this.giftcardDB.query(
+      `SELECT * FROM trades WHERE session_id = ?`,
+      [sessionId],
     );
+    const trade = result[0];
     if (!trade) throw new NotFoundException('Trade Not Found');
 
     return trade;
