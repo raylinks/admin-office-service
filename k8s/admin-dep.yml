@@ -23,7 +23,7 @@ spec:
         envFrom:
             - secretRef:
                 name: doppler-token
-        image: furextch/admin-service:{{TIMESTAMP}}
+        image: furextch/admin-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
