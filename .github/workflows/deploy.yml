@@ -3,7 +3,8 @@ name: Deploy To Production DockerHub
 on:
   push:
     branches:
-      - main
+      # - main
+      - dev
 
 env:
   BRANCH_NAME: ${{github.head_ref || github.ref_name}}
