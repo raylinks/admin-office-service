@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-dep
+  labels:
+    app: admin
+  namespace: furex-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      containers:
+      - name: admin
+        envFrom:
+            - secretRef:
+                name: doppler-token
+        image: furextch/admin-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
