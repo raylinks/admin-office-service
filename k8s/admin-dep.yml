@@ -24,6 +24,6 @@ spec:
             - secretRef:
                 name: doppler-token
         image: furextch/admin-service:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
