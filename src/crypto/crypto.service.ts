@@ -10,12 +10,14 @@ import {
   SetCryptoFees,
   TransactionEventType,
 } from './crypto.dto';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Injectable()
 export class CryptoService {
   constructor(
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private prisma: PrismaClient,
+    private excelService: ExcelService, 
   ) {}
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
     return await lastValueFrom(
@@ -25,6 +27,12 @@ export class CryptoService {
       ),
     );
   }
+
+  async exportAllTransactions(query: QueryCryptoTransactionsDto){
+    const {transactions} = await this.fetchAllTransactions(query);
+    return await this.excelService.export(transactions, 'crypto', 'bulk');
+  }
+
 
   async fetchBalance() {
     return await lastValueFrom(
@@ -75,6 +83,11 @@ export class CryptoService {
     return await lastValueFrom(
       this.walletClient.send({ cmd: 'transaction.get' }, id),
     );
+  }
+
+  async exportOneTransactions(id: string){
+    const transaction = await this.fetchOneTransaction(id);
+    return await this.excelService.export(transaction, 'crypto', 'single');
   }
 
   async fetchRates() {

@@ -20,6 +20,7 @@ import {
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import * as fs from 'fs';
 
 @Controller('crypto')
 @UseGuards(JwtAuthGuard)
@@ -56,6 +57,23 @@ export class CryptoController {
     );
   }
 
+  @Get('transactions/export')
+  async exportAllTransactions(
+    @Query() query: QueryCryptoTransactionsDto,
+    @Res() res: Response,
+  ) {
+    const { filePath, fileName }: fileExport =
+      await this.cryptoService.exportAllTransactions(query);
+
+    res.download(filePath, fileName, function (err) {
+      if (err) {
+        console.log(err);
+      }
+
+      fs.unlinkSync(filePath);
+    });
+  }
+
   @Get('transactions/:id')
   async fetchOneTransaction(@Param('id') id: string, @Res() res: Response) {
     const transaction = await this.cryptoService.fetchOneTransaction(id);
@@ -66,6 +84,21 @@ export class CryptoController {
       transaction,
     );
   }
+
+  @Get('transactions/:id/export')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
+    const { filePath, fileName }: fileExport =
+      await this.cryptoService.exportOneTransactions(id);
+
+    res.download(filePath, fileName, function (err) {
+      if (err) {
+        console.log(err);
+      }
+
+      fs.unlinkSync(filePath);
+    });
+  }
+
 
   @Get('disable/:symbol')
   @ApiQuery({ name: 'type', enum: CryptoAssetType })

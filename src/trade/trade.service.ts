@@ -19,6 +19,7 @@ import {
 } from './dto/trade.dto';
 import { lastValueFrom } from 'rxjs';
 import { Pool } from 'mysql2/promise';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Injectable()
 export class TradeService {
@@ -29,6 +30,7 @@ export class TradeService {
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     @Inject('GIFTCARD_SERVICE_DATABASE_CONNECTION') private giftcardDB: Pool,
+    private excelService: ExcelService, 
   ) {}
 
   async approveDeclineTrade(operatorId: string, data: ApproveDeclineTradeDto) {
@@ -78,6 +80,13 @@ export class TradeService {
     return trades;
   }
 
+  async exportAllTransactions(query?: QueryTradesDto){
+    const {trades} = await this.listTrades(query);
+    return await this.excelService.export(trades, 'trades', 'bulk');
+  }
+
+  
+
   async fetchTradeDetails(id: string) {
     const trade = await lastValueFrom(
       this.giftcardClient.send('trade.details.get', id),
@@ -91,6 +100,12 @@ export class TradeService {
 
     return trade;
   }
+
+  async exportOneTransactions(id: string){
+    const trade = await this.fetchTradeDetails(id);
+    return await this.excelService.export(trade, 'trades', 'single');
+  }
+
 
   async createMessage(operatorId: string, data: CreateMessageDto) {
     const user = await this.prisma.user.findUnique({

@@ -22,6 +22,7 @@ import {
 } from './dto/trade.dto';
 import { HttpResponse } from 'src/reponses/http.response';
 import { GetAccount } from 'src/decorators/account.decorator';
+import * as fs from 'fs';
 
 @Controller('trades')
 @ApiSecurity('auth')
@@ -39,6 +40,23 @@ export class TradeController {
     const trades = await this.tradeService.listTrades(query);
 
     return this.response.okResponse(res, 'fetched all trades', trades);
+  }
+
+  @Get('/export')
+  async exportAllTransactions(
+    @Query() query: QueryTradesDto,
+    @Res() res: Response,
+  ) {
+    const { filePath, fileName }: fileExport =
+      await this.tradeService.exportAllTransactions(query);
+
+    res.download(filePath, fileName, function (err) {
+      if (err) {
+        console.log(err);
+      }
+
+      fs.unlinkSync(filePath);
+    });
   }
 
   @Post('set-approval')
@@ -109,6 +127,20 @@ export class TradeController {
     const trade = await this.tradeService.fetchTradeDetails(id);
 
     return this.response.okResponse(res, 'fetched trade details', trade);
+  }
+
+  @Get(':id/export')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    const { filePath, fileName }: fileExport =
+      await this.tradeService.exportOneTransactions(id);
+
+    res.download(filePath, fileName, function (err) {
+      if (err) {
+        console.log(err);
+      }
+
+      fs.unlinkSync(filePath);
+    });
   }
 
   @Get('messages/:id')

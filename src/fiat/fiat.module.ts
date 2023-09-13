@@ -6,6 +6,7 @@ import { RMQ_NAMES, QUEUE_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { HttpResponse } from 'src/reponses/http.response';
 import { PrismaClient } from '@prisma/client';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Module({
   imports: [
@@ -30,6 +31,6 @@ import { PrismaClient } from '@prisma/client';
   ],
 
   controllers: [FiatController],
-  providers: [FiatService, HttpResponse, PrismaClient],
+  providers: [FiatService, HttpResponse, PrismaClient, ExcelService],
 })
 export class FiatModule { }

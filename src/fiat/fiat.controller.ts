@@ -15,6 +15,7 @@ import { QueryFiatTransactionsDto, SetFiatTradeRateDto } from './fiat.dto';
 import { ApiTags, ApiSecurity } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { GetAccount } from 'src/decorators/account.decorator';
+import * as fs from 'fs';
 
 @Controller('fiat')
 @UseGuards(JwtAuthGuard)
@@ -51,6 +52,23 @@ export class FiatController {
     );
   }
 
+  @Get('transactions/export')
+  async exportAllTransactions(
+    @Query() query: QueryFiatTransactionsDto,
+    @Res() res: Response,
+  ) {
+    const { filePath, fileName }: fileExport =
+      await this.fiatService.exportAllTransactions(query);
+
+    res.download(filePath, fileName, function (err) {
+      if (err) {
+        console.log(err);
+      }
+
+      fs.unlinkSync(filePath);
+    });
+  }
+
   @Get('transactions/:id')
   async fetchOneTransaction(@Param('id') id: string, @Res() res: Response) {
     const transaction = await this.fiatService.fetchOneTransaction(id);
@@ -71,6 +89,20 @@ export class FiatController {
       'Transaction fetched successfully',
       transaction,
     );
+  }
+
+  @Get('transactions/:id/export')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
+    const { filePath, fileName }: fileExport =
+      await this.fiatService.exportOneTransactions(id);
+
+    res.download(filePath, fileName, function (err) {
+      if (err) {
+        console.log(err);
+      }
+
+      fs.unlinkSync(filePath);
+    });
   }
 
   @Put('set-rate')
