@@ -43,4 +43,4 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            furextch/${{env.REPO_NAME}}:${{ steps.prep.outputs.timestamp }}
+            furextch/${{env.REPO_NAME}}:latest
