@@ -23,8 +23,6 @@ import {
 } from './dto/trade.dto';
 import { HttpResponse } from 'src/reponses/http.response';
 import { GetAccount } from 'src/decorators/account.decorator';
-import * as fs from 'fs';
-import { ExcelService } from 'src/exports/excel.service';
 
 @Controller('trades')
 @ApiSecurity('auth')
@@ -34,7 +32,6 @@ export class TradeController {
   constructor(
     private readonly tradeService: TradeService,
     private response: HttpResponse,
-    private readonly excelService: ExcelService, 
   ) {}
 
   @Get('')
@@ -50,16 +47,9 @@ export class TradeController {
     @Query() query: QueryTradesDto,
     @Res() res: Response,
   ) {
-    const { filePath, fileName }: fileExport =
-      await this.tradeService.exportAllTransactions(query);
+    
+    return await this.tradeService.exportAllTransactions(res, query);
 
-    res.download(filePath, fileName, function (err) {
-      if (err) {
-        this.excelService.downloadErrorMessage("trade");
-      }
-
-      fs.unlinkSync(filePath);
-    });
   }
 
   @Post('set-approval')
@@ -134,16 +124,8 @@ export class TradeController {
 
   @Get(':id/export')
   async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
-    const { filePath, fileName }: fileExport =
-      await this.tradeService.exportOneTransactions(id);
-
-    res.download(filePath, fileName, function (err) {
-      if (err) {
-        this.excelService.downloadErrorMessage("trade");
-      }
-
-      fs.unlinkSync(filePath);
-    });
+    
+    return await this.tradeService.exportOneTransactions(res, id);
   }
 
   @Get('messages/:id')

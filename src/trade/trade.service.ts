@@ -80,9 +80,9 @@ export class TradeService {
     return trades;
   }
 
-  async exportAllTransactions(query?: QueryTradesDto){
+  async exportAllTransactions(res, query?: QueryTradesDto){
     const {trades} = await this.listTrades(query);
-    return await this.excelService.export(trades, 'trades', 'bulk');
+    return await this.excelService.export(res, trades, 'trades', 'bulk');
   }
 
   
@@ -101,9 +101,9 @@ export class TradeService {
     return trade;
   }
 
-  async exportOneTransactions(id: string){
+  async exportOneTransactions(res, id: string){
     const trade = await this.fetchTradeDetails(id);
-    return await this.excelService.export(trade, 'trades', 'single');
+    return await this.excelService.export(res, trade, 'trades', 'single');
   }
 
 

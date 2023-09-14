@@ -21,8 +21,6 @@ import {
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
-import * as fs from 'fs';
-import { ExcelService } from 'src/exports/excel.service';
 
 @Controller('crypto')
 @UseGuards(JwtAuthGuard)
@@ -32,7 +30,6 @@ export class CryptoController {
   constructor(
     private readonly cryptoService: CryptoService,
     private readonly response: HttpResponse,
-    private readonly excelService: ExcelService, 
   ) {}
 
   @Get('balance')
@@ -65,16 +62,9 @@ export class CryptoController {
     @Query() query: QueryCryptoTransactionsDto,
     @Res() res: Response,
   ) {
-    const { filePath, fileName }: fileExport =
-      await this.cryptoService.exportAllTransactions(query);
+    
+    return await this.cryptoService.exportAllTransactions(res, query);
 
-    res.download(filePath, fileName, function (err) {
-      if (err) {
-        this.excelService.downloadErrorMessage("crypto");
-      }
-
-      fs.unlinkSync(filePath);
-    });
   }
 
   @Get('transactions/:id')
@@ -90,16 +80,9 @@ export class CryptoController {
 
   @Get('transactions/:id/export')
   async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
-    const { filePath, fileName }: fileExport =
-      await this.cryptoService.exportOneTransactions(id);
+  
+     return await this.cryptoService.exportOneTransactions(res, id);
 
-    res.download(filePath, fileName, function (err) {
-      if (err) {
-        this.excelService.downloadErrorMessage("crypto");
-      }
-
-      fs.unlinkSync(filePath);
-    });
   }
 
 

@@ -16,8 +16,6 @@ import { QueryFiatTransactionsDto, SetFiatTradeRateDto } from './fiat.dto';
 import { ApiTags, ApiSecurity } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { GetAccount } from 'src/decorators/account.decorator';
-import * as fs from 'fs';
-import { ExcelService } from 'src/exports/excel.service';
 
 @Controller('fiat')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +25,6 @@ export class FiatController {
   constructor(
     private readonly fiatService: FiatService,
     private response: HttpResponse,
-    private readonly excelService: ExcelService, 
   ) { }
 
   @Get('balance')
@@ -60,17 +57,7 @@ export class FiatController {
     @Query() query: QueryFiatTransactionsDto,
     @Res() res: Response,
   ) {
-
-    const { filePath, fileName }: fileExport =
-      await this.fiatService.exportAllTransactions(query);
-
-    res.download(filePath, fileName, function (err) {
-      if (err) {
-        this.excelService.downloadErrorMessage("fiat");
-      }
-
-      fs.unlinkSync(filePath);
-    });
+    return await this.fiatService.exportAllTransactions(res,query);
   }
 
   @Get('transactions/:id')
@@ -96,17 +83,8 @@ export class FiatController {
   }
 
   @Get('transactions/:id/export')
-  async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
-    const { filePath, fileName }: fileExport =
-      await this.fiatService.exportOneTransactions(id);
-
-    res.download(filePath, fileName, function (err) {
-      if (err) {
-        this.excelService.downloadErrorMessage("fiat");
-      }
-
-      fs.unlinkSync(filePath);
-    });
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    return await this.fiatService.exportOneTransactions(res, id);
   }
 
   @Put('set-rate')

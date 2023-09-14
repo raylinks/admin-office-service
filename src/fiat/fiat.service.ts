@@ -26,9 +26,9 @@ export class FiatService {
     );
   }
 
-  async exportAllTransactions(query: QueryFiatTransactionsDto){
+  async exportAllTransactions(res, query: QueryFiatTransactionsDto){
     const {transactions} = await this.fetchAllTransactions(query);
-    return await this.excelService.export(transactions, 'fiat', 'bulk');
+    return await this.excelService.export(res, transactions, 'fiat', 'bulk');
   }
 
   async fetchBalance() {
@@ -43,9 +43,9 @@ export class FiatService {
     );
   }
 
-  async exportOneTransactions(id: string){
+  async exportOneTransactions(res, id: string){
     const transaction = await this.fetchOneTransaction(id);
-    return await this.excelService.export(transaction, 'fiat', 'single');
+    return await this.excelService.export(res, transaction, 'fiat', 'single');
   }
 
   async fetchRates() {

@@ -28,9 +28,9 @@ export class CryptoService {
     );
   }
 
-  async exportAllTransactions(query: QueryCryptoTransactionsDto){
+  async exportAllTransactions(res, query: QueryCryptoTransactionsDto){
     const {transactions} = await this.fetchAllTransactions(query);
-    return await this.excelService.export(transactions, 'crypto', 'bulk');
+    return await this.excelService.export(res, transactions, 'crypto', 'bulk');
   }
 
 
@@ -85,9 +85,9 @@ export class CryptoService {
     );
   }
 
-  async exportOneTransactions(id: string){
+  async exportOneTransactions(res, id: string){
     const transaction = await this.fetchOneTransaction(id);
-    return await this.excelService.export(transaction, 'crypto', 'single');
+    return await this.excelService.export(res, transaction, 'crypto', 'single');
   }
 
   async fetchRates() {
