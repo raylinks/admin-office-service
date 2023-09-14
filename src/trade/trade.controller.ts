@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -52,7 +53,7 @@ export class TradeController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        console.log(err);
+        throw new BadRequestException(err)
       }
 
       fs.unlinkSync(filePath);
@@ -136,7 +137,7 @@ export class TradeController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        console.log(err);
+        throw new BadRequestException(err)
       }
 
       fs.unlinkSync(filePath);

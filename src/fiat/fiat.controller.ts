@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -62,7 +63,7 @@ export class FiatController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        console.log(err);
+        throw new BadRequestException(err)
       }
 
       fs.unlinkSync(filePath);
@@ -98,7 +99,7 @@ export class FiatController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        console.log(err);
+        throw new BadRequestException(err)
       }
 
       fs.unlinkSync(filePath);
