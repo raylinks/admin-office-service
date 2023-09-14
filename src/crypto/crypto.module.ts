@@ -6,6 +6,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { PrismaClient } from '@prisma/client';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ import { PrismaClient } from '@prisma/client';
     ]),
   ],
   controllers: [CryptoController],
-  providers: [CryptoService, HttpResponse, PrismaClient],
+  providers: [CryptoService, HttpResponse, PrismaClient, ExcelService ],
 })
 export class CryptoModule { }

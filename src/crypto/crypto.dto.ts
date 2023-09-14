@@ -3,6 +3,7 @@ import {
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -61,7 +62,8 @@ export class QueryCryptoTransactionsDto {
   @ApiPropertyOptional({
     enum: TransactionEventType,
   })
-  event?: TransactionEventType;
+  @Expose({ name: "event" })
+  eventType?: TransactionEventType;
 }
 
 export class EnableDisableCryptoAssetDto {

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -39,6 +40,16 @@ export class TradeController {
     const trades = await this.tradeService.listTrades(query);
 
     return this.response.okResponse(res, 'fetched all trades', trades);
+  }
+
+  @Get('/export/excel')
+  async exportAllTransactions(
+    @Query() query: QueryTradesDto,
+    @Res() res: Response,
+  ) {
+    
+    return await this.tradeService.exportAllTransactions(res, query);
+
   }
 
   @Post('set-approval')
@@ -109,6 +120,12 @@ export class TradeController {
     const trade = await this.tradeService.fetchTradeDetails(id);
 
     return this.response.okResponse(res, 'fetched trade details', trade);
+  }
+
+  @Get(':id/export/excel')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    
+    return await this.tradeService.exportOneTransactions(res, id);
   }
 
   @Get('messages/:id')

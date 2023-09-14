@@ -19,7 +19,7 @@ export class AppService {
 
   constructor(private http: HttpService) { }
   getHello(): string {
-    return 'Hello World!';
+    return 'Welcome Furexians! To the world of Cryptorians';
   }
 
   async fetchCountries() {

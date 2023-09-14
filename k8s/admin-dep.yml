@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-dep
+  labels:
+    app: admin
+  namespace: furex-backend
+  annotations:
+    keel.sh/policy: force
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 1m"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      containers:
+      - name: admin
+        envFrom:
+            - secretRef:
+                name: doppler-token
+        image: furextch/admin-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
