@@ -22,6 +22,7 @@ import {
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import * as fs from 'fs';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Controller('crypto')
 @UseGuards(JwtAuthGuard)
@@ -31,6 +32,7 @@ export class CryptoController {
   constructor(
     private readonly cryptoService: CryptoService,
     private readonly response: HttpResponse,
+    private readonly excelService: ExcelService, 
   ) {}
 
   @Get('balance')
@@ -68,7 +70,7 @@ export class CryptoController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        throw new BadRequestException(err)
+        this.excelService.downloadErrorMessage("crypto");
       }
 
       fs.unlinkSync(filePath);
@@ -93,7 +95,7 @@ export class CryptoController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        throw new BadRequestException(err)
+        this.excelService.downloadErrorMessage("crypto");
       }
 
       fs.unlinkSync(filePath);

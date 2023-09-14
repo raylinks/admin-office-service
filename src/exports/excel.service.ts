@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
     Injectable,
     NotFoundException,
   } from '@nestjs/common';
@@ -111,6 +112,12 @@ import {
         filePath: exportPath,
         fileName: bookName
       };
+    }
+
+
+    downloadErrorMessage(type)
+    {
+      throw new BadRequestException(`Unable to download ${type} records`)
     }
   }
   

@@ -17,6 +17,7 @@ import { ApiTags, ApiSecurity } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { GetAccount } from 'src/decorators/account.decorator';
 import * as fs from 'fs';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Controller('fiat')
 @UseGuards(JwtAuthGuard)
@@ -26,6 +27,7 @@ export class FiatController {
   constructor(
     private readonly fiatService: FiatService,
     private response: HttpResponse,
+    private readonly excelService: ExcelService, 
   ) { }
 
   @Get('balance')
@@ -58,12 +60,13 @@ export class FiatController {
     @Query() query: QueryFiatTransactionsDto,
     @Res() res: Response,
   ) {
+
     const { filePath, fileName }: fileExport =
       await this.fiatService.exportAllTransactions(query);
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        throw new BadRequestException(err)
+        this.excelService.downloadErrorMessage("fiat");
       }
 
       fs.unlinkSync(filePath);
@@ -99,7 +102,7 @@ export class FiatController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        throw new BadRequestException(err)
+        this.excelService.downloadErrorMessage("fiat");
       }
 
       fs.unlinkSync(filePath);

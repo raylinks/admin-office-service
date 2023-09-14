@@ -24,6 +24,7 @@ import {
 import { HttpResponse } from 'src/reponses/http.response';
 import { GetAccount } from 'src/decorators/account.decorator';
 import * as fs from 'fs';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Controller('trades')
 @ApiSecurity('auth')
@@ -33,6 +34,7 @@ export class TradeController {
   constructor(
     private readonly tradeService: TradeService,
     private response: HttpResponse,
+    private readonly excelService: ExcelService, 
   ) {}
 
   @Get('')
@@ -53,7 +55,7 @@ export class TradeController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        throw new BadRequestException(err)
+        this.excelService.downloadErrorMessage("trade");
       }
 
       fs.unlinkSync(filePath);
@@ -137,7 +139,7 @@ export class TradeController {
 
     res.download(filePath, fileName, function (err) {
       if (err) {
-        throw new BadRequestException(err)
+        this.excelService.downloadErrorMessage("trade");
       }
 
       fs.unlinkSync(filePath);
