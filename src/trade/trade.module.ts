@@ -7,6 +7,7 @@ import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { HttpResponse } from 'src/reponses/http.response';
 import { createPool } from 'mysql2/promise';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { createPool } from 'mysql2/promise';
     TradeService,
     PrismaClient,
     HttpResponse,
+    ExcelService,
     {
       provide: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',
       useFactory: async () => {

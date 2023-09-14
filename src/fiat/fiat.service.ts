@@ -4,12 +4,14 @@ import { PrismaClient } from '@prisma/client';
 import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import { QueryFiatTransactionsDto, SetFiatTradeRateDto } from './fiat.dto';
 import { lastValueFrom } from 'rxjs';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Injectable()
 export class FiatService {
   constructor(
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private prisma: PrismaClient,
+    private excelService: ExcelService, 
   ) { }
 
   async fetchAllTransactions(query: QueryFiatTransactionsDto) {
@@ -24,6 +26,11 @@ export class FiatService {
     );
   }
 
+  async exportAllTransactions(res, query: QueryFiatTransactionsDto){
+    const {transactions} = await this.fetchAllTransactions(query);
+    return await this.excelService.export(res, transactions, 'fiat', 'bulk');
+  }
+
   async fetchBalance() {
     return await lastValueFrom(
       this.walletClient.send({ cmd: 'fiat.balance.fetch' }, { isFiat: true }),
@@ -34,6 +41,11 @@ export class FiatService {
     return await lastValueFrom(
       this.walletClient.send({ cmd: 'transaction.get' }, id),
     );
+  }
+
+  async exportOneTransactions(res, id: string){
+    const transaction = await this.fetchOneTransaction(id);
+    return await this.excelService.export(res, transaction, 'fiat', 'single');
   }
 
   async fetchRates() {

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -51,6 +52,14 @@ export class FiatController {
     );
   }
 
+  @Get('transactions/export')
+  async exportAllTransactions(
+    @Query() query: QueryFiatTransactionsDto,
+    @Res() res: Response,
+  ) {
+    return await this.fiatService.exportAllTransactions(res,query);
+  }
+
   @Get('transactions/:id')
   async fetchOneTransaction(@Param('id') id: string, @Res() res: Response) {
     const transaction = await this.fiatService.fetchOneTransaction(id);
@@ -71,6 +80,11 @@ export class FiatController {
       'Transaction fetched successfully',
       transaction,
     );
+  }
+
+  @Get('transactions/:id/export')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    return await this.fiatService.exportOneTransactions(res, id);
   }
 
   @Put('set-rate')
