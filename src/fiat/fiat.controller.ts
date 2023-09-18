@@ -25,7 +25,7 @@ export class FiatController {
   constructor(
     private readonly fiatService: FiatService,
     private response: HttpResponse,
-  ) { }
+  ) {}
 
   @Get('balance')
   async fetchCryptoBalance(@Res() res: Response) {
@@ -57,7 +57,7 @@ export class FiatController {
     @Query() query: QueryFiatTransactionsDto,
     @Res() res: Response,
   ) {
-    return await this.fiatService.exportAllTransactions(res,query);
+    return await this.fiatService.exportAllTransactions(res, query);
   }
 
   @Get('transactions/:id/export/excel')
@@ -69,22 +69,6 @@ export class FiatController {
       'Transaction fetched successfully',
       transaction,
     );
-  }
-
-  @Get('transactions/:id')
-  async fetchRates(@Param('id') id: string, @Res() res: Response) {
-    const transaction = await this.fiatService.fetchOneTransaction(id);
-
-    return this.response.okResponse(
-      res,
-      'Transaction fetched successfully',
-      transaction,
-    );
-  }
-
-  @Get('transactions/:id/export')
-  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
-    return await this.fiatService.exportOneTransactions(res, id);
   }
 
   @Put('set-rate')
