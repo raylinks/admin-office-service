@@ -155,7 +155,11 @@ export class TradeService {
       },
     });
 
-    return await this.fetchTradeDetails(tradeId);
+    return await this.approveDeclineTrade(operatorId, {
+      tradeId: trade.id,
+      status: 'approve',
+      comment: `Trade approved after rate set to ${data.rate}`,
+    });
   }
 
   private async approveTrade(operatorId: string, trade: any, comment: string) {

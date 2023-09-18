@@ -7,6 +7,7 @@ import config from 'src/config';
 import { HttpResponse } from 'src/reponses/http.response';
 import { PrismaClient } from '@prisma/client';
 import { ExcelService } from 'src/exports/excel.service';
+import { createPool } from 'mysql2/promise';
 
 @Module({
   imports: [
@@ -31,6 +32,17 @@ import { ExcelService } from 'src/exports/excel.service';
   ],
 
   controllers: [FiatController],
-  providers: [FiatService, HttpResponse, PrismaClient, ExcelService],
+  providers: [
+    ExcelService,
+    FiatService,
+    HttpResponse,
+    PrismaClient,
+    {
+      provide: 'WALLET_SERVICE_DATABASE_CONNECTION',
+      useFactory: async () => {
+        return createPool(config.db.walletService);
+      },
+    },
+  ],
 })
-export class FiatModule { }
+export class FiatModule {}
