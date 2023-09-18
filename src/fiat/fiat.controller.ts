@@ -60,7 +60,12 @@ export class FiatController {
     return await this.fiatService.exportAllTransactions(res, query);
   }
 
-  @Get('transactions/:id/export/excel')
+  @Get('transactions/:id/export')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    return await this.fiatService.exportOneTransactions(res, id);
+  }
+
+  @Get('transactions/:id')
   async fetchOneTransaction(@Param('id') id: string, @Res() res: Response) {
     const transaction = await this.fiatService.fetchOneTransaction(id);
 
