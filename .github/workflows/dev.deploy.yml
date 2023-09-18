@@ -1,4 +1,4 @@
-name: Deploy To Development DockerHub
+name: Deploy To Production DockerHub
 
 on:
   push:
