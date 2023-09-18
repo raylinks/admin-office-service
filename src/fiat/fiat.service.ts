@@ -73,15 +73,6 @@ export class FiatService {
   }
 
   async setFiatRates(operatorId: string, data: SetFiatTradeRateDto) {
-    this.walletClient.emit({ cmd: 'fiat.rates.set' }, data);
-
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.ENABLE_CRYPTO,
-        operatorId,
-        details: `${data.fiatSymbol} rate set by ${operatorId}`,
-      },
-    });
     try {
       const [result] = await this.walletDB.query(
         `SELECT * FROM trade_rates WHERE fiat_symbol = ? ORDER BY created_at DESC LIMIT 1`,
@@ -102,6 +93,14 @@ export class FiatService {
           [data.buyRate || 0, data.sellRate || 0, rate.id],
         );
       }
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.SET_FIAT_RATE,
+          operatorId,
+          details: `${data.fiatSymbol} rate set by ${operatorId}`,
+        },
+      });
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
