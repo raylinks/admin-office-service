@@ -6,6 +6,7 @@ import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { Db, MongoClient } from 'mongodb';
 import { HttpResponse } from 'src/reponses/http.response';
+import { ExcelService } from 'src/exports/excel.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { HttpResponse } from 'src/reponses/http.response';
   controllers: [FinanceController],
   providers: [
     FinanceService,
+    ExcelService,
     HttpResponse,
     {
       provide: 'USER_DB_CONNECTION',
