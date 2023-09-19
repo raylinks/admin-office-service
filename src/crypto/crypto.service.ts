@@ -17,7 +17,7 @@ export class CryptoService {
   constructor(
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private prisma: PrismaClient,
-    private excelService: ExcelService, 
+    private excelService: ExcelService,
   ) {}
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
     return await lastValueFrom(
@@ -28,11 +28,10 @@ export class CryptoService {
     );
   }
 
-  async exportAllTransactions(res, query: QueryCryptoTransactionsDto){
-    const {transactions} = await this.fetchAllTransactions(query);
+  async exportAllTransactions(res, query: QueryCryptoTransactionsDto) {
+    const { transactions } = await this.fetchAllTransactions(query);
     return await this.excelService.export(res, transactions, 'crypto', 'bulk');
   }
-
 
   async fetchBalance() {
     return await lastValueFrom(
@@ -85,7 +84,7 @@ export class CryptoService {
     );
   }
 
-  async exportOneTransactions(res, id: string){
+  async exportOneTransactions(res, id: string) {
     const transaction = await this.fetchOneTransaction(id);
     return await this.excelService.export(res, transaction, 'crypto', 'single');
   }
@@ -176,7 +175,7 @@ export class CryptoService {
   }
 
   async setBuySellRate(operatorId: string, data: SetCryptoTransactionFeesDto) {
-    await Promise.all([
+    if (data.buy)
       this.setTransactionFees(operatorId, {
         event: TransactionEventType.BuyEvent,
         symbol: data.symbol,
@@ -184,7 +183,8 @@ export class CryptoService {
         maxAmount: data.buy.maxAmount,
         minAmount: data.buy.minAmount,
         feePercentage: data.buy.feePercentage,
-      }),
+      });
+    if (data.sell)
       this.setTransactionFees(operatorId, {
         event: TransactionEventType.SellEvent,
         symbol: data.symbol,
@@ -192,8 +192,16 @@ export class CryptoService {
         maxAmount: data.sell.maxAmount,
         minAmount: data.sell.minAmount,
         feePercentage: data.sell.feePercentage,
-      }),
-    ]);
+      });
+    if (data.swap)
+      this.setTransactionFees(operatorId, {
+        event: TransactionEventType.SwapEvent,
+        symbol: data.symbol,
+        feeFlat: data.sell.feeFlat,
+        maxAmount: data.sell.maxAmount,
+        minAmount: data.sell.minAmount,
+        feePercentage: data.sell.feePercentage,
+      });
   }
 
   async setWithdrawalRate(operatorId: string, data: SetCryptoFees) {
