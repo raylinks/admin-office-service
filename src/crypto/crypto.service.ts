@@ -11,6 +11,8 @@ import {
   TransactionEventType,
 } from './crypto.dto';
 import { ExcelService } from 'src/exports/excel.service';
+import { Pool } from 'mysql2/promise';
+import * as cuid from 'cuid';
 
 @Injectable()
 export class CryptoService {
@@ -18,6 +20,7 @@ export class CryptoService {
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private prisma: PrismaClient,
     private excelService: ExcelService,
+    @Inject('WALLET_SERVICE_DATABASE_CONNECTION') private walletDB: Pool,
   ) {}
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
     return await lastValueFrom(
@@ -216,7 +219,39 @@ export class CryptoService {
   }
 
   async setTransactionFees(operatorId: string, data: SetCryptoFees) {
-    this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
+    // this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
+    const [result] = await this.walletDB.query(
+      `SELECT * FROM tx_fees WHERE symbol = ? AND event = ?`,
+      [data.symbol, data.event],
+    );
+    const fee = result[0];
+    if (!fee)
+      await this.walletDB.execute(
+        `
+        INSERT INTO tx_fees (
+          id, event, fee_flat, max_amount, min_amount, fee_percentage, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, NOW()`,
+        [
+          cuid(),
+          data.event,
+          data.feeFlat || 0,
+          data.maxAmount || 0,
+          data.minAmount || 0,
+          data.feePercentage || 0,
+        ],
+      );
+    else
+      await this.walletDB.execute(
+        `UPDATE tx_fees
+          SET
+          fee_flat = ?, max_amount = ?, min_amount = ?, fee_percentage = ?, updated_at = NOW()`,
+        [
+          data.feeFlat || fee.fee_flat,
+          data.maxAmount || fee.max_amount,
+          data.minAmount || fee.min_amount,
+          data.feePercentage || fee.fee_percentage,
+        ],
+      );
 
     await this.prisma.auditLog.create({
       data: {

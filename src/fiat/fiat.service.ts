@@ -11,6 +11,7 @@ import { QueryFiatTransactionsDto, SetFiatTradeRateDto } from './fiat.dto';
 import { lastValueFrom } from 'rxjs';
 import { ExcelService } from 'src/exports/excel.service';
 import { Pool } from 'mysql2/promise';
+import * as cuid from 'cuid';
 
 @Injectable()
 export class FiatService {
@@ -84,8 +85,8 @@ export class FiatService {
           `
           INSERT INTO trade_rates (
             id, buy_rate, sell_rate, fiat_symbol, created_at
-          ) VALUES (UUID(), ?, ?, ?, NOW())`,
-          [data.buyRate || 0, data.sellRate || 0, data.fiatSymbol],
+          ) VALUES (?, ?, ?, ?, NOW())`,
+          [cuid(), data.buyRate || 0, data.sellRate || 0, data.fiatSymbol],
         );
       } else {
         await this.walletDB.execute(
