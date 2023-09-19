@@ -6,6 +6,7 @@ import { HttpResponse } from 'src/reponses/http.response';
 import { FinanceService } from './finance.service';
 import { PassThrough } from 'stream';
 import { QueryTradesDto } from 'src/trade/dto/trade.dto';
+import { QueryLedgerDto } from './dto/finance.dto';
 
 @Controller('finance')
 export class FinanceController {
@@ -25,8 +26,8 @@ export class FinanceController {
   }
 
   @Get('ledger/deposit')
-  async deposit(@Res() res: Response) {
-    const deposit = await this.financeService.deposit();
+  async deposit( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    const deposit = await this.financeService.deposit(query);
     return this.response.okResponse(
       res,
       'Fetched deposit ledgers successfully',
@@ -35,8 +36,8 @@ export class FinanceController {
   }
 
   @Get('ledger/withdrawal')
-  async withdrawal(@Res() res: Response) {
-    const withdrawal = await this.financeService.withdrawal();
+  async withdrawal( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    const withdrawal = await this.financeService.withdrawal(query);
     return this.response.okResponse(
       res,
       'Fetched withdrawal ledgers successfully',
@@ -123,13 +124,13 @@ export class FinanceController {
   }
 
   @Get('/ledger/deposit/export/excel')
-  async exportDepositLedgerInExcel(@Res() res: Response) {
-    return await this.financeService.exportDepositLedgerInExcel(res);
+  async exportDepositLedgerInExcel( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    return await this.financeService.exportDepositLedgerInExcel(res, query);
   }
 
   @Get('/ledger/withdrawal/export/excel')
-  async exportWithdrawalLedgerInExcel(@Res() res: Response) {
-    return await this.financeService.exportWithdrawalLedgerInExcel(res);
+  async exportWithdrawalLedgerInExcel( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    return await this.financeService.exportWithdrawalLedgerInExcel(res, query);
   }
 
   @Get('/ledger/swap/export/excel')

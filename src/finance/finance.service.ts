@@ -6,6 +6,7 @@ import { Db } from 'mongodb';
 import { lastValueFrom } from 'rxjs';
 import { QueryTradesDto } from 'src/trade/dto/trade.dto';
 import { ExcelService } from 'src/exports/excel.service';
+import { QueryLedgerDto } from './dto/finance.dto';
 
 @Injectable()
 export class FinanceService {
@@ -25,19 +26,19 @@ export class FinanceService {
     } catch (error) {}
   }
 
-  async deposit() {
+  async deposit(query: QueryLedgerDto) {
     try {
       const result = await lastValueFrom(
-        this.walletClient.send('admin.ledger.deposit', true),
+        this.walletClient.send('admin.ledger.deposit', query),
       );
       return result;
     } catch (error) {}
   }
 
-  async withdrawal() {
+  async withdrawal(query: QueryLedgerDto) {
     try {
       const withdrawal = await lastValueFrom(
-        this.walletClient.send('admin.ledger.withdrawal', true),
+        this.walletClient.send('admin.ledger.withdrawal', query),
       );
       return withdrawal;
     } catch (error) {}
@@ -97,13 +98,13 @@ export class FinanceService {
     } catch (error) {}
   }
 
-  async exportDepositLedgerInExcel(res) {
-    const { deposits } = await this.deposit();
+  async exportDepositLedgerInExcel(res, query: QueryLedgerDto) {
+    const { deposits } = await this.deposit(query);
     return await this.excelService.export(res, deposits, 'deposits', 'bulk');
   }
 
-  async exportWithdrawalLedgerInExcel(res) {
-    const { withdrawal } = await this.withdrawal();
+  async exportWithdrawalLedgerInExcel(res, query: QueryLedgerDto) {
+    const { withdrawal } = await this.withdrawal(query);
     return await this.excelService.export(res, withdrawal, 'withdrawal', 'bulk');
   }
 
