@@ -7,6 +7,7 @@ import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { PrismaClient } from '@prisma/client';
 import { ExcelService } from 'src/exports/excel.service';
+import { createPool } from 'mysql2/promise';
 
 @Module({
   imports: [
@@ -30,6 +31,17 @@ import { ExcelService } from 'src/exports/excel.service';
     ]),
   ],
   controllers: [CryptoController],
-  providers: [CryptoService, HttpResponse, PrismaClient, ExcelService ],
+  providers: [
+    CryptoService,
+    HttpResponse,
+    PrismaClient,
+    ExcelService,
+    {
+      provide: 'WALLET_SERVICE_DATABASE_CONNECTION',
+      useFactory: async () => {
+        return createPool(config.db.walletService);
+      },
+    },
+  ],
 })
-export class CryptoModule { }
+export class CryptoModule {}
