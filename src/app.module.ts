@@ -11,6 +11,7 @@ import { FiatModule } from './fiat/fiat.module';
 import { HttpResponse } from './reponses/http.response';
 import { BannerModule } from './banner/banner.module';
 import { FinanceModule } from './finance/finance.module';
+import { VettingModule } from './vetting/vetting.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FinanceModule } from './finance/finance.module';
     CryptoModule,
     FiatModule,
     BannerModule,
+    VettingModule,
   ],
   controllers: [AppController],
   providers: [AppService, HttpResponse],
