@@ -15,7 +15,7 @@ export class UserService {
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     @Inject(RMQ_NAMES.USERDATA_SERVICE) private userClient: ClientRMQ,
     @Inject(RMQ_NAMES.FIAT_SERVICE) private fiatClient: ClientRMQ,
-    private excelService: ExcelService
+    private excelService: ExcelService,
   ) {}
 
   async index(query: GetUsersDTO) {
@@ -149,4 +149,19 @@ export class UserService {
     const { users } = await this.index(query);
     return await this.excelService.export(res, users, 'users', 'bulk');
   }
+
+  async exportWalletTransactionInExcel(id: string, payload, query, res) {
+    const { transactions } = await this.userWalletTransactions(
+      id,
+      payload,
+      query,
+    );
+    return await this.excelService.export(
+      res,
+      transactions,
+      'walletTransaction',
+      'bulk',
+    );
+  }
 }
+
