@@ -198,4 +198,9 @@ export class UserController {
       transaction,
     );
   }
+
+  @Get('/export/excel')
+  async exportAllUsersInExcel(@Query() query: GetUsersDTO, @Res() res: Response) {
+    return await this.userService.exportAllUsersrInExcel(query,res);
+  }
 }
