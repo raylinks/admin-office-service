@@ -62,7 +62,7 @@ export class QueryCryptoTransactionsDto {
   @ApiPropertyOptional({
     enum: TransactionEventType,
   })
-  @Expose({ name: "event" })
+  @Expose({ name: 'event' })
   eventType?: TransactionEventType;
 }
 
@@ -104,11 +104,14 @@ export class SetCryptoTransactionFeesDto {
   @IsNotEmpty()
   symbol: string;
 
-  @ApiProperty({ type: SetFeeDto })
-  buy: SetFeeDto;
+  @ApiPropertyOptional({ type: SetFeeDto })
+  buy?: SetFeeDto;
 
-  @ApiProperty({ type: SetFeeDto })
-  sell: SetFeeDto;
+  @ApiPropertyOptional({ type: SetFeeDto })
+  sell?: SetFeeDto;
+
+  @ApiPropertyOptional({ type: SetFeeDto })
+  swap?: SetFeeDto;
 }
 
 export class SetCryptoFees {

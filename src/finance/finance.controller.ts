@@ -4,6 +4,9 @@ import { Response } from 'express';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { HttpResponse } from 'src/reponses/http.response';
 import { FinanceService } from './finance.service';
+import { PassThrough } from 'stream';
+import { QueryTradesDto } from 'src/trade/dto/trade.dto';
+import { QueryLedgerDto } from './dto/finance.dto';
 
 @Controller('finance')
 export class FinanceController {
@@ -23,8 +26,8 @@ export class FinanceController {
   }
 
   @Get('ledger/deposit')
-  async deposit(@Res() res: Response) {
-    const deposit = await this.financeService.deposit();
+  async deposit( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    const deposit = await this.financeService.deposit(query);
     return this.response.okResponse(
       res,
       'Fetched deposit ledgers successfully',
@@ -33,8 +36,8 @@ export class FinanceController {
   }
 
   @Get('ledger/withdrawal')
-  async withdrawal(@Res() res: Response) {
-    const withdrawal = await this.financeService.withdrawal();
+  async withdrawal( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    const withdrawal = await this.financeService.withdrawal(query);
     return this.response.okResponse(
       res,
       'Fetched withdrawal ledgers successfully',
@@ -70,5 +73,68 @@ export class FinanceController {
       'Fetched giftcard buy ledgers successfully',
       giftcardBuy,
     );
+  }
+
+  @Get('/ledger/deposit/export')
+  async exportDepositInCSV(@Res() res: Response) {
+    const buffer = await this.financeService.exportDepositLedgers();
+
+    const fileName = `furex_deposit_${Date.now()}.csv`;
+
+    const readStream = new PassThrough();
+    readStream.end(buffer);
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-disposition': `attachment; filename=${fileName}`,
+      'Content-Length': buffer.length,
+    });
+    readStream.pipe(res);
+  }
+
+  @Get('/ledger/withdraw/export')
+  async exportWithdrawalInCSV(@Res() res: Response) {
+    const buffer = await this.financeService.exportWithdrawalLedgers();
+
+    const fileName = `furex_withdrawal_${Date.now()}.csv`;
+
+    const readStream = new PassThrough();
+    readStream.end(buffer);
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-disposition': `attachment; filename=${fileName}`,
+      'Content-Length': buffer.length,
+    });
+    readStream.pipe(res);
+  }
+
+  @Get('/ledger/swap/export')
+  async exportSwapInCSV(@Res() res: Response) {
+    const buffer = await this.financeService.exportSwapLedgers();
+
+    const fileName = `furex_swap_${Date.now()}.csv`;
+
+    const readStream = new PassThrough();
+    readStream.end(buffer);
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-disposition': `attachment; filename=${fileName}`,
+      'Content-Length': buffer.length,
+    });
+    readStream.pipe(res);
+  }
+
+  @Get('/ledger/deposit/export/excel')
+  async exportDepositLedgerInExcel( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    return await this.financeService.exportDepositLedgerInExcel(res, query);
+  }
+
+  @Get('/ledger/withdrawal/export/excel')
+  async exportWithdrawalLedgerInExcel( @Query() query: QueryLedgerDto, @Res() res: Response) {
+    return await this.financeService.exportWithdrawalLedgerInExcel(res, query);
+  }
+
+  @Get('/ledger/swap/export/excel')
+  async exportSwapLedgerInExcel(@Res() res: Response) {
+    return await this.financeService.exportSwapLedgerInExcel(res);
   }
 }
