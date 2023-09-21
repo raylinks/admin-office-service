@@ -6,9 +6,12 @@ import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import {
   EnableDisableCryptoAssetDto,
   QueryCryptoTransactionsDto,
-  SetCryptoTransactionFeesDto,
   SetCryptoFees,
   TransactionEventType,
+  updateCryptoTransactionFeeDto,
+  SetCryptoTransactionRateDto,
+  cryptoFeesDto,
+  CryptoFeeOptions,
 } from './crypto.dto';
 import { ExcelService } from 'src/exports/excel.service';
 import { Pool } from 'mysql2/promise';
@@ -177,9 +180,9 @@ export class CryptoService {
     return allRates;
   }
 
-  async setBuySellRate(operatorId: string, data: SetCryptoTransactionFeesDto) {
+  async setBuySellRate(operatorId: string, data: SetCryptoTransactionRateDto) {
     if (data.buy)
-      this.setTransactionFees(operatorId, {
+      this.setTransactionRates(operatorId, {
         event: TransactionEventType.BuyEvent,
         symbol: data.symbol,
         feeFlat: data.buy.feeFlat,
@@ -188,7 +191,7 @@ export class CryptoService {
         feePercentage: data.buy.feePercentage,
       });
     if (data.sell)
-      this.setTransactionFees(operatorId, {
+      this.setTransactionRates(operatorId, {
         event: TransactionEventType.SellEvent,
         symbol: data.symbol,
         feeFlat: data.sell.feeFlat,
@@ -196,8 +199,8 @@ export class CryptoService {
         minAmount: data.sell.minAmount,
         feePercentage: data.sell.feePercentage,
       });
-    if (data.swap)
-      this.setTransactionFees(operatorId, {
+   if (data.swap)
+      this.setTransactionRates(operatorId, {
         event: TransactionEventType.SwapEvent,
         symbol: data.symbol,
         feeFlat: data.sell.feeFlat,
@@ -207,8 +210,31 @@ export class CryptoService {
       });
   }
 
+
+  async setCryptoTransactionFees(
+    operatorId: string,
+    data: updateCryptoTransactionFeeDto,
+  ) {
+    if (data.swap)
+    {
+      this.setTransactionFees(operatorId, CryptoFeeOptions.SWAP, data.symbol, data.swap);
+    }
+    if (data.sell)
+    {
+      this.setTransactionFees(operatorId, CryptoFeeOptions.SELL, data.symbol, data.sell);
+    }
+    if (data.buy)
+    {
+      this.setTransactionFees(operatorId, CryptoFeeOptions.BUY, data.symbol, data.buy);
+    }
+    if (data.send)
+    {
+      this.setTransactionFees(operatorId, CryptoFeeOptions.SEND, data.symbol, data.send);
+    }
+  }
+
   async setWithdrawalRate(operatorId: string, data: SetCryptoFees) {
-    await this.setTransactionFees(operatorId, {
+    await this.setTransactionRates(operatorId, {
       event: TransactionEventType.CryptoWithdrawalEvent,
       symbol: data.symbol,
       feeFlat: data.feeFlat,
@@ -218,7 +244,15 @@ export class CryptoService {
     });
   }
 
-  async setTransactionFees(operatorId: string, data: SetCryptoFees) {
+  async fetchFees() {
+    return await lastValueFrom( this.walletClient.send( { cmd: 'fetch.crypto.fees' }, true ), );
+  } 
+
+  async fetchFee(symbol: string) {
+    return await lastValueFrom( this.walletClient.send( { cmd: 'fetch.crypto.fee.single' }, symbol ), );
+  }
+
+  async setTransactionRates(operatorId: string, data: SetCryptoFees) {
     // this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
     const [result] = await this.walletDB.query(
       `SELECT * FROM tx_fees WHERE symbol = ? AND event = ?`,
@@ -257,7 +291,58 @@ export class CryptoService {
       data: {
         action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
         operatorId,
-        details: `${data.symbol} fee set by ${operatorId}`,
+        details: `${data.symbol} rates set by ${operatorId}`,
+      },
+    });
+  }
+
+  async setTransactionFees(
+    operatorId: string,
+    feeOption: CryptoFeeOptions,
+    symbol: string,
+    data: cryptoFeesDto,
+  ) { 
+    const [result] = await this.walletDB.query(
+      `SELECT * FROM crypto_fees WHERE symbol = ? AND fee_option = ?`,
+      [symbol, feeOption],
+    );  
+    const fee = result[0];
+    if (!fee)
+      await this.walletDB.execute(
+        `
+        INSERT INTO crypto_fees (
+          id, symbol, fee_option, fee_type, deno, value, cap_amount, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        [
+          cuid(),
+          symbol,
+          feeOption,
+          data.feeType,
+          data.deno,
+          data.value,
+          data.cap,
+        ],
+      );
+    else
+      await this.walletDB.execute(
+        `UPDATE crypto_fees
+          SET
+          fee_type = ?, value = ?, deno = ?, cap = ?, updated_at = NOW() WHERE symbol = ? AND fee_option = ?`,
+        [
+          data.feeType || fee.fee_type,
+          data.value || fee.value,
+          data.deno || fee.deno,
+          data.cap || fee.cap,
+          symbol || fee.symbol,
+          feeOption || fee.fee_option,
+        ],
+      );
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
+        operatorId,
+        details: `${symbol} fees set by ${operatorId}`,
       },
     });
   }
