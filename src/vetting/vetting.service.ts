@@ -48,7 +48,6 @@ export class VettingService {
     const vetting = await lastValueFrom(
       this.walletClient.send({ cmd: 'vetting.details.get' }, id),
     );
-    if (!vetting) throw new BadRequestException('Vetting does not exist');
 
     return vetting;
   }
