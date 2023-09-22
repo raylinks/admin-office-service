@@ -3,13 +3,14 @@ import {
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export enum CryptoAssetType {
@@ -31,6 +32,13 @@ export enum TransactionEventType {
   FiatDepositEvent = 'FiatDepositEvent',
   ReversalEvent = 'ReversalEvent',
   GiftcardEvent = 'GiftcardEvent',
+}
+
+export enum CryptoFeeOptions {
+  BUY = 'BUY',
+  SELL = 'SELL',
+  SWAP = 'SWAP',
+  SEND = 'SEND',
 }
 
 export class QueryCryptoTransactionsDto {
@@ -62,7 +70,7 @@ export class QueryCryptoTransactionsDto {
   @ApiPropertyOptional({
     enum: TransactionEventType,
   })
-  @Expose({ name: "event" })
+  @Expose({ name: 'event' })
   eventType?: TransactionEventType;
 }
 
@@ -98,17 +106,20 @@ export class SetFeeDto {
   feePercentage?: number;
 }
 
-export class SetCryptoTransactionFeesDto {
+export class SetCryptoTransactionRateDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
   symbol: string;
 
-  @ApiProperty({ type: SetFeeDto })
-  buy: SetFeeDto;
+  @ApiPropertyOptional({ type: SetFeeDto })
+  buy?: SetFeeDto;
 
-  @ApiProperty({ type: SetFeeDto })
-  sell: SetFeeDto;
+  @ApiPropertyOptional({ type: SetFeeDto })
+  sell?: SetFeeDto;
+
+  @ApiPropertyOptional({ type: SetFeeDto })
+  swap?: SetFeeDto;
 }
 
 export class SetCryptoFees {
@@ -139,4 +150,52 @@ export class SetCryptoFees {
 
   @ApiHideProperty()
   event: TransactionEventType;
+}
+
+export class cryptoFeesDto {
+  @ApiProperty({ enum: ['flat', 'percentage'] })
+  @IsNotEmpty()
+  @IsEnum(['flat', 'percentage'])
+  feeType: 'flat' | 'percentage';
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  value: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  cap: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  deno: string;
+}
+
+export class updateCryptoTransactionFeeDto {
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  buy: cryptoFeesDto;
+
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  sell: cryptoFeesDto;
+
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  swap: cryptoFeesDto;
+
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  send: cryptoFeesDto;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  symbol: string;
 }

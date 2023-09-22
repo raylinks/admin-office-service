@@ -198,4 +198,24 @@ export class UserController {
       transaction,
     );
   }
+
+  @Get('/export/excel')
+  async exportAllUsersInExcel(@Query() query: GetUsersDTO, @Res() res: Response) {
+    return await this.userService.exportAllUsersrInExcel(query,res);
+  }
+
+  @Post('/transaction/wallet/export/excel/:id')
+  async exportWalletTransactionInExcel(
+    @Param('id') id: string,
+    @Body() payload: TransactionAssetSymbolDto,
+    @Query() query: QueryTransactionsDto,
+    @Res() res: Response,
+  ) {
+    return await this.userService.exportWalletTransactionInExcel(
+      id,
+      payload,
+      query,
+      res,
+    );
+  }
 }

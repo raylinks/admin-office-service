@@ -2,7 +2,7 @@ import { Logger, Module, OnApplicationShutdown } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { parseDbUrl } from './database.util';
 import { ModuleRef } from '@nestjs/core';
-import { Pool, createConnection, createPool } from 'mysql2';
+import { Pool, createConnection, createPool } from 'mysql2/promise';
 import config from 'src/config';
 
 const walletService = async () => {
@@ -21,11 +21,10 @@ const userService = async () => {
   });
 };
 
-
 @Module({
   providers: [
     DatabaseService,
-  
+
     {
       provide: 'USER_DB_CONNECTION',
       useFactory: userService,
@@ -40,14 +39,14 @@ const userService = async () => {
           password: opts.password,
           database: opts.database,
           debug: true,
-        }).promise();
+        });
       },
     },
   ],
   exports: [DatabaseService],
 })
 export class DatabaseModule implements OnApplicationShutdown {
-  constructor(private readonly moduleRef: ModuleRef) { }
+  constructor(private readonly moduleRef: ModuleRef) {}
   private readonly logger = new Logger(DatabaseModule.name);
 
   onApplicationShutdown(signal?: string) {

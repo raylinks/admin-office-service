@@ -16,8 +16,9 @@ import { HttpResponse } from 'src/reponses/http.response';
 import {
   CryptoAssetType,
   QueryCryptoTransactionsDto,
-  SetCryptoTransactionFeesDto,
+  SetCryptoTransactionRateDto,
   SetCryptoFees,
+  updateCryptoTransactionFeeDto,
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
@@ -121,11 +122,21 @@ export class CryptoController {
   @Put('set-rate')
   async setCryptoRate(
     @GetAccount() profile: { userId: string },
-    @Body() data: SetCryptoTransactionFeesDto,
+    @Body() data: SetCryptoTransactionRateDto,
     @Res() res: Response,
   ) {
     await this.cryptoService.setBuySellRate(profile.userId, data);
     return this.response.okResponse(res, 'Crypto rate set successfully');
+  }
+
+  @Put('set-fee')
+  async setCryptoTransactionFees(
+    @GetAccount() profile: { userId: string },
+    @Body() data: updateCryptoTransactionFeeDto,
+    @Res() res: Response,
+  ) {
+    await this.cryptoService.setCryptoTransactionFees(profile.userId, data);
+    return this.response.okResponse(res, 'Crypto fees set successfully');
   }
 
   @Put('set-withdrawal-rate')
@@ -147,5 +158,18 @@ export class CryptoController {
     return this.response.okResponse(res, 'Trade rates fetched successfully', {
       rates,
     });
+  }
+
+  @Get('fees')
+  async fetchCryptoFees(@Res() res: Response) {
+    const fees = await this.cryptoService.fetchFees();
+    return this.response.okResponse(res, 'Crypto fees fetched successfully', fees);
+  }
+
+  @Get('fees/:symbol')
+  async fetchCryptoFee(
+    @Param('symbol') symbol: string, @Res() res: Response, ) {
+    const fee = await this.cryptoService.fetchFee(symbol);
+    return this.response.okResponse(res, 'Crypto fees fetched successfully', fee);
   }
 }
