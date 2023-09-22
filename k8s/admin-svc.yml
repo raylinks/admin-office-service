@@ -10,6 +10,7 @@ spec:
     app: admin
   ports:
     - protocol: TCP
+      name: http
       port: 80
       targetPort: 80
     - name: prom
