@@ -245,7 +245,108 @@ export class CryptoService {
   }
 
   async fetchFees() {
-    return await lastValueFrom( this.walletClient.send( { cmd: 'fetch.crypto.fees' }, true ), );
+    const allFees = [];
+
+    const [assets, fees] = await Promise.all([
+      lastValueFrom(
+        this.walletClient.send({ cmd: 'assets.get' }, { service: 'admin' }),
+      ) as Promise<any[]>,
+      lastValueFrom(
+        this.walletClient.send( { cmd: 'fetch.crypto.fees' }, true ),
+      ) as Promise<any[]>,
+    ]);
+
+    const symbols = assets.filter((r) => r.isFiat === false).map((asset) => asset.symbol);  
+    
+    const eventFees = fees.filter(
+      (fee) =>
+      fee.feeOption === 'BUY' ||
+      fee.feeOption === 'SWAP' ||
+      fee.feeOption === 'SELL' ||
+      fee.feeOption === 'SEND',
+    );
+
+    symbols.forEach((symbol) => {
+      const fees = [];
+      const fee = eventFees.filter((r) => r.symbol === symbol);
+
+      if (fee.length > 0) {
+        const sell = fee.find((rs) => rs.feeOption === 'SELL');
+        const buy = fee.find((rb) => rb.feeOption === 'BUY');
+        const swap = fee.find((rs) => rs.feeOption === 'SWAP');
+        const send = fee.find((rb) => rb.feeOption === 'SEND');
+
+        fees.push({
+          sell: sell && {
+            id: sell.id,
+            feeType: sell.feeType,
+            deno: sell.deno,
+            amount: sell.value,
+            capAmount: sell.capAmount
+          },
+          buy: buy && {
+            id: buy.id,
+            feeType: buy.feeType,
+            deno: buy.deno,
+            amount: buy.value,
+            capAmount: buy.capAmount
+          },
+          send: send && {
+            id: send.id,
+            feeType: send.feeType,
+            deno: send.deno,
+            amount: send.value,
+            capAmount: send.capAmount
+          },
+          swap: swap && {
+            id: swap.id,
+            feeType: swap.feeType,
+            deno: swap.deno,
+            amount: swap.value,
+            capAmount: swap.capAmount
+          },
+        });
+      } else {
+        // making sure it sends something back
+        fees.push({
+          sell:  {
+            id: null,
+            feeType: null,
+            deno: null,
+            amount: null,
+            capAmount: null
+          },
+          buy: {
+            id: null,
+            feeType: null,
+            deno: null,
+            amount: null,
+            capAmount: null
+          },
+          send: {
+            id: null,
+            feeType: null,
+            deno: null,
+            amount: null,
+            capAmount: null
+          },
+          swap: {
+            id: null,
+            feeType: null,
+            deno: null,
+            amount: null,
+            capAmount: null
+          },
+        });
+      }
+      allFees.push({
+        symbol,
+        fees,
+      });
+    });
+
+    return allFees;
+
   } 
 
   async fetchFee(symbol: string) {
