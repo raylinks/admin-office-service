@@ -31,6 +31,7 @@ async function bootstrap() {
     .setDescription('Admin API Documentation for FUrex')
     .setVersion('1.0')
     .addServer(`http://localhost:${port}`)
+    .addServer('https://k8s.myfurex.co/admin-service')
     .addServer('https://api.myfurex.co/admin-service')
     .addApiKey(
       {
