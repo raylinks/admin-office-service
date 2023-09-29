@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Post,
   Put,
   Query,
   Res,
@@ -19,6 +20,7 @@ import {
   SetCryptoTransactionRateDto,
   SetCryptoFees,
   updateCryptoTransactionFeeDto,
+  EnableCryptoDto,
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
@@ -103,18 +105,15 @@ export class CryptoController {
     return this.response.okResponse(res, 'Asset disabled successfully');
   }
 
-  @Get('enable/:symbol')
+  @Post('enable/:symbol')
   @ApiQuery({ name: 'type', enum: CryptoAssetType })
   async enableCrypto(
     @GetAccount() profile: { userId: string },
+    @Body() data: EnableCryptoDto,
     @Param('symbol') symbol: string,
-    @Query('type') type: CryptoAssetType,
     @Res() res: Response,
   ) {
-    await this.cryptoService.enableAsset(profile.userId, {
-      type,
-      symbol,
-    });
+    await this.cryptoService.enableAsset(profile.userId, symbol, data);
 
     return this.response.okResponse(res, 'Asset enabled successfully');
   }
