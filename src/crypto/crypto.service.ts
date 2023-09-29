@@ -12,6 +12,7 @@ import {
   SetCryptoTransactionRateDto,
   cryptoFeesDto,
   CryptoFeeOptions,
+  EnableCryptoDto,
 } from './crypto.dto';
 import { ExcelService } from 'src/exports/excel.service';
 import { Pool } from 'mysql2/promise';
@@ -66,12 +67,13 @@ export class CryptoService {
     });
   }
 
-  async enableAsset(operatorId: string, data: EnableDisableCryptoAssetDto) {
+  async enableAsset(operatorId: string,   symbol:string,  data: EnableCryptoDto) {
     this.walletClient.emit(
       { cmd: 'crypto.enable' },
       {
-        symbol: data.symbol,
+        symbol: symbol,
         stateType: data.type,
+        pairs: data.pairs,
       },
     );
 
@@ -79,7 +81,7 @@ export class CryptoService {
       data: {
         action: AUDIT_ACTIONS.ENABLE_CRYPTO,
         operatorId,
-        details: `${data.symbol} enabled by ${operatorId}`,
+        details: `${symbol} enabled by ${operatorId}`,
       },
     });
   }

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -104,6 +105,17 @@ export class SetFeeDto {
   @IsOptional()
   @IsNumber()
   feePercentage?: number;
+}
+
+export class EnableCryptoDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  type: CryptoAssetType;
+
+  @IsOptional()
+  @IsArray()
+  pairs?: Array<string>
 }
 
 export class SetCryptoTransactionRateDto {
