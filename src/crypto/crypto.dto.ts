@@ -36,10 +36,10 @@ export enum TransactionEventType {
 }
 
 export enum CryptoFeeOptions {
-  BUY = 'BuyEvent',
-  SELL = 'SellEvent',
-  SWAP = 'SwapEvent',
-  SEND = 'CryptoWithdrawalEvent',
+  BUY = 'BUY',
+  SELL = 'SELL',
+  SWAP = 'SWAP',
+  SEND = 'SEND',
 }
 
 export class QueryCryptoTransactionsDto {
@@ -211,3 +211,14 @@ export class updateCryptoTransactionFeeDto {
   @IsNotEmpty()
   symbol: string;
 }
+
+export const DenoArray = [
+  '1-49',
+  '50-69',
+  '70-99',
+  '100-499',
+  '500-999',
+  '1000-2999',
+  '3000-4999',
+  '5000-9999'
+];
