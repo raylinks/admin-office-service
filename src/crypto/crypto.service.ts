@@ -266,11 +266,9 @@ export class CryptoService {
     );
 
     symbols.forEach((symbol) => {
-      const fees = [];
+      let fees = {};
       const fee = eventFees.filter((r) => r.symbol === symbol);
-
-
-        fees.push({
+        fees = {
           send: {
             "flat": this.filterFees(fee, CryptoFeeOptions.SEND, "flat"),
             "percentage": this.filterFees(fee, CryptoFeeOptions.SEND, "percentage"),
@@ -287,7 +285,7 @@ export class CryptoService {
             "flat": this.filterFees(fee, CryptoFeeOptions.SWAP, "flat"),
             "percentage": this.filterFees(fee, CryptoFeeOptions.SWAP, "percentage"),
           }
-        });
+        };
       
       allFees.push({
         symbol,
