@@ -262,10 +262,10 @@ export class CryptoService {
     
     const eventFees = fees.filter(
       (fee) =>
-      fee.feeOption === 'BUY' ||
-      fee.feeOption === 'SWAP' ||
-      fee.feeOption === 'SELL' ||
-      fee.feeOption === 'SEND',
+      fee.event === 'SellEvent' ||
+      fee.event === 'SwapEvent' ||
+      fee.event === 'BuyEvent' ||
+      fee.event === 'CryptoWithdrawalEvent',
     );
 
     symbols.forEach((symbol) => {
@@ -273,39 +273,39 @@ export class CryptoService {
       const fee = eventFees.filter((r) => r.symbol === symbol);
 
       if (fee.length > 0) {
-        const sell = fee.find((rs) => rs.feeOption === 'SELL');
-        const buy = fee.find((rb) => rb.feeOption === 'BUY');
-        const swap = fee.find((rs) => rs.feeOption === 'SWAP');
-        const send = fee.find((rb) => rb.feeOption === 'SEND');
+        const sell = fee.find((rs) => rs.event === 'SellEvent');
+        const buy = fee.find((rb) => rb.event === 'SwapEvent');
+        const swap = fee.find((rs) => rs.event === 'BuyEvent');
+        const send = fee.find((rb) => rb.event === 'CryptoWithdrawalEvent');
 
         fees.push({
           sell: sell && {
             id: sell.id,
-            feeType: sell.feeType,
-            deno: sell.deno,
-            amount: sell.value,
-            capAmount: sell.capAmount
+            feeType: sell.feeFlat > 0 ? 'flat' : 'percentage',
+            deno: `${sell.minAmount}-${sell.maxAmount}`,
+            amount: sell.feeFlat > 0 ? sell.feeFlat : sell.feePercentage,
+            capAmount: sell.cap
           },
           buy: buy && {
             id: buy.id,
-            feeType: buy.feeType,
-            deno: buy.deno,
-            amount: buy.value,
-            capAmount: buy.capAmount
+            feeType: buy.feeFlat > 0 ? 'flat' : 'percentage',
+            deno: `${buy.minAmount}-${buy.maxAmount}`,
+            amount: buy.feeFlat > 0 ? buy.feeFlat : buy.feePercentage,
+            capAmount: buy.cap
           },
           send: send && {
             id: send.id,
-            feeType: send.feeType,
-            deno: send.deno,
-            amount: send.value,
-            capAmount: send.capAmount
+            feeType: send.feeFlat > 0 ? 'flat' : 'percentage',
+            deno: `${send.minAmount}-${send.maxAmount}`,
+            amount: send.feeFlat > 0 ? send.feeFlat : send.feePercentage,
+            capAmount: send.cap
           },
           swap: swap && {
             id: swap.id,
-            feeType: swap.feeType,
-            deno: swap.deno,
-            amount: swap.value,
-            capAmount: swap.capAmount
+            feeType: swap.feeFlat > 0 ? 'flat' : 'percentage',
+            deno: `${swap.minAmount}-${swap.maxAmount}`,
+            amount: swap.feeFlat > 0 ? swap.feeFlat : swap.feePercentage,
+            capAmount: swap.cap
           },
         });
       } else {
@@ -352,7 +352,24 @@ export class CryptoService {
   } 
 
   async fetchFee(symbol: string) {
-    return await lastValueFrom( this.walletClient.send( { cmd: 'fetch.crypto.fee.single' }, symbol ), );
+    const fees =  await lastValueFrom( this.walletClient.send( { cmd: 'fetch.crypto.fee.single' }, symbol ), );
+    const filterFees = [];
+    fees.forEach(fee => {
+      filterFees.push({
+          id: fee.id,
+          feeType: fee.feeFlat > 0 ? 'flat' : 'percentage',
+          deno: `${fee.minAmount}-${fee.maxAmount}`,
+          amount: fee.feeFlat > 0 ? fee.feeFlat : fee.feePercentage,
+          capAmount: fee.cap,
+          feeOption: this.getCryptoFeeOptionsEnumKey(fee.event)
+      })
+    })
+    return filterFees
+  }
+
+  getCryptoFeeOptionsEnumKey (value){
+    const indexOfValue = Object.values(CryptoFeeOptions).indexOf(value as unknown as CryptoFeeOptions);
+    return Object.keys(CryptoFeeOptions)[indexOfValue];
   }
 
   async setTransactionRates(operatorId: string, data: SetCryptoFees) {
@@ -405,39 +422,48 @@ export class CryptoService {
     symbol: string,
     data: cryptoFeesDto,
   ) { 
+
+    const min_amount = data.deno.split('-').length > 0 ? parseInt(data.deno.split('-')[0]) : 0;
+    const max_amount = data.deno.split('-').length > 1 ? parseInt(data.deno.split('-')[1]) : 0;
+    const fee_flat = data.feeType == 'flat' ? data.value : 0;
+    const fee_percentage = data.feeType == 'percentage' ? data.value : 0;
+    const cap = data.cap;
+
     const [result] = await this.walletDB.query(
-      `SELECT * FROM crypto_fees WHERE symbol = ? AND fee_option = ?`,
+      `SELECT * FROM tx_fees WHERE symbol = ? AND transaction_event_type = ?`,
       [symbol, feeOption],
     );  
     const fee = result[0];
     if (!fee)
       await this.walletDB.execute(
         `
-        INSERT INTO crypto_fees (
-          id, symbol, fee_option, fee_type, deno, value, cap_amount, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        INSERT INTO tx_fees (
+          id, symbol, transaction_event_type, min_amount, max_amount, fee_flat, fee_percentage, cap, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           cuid(),
           symbol,
           feeOption,
-          data.feeType,
-          data.deno,
-          data.value,
-          data.cap,
+          min_amount,
+          max_amount,
+          fee_flat,
+          fee_percentage,
+          cap
         ],
       );
     else
       await this.walletDB.execute(
-        `UPDATE crypto_fees
+        `UPDATE tx_fees
           SET
-          fee_type = ?, value = ?, deno = ?, cap = ?, updated_at = NOW() WHERE symbol = ? AND fee_option = ?`,
+          min_amount = ?, max_amount = ?, fee_flat = ?, fee_percentage = ?, cap = ?, updated_at = NOW() WHERE symbol = ? AND transaction_event_type = ?`,
         [
-          data.feeType || fee.fee_type,
-          data.value || fee.value,
-          data.deno || fee.deno,
+          min_amount || fee.max_amount,
+          max_amount || fee.max_amount,
+          fee_flat || fee.fee_flat,
+          fee_percentage || fee.fee_percentage,
           data.cap || fee.cap,
           symbol || fee.symbol,
-          feeOption || fee.fee_option,
+          feeOption || fee.transaction_event_type,
         ],
       );
 
