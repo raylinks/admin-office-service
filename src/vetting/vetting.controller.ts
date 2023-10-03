@@ -47,7 +47,7 @@ export class VettingController {
 
     return this.response.okResponse(
       res,
-      'fetched vetting details',
+      'Vetting records retrieved',
       withdrawal.transaction,
     );
   }

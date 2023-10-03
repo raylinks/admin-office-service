@@ -140,4 +140,121 @@ export class GiftcardController {
 
     return this.response.okResponse(res, 'card receipt deleted successfully');
   }
+
+  /////////    GIFTCARD BUY BEGINS HERE
+
+  @Get('card/buy')
+  async fetchAllCardBuys(@Res() res: Response) {
+    const cards = await this.giftcardService.fetchAllCardBuys();
+
+    return this.response.okResponse(res, 'fetched all giftcards buy', cards);
+  }
+
+  @Get('card/buy/:id')
+  @ApiParam({ name: 'id' })
+  async fetchCardBuyDetails(@Param('id') id: string, @Res() res: Response) {
+    const card = await this.giftcardService.fetchCardBuy(id);
+
+    return this.response.okResponse(res, 'fetched giftcard details', card);
+  }
+
+  @Post('card/buy/new')
+  async createCardBuy(
+    @GetAccount() profile: { userId: string },
+    @Body() data: CreateGiftCardDto,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.createCardBuy(profile.userId, data);
+
+    return this.response.createdResponse(
+      res,
+      'giftcard buy created successfully',
+      null,
+    );
+  }
+
+  @Post('card/buy/disable/:id')
+  async disableCardBuy(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.disableCardBuy(profile.userId, id);
+
+    return this.response.okResponse(
+      res,
+      'giftcard buy disabled successfully',
+      null,
+    );
+  }
+
+  @Post('card/buy/enable/:id')
+  async enableCardBuy(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.enableCardBuy(profile.userId, id);
+
+    return this.response.okResponse(res, 'giftcard buy enabled successfully', null);
+  }
+
+  @Post('card/buy/set-rate')
+  async setDenominationRateForCardBuy(
+    @GetAccount() profile: { userId: string },
+    @Body() data: SetCardRateDto,
+    @Res() res: Response,
+  ) {
+    const card = await this.giftcardService.setCardBuyRate(profile.userId, data);
+
+    return this.response.okResponse(
+      res,
+      'card buy denomination rate set successfully',
+      card,
+    );
+  }
+
+  @Delete('card/buy/delete/currency/:id')
+  async deleteCardBuyCurrency(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardBuyCurrency(profile.userId, id);
+
+    return this.response.okResponse(res, 'card buy currency deleted successfully');
+  }
+
+  @Delete('card/buy/delete/denomination/:id')
+  async deleteCardBuyDenomination(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardBuyDenomination(profile.userId, id);
+
+    return this.response.okResponse(res, 'card buy denomination deleted successfully');
+  }
+
+  @Delete('card/buy/delete/number/:id')
+  async deleteCardBuyNumber(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardBuyNumber(profile.userId, id);
+
+    return this.response.okResponse(res, 'card buy number deleted successfully');
+  }
+
+  @Delete('card/buy/delete/receipt/:id')
+  async deleteCarBuydReceipt(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.deleteCardBuyReceipt(profile.userId, id);
+
+    return this.response.okResponse(res, 'card buy receipt deleted successfully');
+  }
 }

@@ -3,13 +3,15 @@ import {
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export enum CryptoAssetType {
@@ -31,6 +33,13 @@ export enum TransactionEventType {
   FiatDepositEvent = 'FiatDepositEvent',
   ReversalEvent = 'ReversalEvent',
   GiftcardEvent = 'GiftcardEvent',
+}
+
+export enum CryptoFeeOptions {
+  BUY = 'BUY',
+  SELL = 'SELL',
+  SWAP = 'SWAP',
+  SEND = 'SEND',
 }
 
 export class QueryCryptoTransactionsDto {
@@ -98,7 +107,18 @@ export class SetFeeDto {
   feePercentage?: number;
 }
 
-export class SetCryptoTransactionFeesDto {
+export class EnableCryptoDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  type: CryptoAssetType;
+
+  @IsOptional()
+  @IsArray()
+  pairs?: Array<string>
+}
+
+export class SetCryptoTransactionRateDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -143,3 +163,62 @@ export class SetCryptoFees {
   @ApiHideProperty()
   event: TransactionEventType;
 }
+
+export class cryptoFeesDto {
+  @ApiProperty({ enum: ['flat', 'percentage'] })
+  @IsNotEmpty()
+  @IsEnum(['flat', 'percentage'])
+  feeType: 'flat' | 'percentage';
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  value: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  cap: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  deno: string;
+}
+
+export class updateCryptoTransactionFeeDto {
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  buy: cryptoFeesDto;
+
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  sell: cryptoFeesDto;
+
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  swap: cryptoFeesDto;
+
+  @ApiProperty({ type: cryptoFeesDto })
+  @ValidateNested({ each: true })
+  @Type(() => cryptoFeesDto)
+  send: cryptoFeesDto;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  symbol: string;
+}
+
+export const DenoArray = [
+  '1-49',
+  '50-69',
+  '70-99',
+  '100-499',
+  '500-999',
+  '1000-2999',
+  '3000-4999',
+  '5000-9999'
+];

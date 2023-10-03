@@ -147,10 +147,8 @@ export class TradeService {
 
       await this.giftcardDB.execute(
         `UPDATE trades SET rate = ?, status = 'RATE_SET', updated_at = NOW() WHERE id = ?`,
-        [data.rate.toFixed(2), tradeId],
+        [data.rate, tradeId],
       );
-
-      // this.giftcardClient.emit('trade.rate.set', { ...data, tradeId });
 
       await this.prisma.auditLog.create({
         data: {

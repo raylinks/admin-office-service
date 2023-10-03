@@ -11,7 +11,7 @@ metadata:
     keel.sh/trigger: poll
     keel.sh/pollSchedule: "@every 1m"
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: admin
@@ -27,7 +27,17 @@ spec:
         envFrom:
             - secretRef:
                 name: doppler-token
-        image: furextch/admin-service:latest
+        image: furextch/admin-service:dev
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+          name: http
+        - containerPort: 8801
+          name: prom
+      # resources:
+      #   limits:
+      #     cpu: 300m
+      #     memory: 500Mi
+      #   requests:
+      #     cpu: 100m
+      #     memory: 200Mi

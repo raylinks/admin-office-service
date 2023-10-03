@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Post,
   Put,
   Query,
   Res,
@@ -16,8 +17,10 @@ import { HttpResponse } from 'src/reponses/http.response';
 import {
   CryptoAssetType,
   QueryCryptoTransactionsDto,
-  SetCryptoTransactionFeesDto,
+  SetCryptoTransactionRateDto,
   SetCryptoFees,
+  updateCryptoTransactionFeeDto,
+  EnableCryptoDto,
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
@@ -57,7 +60,7 @@ export class CryptoController {
     );
   }
 
-  @Get('transactions/export/excel')
+  @Get('transactions/export')
   async exportAllTransactions(
     @Query() query: QueryCryptoTransactionsDto,
     @Res() res: Response,
@@ -78,7 +81,7 @@ export class CryptoController {
     );
   }
 
-  @Get('transactions/:id/export/excel')
+  @Get('transactions/:id/export')
   async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
   
      return await this.cryptoService.exportOneTransactions(res, id);
@@ -102,18 +105,15 @@ export class CryptoController {
     return this.response.okResponse(res, 'Asset disabled successfully');
   }
 
-  @Get('enable/:symbol')
+  @Post('enable/:symbol')
   @ApiQuery({ name: 'type', enum: CryptoAssetType })
   async enableCrypto(
     @GetAccount() profile: { userId: string },
+    @Body() data: EnableCryptoDto,
     @Param('symbol') symbol: string,
-    @Query('type') type: CryptoAssetType,
     @Res() res: Response,
   ) {
-    await this.cryptoService.enableAsset(profile.userId, {
-      type,
-      symbol,
-    });
+    await this.cryptoService.enableAsset(profile.userId, symbol, data);
 
     return this.response.okResponse(res, 'Asset enabled successfully');
   }
@@ -121,11 +121,21 @@ export class CryptoController {
   @Put('set-rate')
   async setCryptoRate(
     @GetAccount() profile: { userId: string },
-    @Body() data: SetCryptoTransactionFeesDto,
+    @Body() data: SetCryptoTransactionRateDto,
     @Res() res: Response,
   ) {
     await this.cryptoService.setBuySellRate(profile.userId, data);
     return this.response.okResponse(res, 'Crypto rate set successfully');
+  }
+
+  @Put('set-fee')
+  async setCryptoTransactionFees(
+    @GetAccount() profile: { userId: string },
+    @Body() data: updateCryptoTransactionFeeDto,
+    @Res() res: Response,
+  ) {
+    await this.cryptoService.setCryptoTransactionFees(profile.userId, data);
+    return this.response.okResponse(res, 'Crypto fees set successfully');
   }
 
   @Put('set-withdrawal-rate')
@@ -147,5 +157,18 @@ export class CryptoController {
     return this.response.okResponse(res, 'Trade rates fetched successfully', {
       rates,
     });
+  }
+
+  @Get('fees')
+  async fetchCryptoFees(@Res() res: Response) {
+    const fees = await this.cryptoService.fetchFees();
+    return this.response.okResponse(res, 'Crypto fees fetched successfully', fees);
+  }
+
+  @Get('fees/:symbol')
+  async fetchCryptoFee(
+    @Param('symbol') symbol: string, @Res() res: Response, ) {
+    const fee = await this.cryptoService.fetchFee(symbol);
+    return this.response.okResponse(res, 'Crypto fees fetched successfully', fee);
   }
 }
