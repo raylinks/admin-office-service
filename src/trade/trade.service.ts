@@ -31,7 +31,6 @@ export class TradeService {
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     @Inject('GIFTCARD_SERVICE_DATABASE_CONNECTION') private giftcardDB: Pool,
-    @Inject(RMQ_NAMES.NOTIFICATION_SERVICE) notificationClient: ClientRMQ,
     private excelService: ExcelService,
   ) {}
 
@@ -91,6 +90,7 @@ export class TradeService {
     const trade = await lastValueFrom(
       this.giftcardClient.send('trade.details.get', id),
     );
+
     if (!trade) throw new BadRequestException('Trade does not exist');
 
     if (trade.rate) {
