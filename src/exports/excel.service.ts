@@ -6,6 +6,7 @@ import {
 import * as Excel from 'exceljs';
 import * as path from 'path';
 import * as fs from 'fs';
+import { Response } from 'express';
 
 @Injectable()
 export class ExcelService {
@@ -18,10 +19,8 @@ export class ExcelService {
     switch (mode) {
       case 'single':
         return await this.prepareSingleExport(res, data, transactionType);
-        break;
       case 'bulk':
         return await this.prepareBulkExport(res, data, transactionType);
-        break;
     }
   }
 
