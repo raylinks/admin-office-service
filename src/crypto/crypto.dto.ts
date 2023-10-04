@@ -113,6 +113,7 @@ export class EnableCryptoDto {
   @IsNotEmpty()
   type: CryptoAssetType;
 
+  @ApiProperty()
   @IsOptional()
   @IsArray()
   pairs?: Array<string>
