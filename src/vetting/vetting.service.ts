@@ -116,8 +116,8 @@ export class VettingService {
    * @returns
    */
   async exportAllTransactions(res, query?: QueryVettingsDto) {
-      const { withdrawals } = await this.listVetting(query);
-      return await this.excelService.export(res, withdrawals, 'vetting', 'bulk');
+      const vettings = await this.listVetting(query);
+      return await this.excelService.export(res, vettings, 'vetting', 'bulk');
   }
 
   /**
