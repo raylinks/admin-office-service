@@ -31,6 +31,8 @@ export class VettingService {
    * @returns
    */
   async listVetting(query?: QueryVettingsDto) {
+    query.limit = Number(query?.limit);
+    query.page = Number(query?.page);
     const vettings = await lastValueFrom(
       this.walletClient.send({ cmd: 'fetch.vettings' }, query),
     );
