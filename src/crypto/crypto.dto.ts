@@ -113,6 +113,7 @@ export class EnableCryptoDto {
   @IsNotEmpty()
   type: CryptoAssetType;
 
+  @ApiProperty()
   @IsOptional()
   @IsArray()
   pairs?: Array<string>
@@ -211,3 +212,14 @@ export class updateCryptoTransactionFeeDto {
   @IsNotEmpty()
   symbol: string;
 }
+
+export const DenoArray = [
+  '1-49',
+  '50-69',
+  '70-99',
+  '100-499',
+  '500-999',
+  '1000-2999',
+  '3000-4999',
+  '5000-9999'
+];

@@ -13,6 +13,7 @@ import {
   cryptoFeesDto,
   CryptoFeeOptions,
   EnableCryptoDto,
+  DenoArray,
 } from './crypto.dto';
 import { ExcelService } from 'src/exports/excel.service';
 import { Pool } from 'mysql2/promise';
@@ -25,7 +26,7 @@ export class CryptoService {
     private prisma: PrismaClient,
     private excelService: ExcelService,
     @Inject('WALLET_SERVICE_DATABASE_CONNECTION') private walletDB: Pool,
-  ) {}
+  ) { }
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
     return await lastValueFrom(
       this.walletClient.send(
@@ -49,12 +50,13 @@ export class CryptoService {
     );
   }
 
-  async disableAsset(operatorId: string, data: EnableDisableCryptoAssetDto) {
+  async disableAsset(operatorId: string, symbol:string, data: EnableCryptoDto) {
     this.walletClient.emit(
       { cmd: 'crypto.disable' },
       {
-        symbol: data.symbol,
+        symbol: symbol,
         stateType: data.type,
+        pairs: data.pairs,
       },
     );
 
@@ -62,12 +64,12 @@ export class CryptoService {
       data: {
         action: AUDIT_ACTIONS.DISABLE_CRYPTO,
         operatorId,
-        details: `${data.symbol} disabled by ${operatorId}`,
+        details: `${symbol} disabled by ${operatorId}`,
       },
     });
   }
 
-  async enableAsset(operatorId: string,   symbol:string,  data: EnableCryptoDto) {
+  async enableAsset(operatorId: string, symbol: string, data: EnableCryptoDto) {
     this.walletClient.emit(
       { cmd: 'crypto.enable' },
       {
@@ -201,7 +203,7 @@ export class CryptoService {
         minAmount: data.sell.minAmount,
         feePercentage: data.sell.feePercentage,
       });
-   if (data.swap)
+    if (data.swap)
       this.setTransactionRates(operatorId, {
         event: TransactionEventType.SwapEvent,
         symbol: data.symbol,
@@ -217,20 +219,16 @@ export class CryptoService {
     operatorId: string,
     data: updateCryptoTransactionFeeDto,
   ) {
-    if (data.swap)
-    {
+    if (data.swap) {
       this.setTransactionFees(operatorId, CryptoFeeOptions.SWAP, data.symbol, data.swap);
     }
-    if (data.sell)
-    {
+    if (data.sell) {
       this.setTransactionFees(operatorId, CryptoFeeOptions.SELL, data.symbol, data.sell);
     }
-    if (data.buy)
-    {
+    if (data.buy) {
       this.setTransactionFees(operatorId, CryptoFeeOptions.BUY, data.symbol, data.buy);
     }
-    if (data.send)
-    {
+    if (data.send) {
       this.setTransactionFees(operatorId, CryptoFeeOptions.SEND, data.symbol, data.send);
     }
   }
@@ -254,7 +252,7 @@ export class CryptoService {
         this.walletClient.send({ cmd: 'assets.get' }, { service: 'admin' }),
       ) as Promise<any[]>,
       lastValueFrom(
-        this.walletClient.send( { cmd: 'fetch.crypto.fees' }, true ),
+        this.walletClient.send({ cmd: 'fetch.crypto.fees' }, true),
       ) as Promise<any[]>,
     ]);
 
@@ -262,85 +260,36 @@ export class CryptoService {
     
     const eventFees = fees.filter(
       (fee) =>
-      fee.feeOption === 'BUY' ||
-      fee.feeOption === 'SWAP' ||
-      fee.feeOption === 'SELL' ||
-      fee.feeOption === 'SEND',
+        fee.feeOption === 'BUY' ||
+        fee.feeOption === 'SWAP' ||
+        fee.feeOption === 'SELL' ||
+        fee.feeOption === 'SEND',
     );
 
     symbols.forEach((symbol) => {
       const fees = [];
       const fee = eventFees.filter((r) => r.symbol === symbol);
 
-      if (fee.length > 0) {
-        const sell = fee.find((rs) => rs.feeOption === 'SELL');
-        const buy = fee.find((rb) => rb.feeOption === 'BUY');
-        const swap = fee.find((rs) => rs.feeOption === 'SWAP');
-        const send = fee.find((rb) => rb.feeOption === 'SEND');
 
         fees.push({
-          sell: sell && {
-            id: sell.id,
-            feeType: sell.feeType,
-            deno: sell.deno,
-            amount: sell.value,
-            capAmount: sell.capAmount
+          send: {
+            "flat": this.filterFees(fee, CryptoFeeOptions.SEND, "flat"),
+            "percentage": this.filterFees(fee, CryptoFeeOptions.SEND, "percentage"),
           },
-          buy: buy && {
-            id: buy.id,
-            feeType: buy.feeType,
-            deno: buy.deno,
-            amount: buy.value,
-            capAmount: buy.capAmount
-          },
-          send: send && {
-            id: send.id,
-            feeType: send.feeType,
-            deno: send.deno,
-            amount: send.value,
-            capAmount: send.capAmount
-          },
-          swap: swap && {
-            id: swap.id,
-            feeType: swap.feeType,
-            deno: swap.deno,
-            amount: swap.value,
-            capAmount: swap.capAmount
-          },
-        });
-      } else {
-        // making sure it sends something back
-        fees.push({
-          sell:  {
-            id: null,
-            feeType: null,
-            deno: null,
-            amount: null,
-            capAmount: null
+          sell: {
+            "flat": this.filterFees(fee, CryptoFeeOptions.SELL, "flat"),
+            "percentage": this.filterFees(fee, CryptoFeeOptions.SELL, "percentage"),
           },
           buy: {
-            id: null,
-            feeType: null,
-            deno: null,
-            amount: null,
-            capAmount: null
-          },
-          send: {
-            id: null,
-            feeType: null,
-            deno: null,
-            amount: null,
-            capAmount: null
+            "flat": this.filterFees(fee, CryptoFeeOptions.BUY, "flat"),
+            "percentage": this.filterFees(fee, CryptoFeeOptions.BUY, "percentage"),
           },
           swap: {
-            id: null,
-            feeType: null,
-            deno: null,
-            amount: null,
-            capAmount: null
-          },
+            "flat": this.filterFees(fee, CryptoFeeOptions.SWAP, "flat"),
+            "percentage": this.filterFees(fee, CryptoFeeOptions.SWAP, "percentage"),
+          }
         });
-      }
+      
       allFees.push({
         symbol,
         fees,
@@ -351,8 +300,37 @@ export class CryptoService {
 
   } 
 
+  filterFees(data, feeOption, feeType) {
+    const feeOptionData = data.filter((rb) => rb.feeOption === feeOption);
+    const feeTypeData = feeOptionData.filter((rb) => rb.feeType == feeType);
+    const fee = DenoArray.reduce((accumulator, value) => {
+      let datum = feeTypeData.find((rb) => rb.deno == value);
+      datum = datum ? datum : { id: null, value: 0, capAmount: 0 }
+      return { ...accumulator, [value]: { "id": datum.id, "value": datum.value, "cap": datum.capAmount } };
+    }, {});
+    return fee;
+  }
+
   async fetchFee(symbol: string) {
-    return await lastValueFrom( this.walletClient.send( { cmd: 'fetch.crypto.fee.single' }, symbol ), );
+    const fee = await lastValueFrom(this.walletClient.send({ cmd: 'fetch.crypto.fee.single' }, symbol),);
+    return {
+      send: {
+        "flat": this.filterFees(fee, CryptoFeeOptions.SEND, "flat"),
+        "percentage": this.filterFees(fee, CryptoFeeOptions.SEND, "percentage"),
+      },
+      sell: {
+        "flat": this.filterFees(fee, CryptoFeeOptions.SELL, "flat"),
+        "percentage": this.filterFees(fee, CryptoFeeOptions.SELL, "percentage"),
+      },
+      buy: {
+        "flat": this.filterFees(fee, CryptoFeeOptions.BUY, "flat"),
+        "percentage": this.filterFees(fee, CryptoFeeOptions.BUY, "percentage"),
+      },
+      swap: {
+        "flat": this.filterFees(fee, CryptoFeeOptions.SWAP, "flat"),
+        "percentage": this.filterFees(fee, CryptoFeeOptions.SWAP, "percentage"),
+      },
+    }
   }
 
   async setTransactionRates(operatorId: string, data: SetCryptoFees) {
@@ -406,9 +384,9 @@ export class CryptoService {
     data: cryptoFeesDto,
   ) { 
     const [result] = await this.walletDB.query(
-      `SELECT * FROM crypto_fees WHERE symbol = ? AND fee_option = ?`,
-      [symbol, feeOption],
-    );  
+      `SELECT * FROM crypto_fees WHERE symbol = ? AND fee_option = ?  AND fee_type = ? AND deno = ?`,
+      [symbol, feeOption, data.feeType, data.deno],
+    );
     const fee = result[0];
     if (!fee)
       await this.walletDB.execute(
@@ -430,14 +408,14 @@ export class CryptoService {
       await this.walletDB.execute(
         `UPDATE crypto_fees
           SET
-          fee_type = ?, value = ?, deno = ?, cap = ?, updated_at = NOW() WHERE symbol = ? AND fee_option = ?`,
+          value = ?, cap_amount = ?, updated_at = NOW() WHERE symbol = ? AND fee_option = ? AND fee_type = ? AND deno = ?`,
         [
-          data.feeType || fee.fee_type,
           data.value || fee.value,
-          data.deno || fee.deno,
-          data.cap || fee.cap,
+          data.cap || fee.cap_amount,
           symbol || fee.symbol,
           feeOption || fee.fee_option,
+          data.feeType || fee.fee_type,
+          data.deno || fee.deno,
         ],
       );
 

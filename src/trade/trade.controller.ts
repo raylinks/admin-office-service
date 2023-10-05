@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -47,9 +46,7 @@ export class TradeController {
     @Query() query: QueryTradesDto,
     @Res() res: Response,
   ) {
-    
     return await this.tradeService.exportAllTransactions(res, query);
-
   }
 
   @Post('set-approval')
@@ -124,7 +121,6 @@ export class TradeController {
 
   @Get(':id/export/excel')
   async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
-    
     return await this.tradeService.exportOneTransactions(res, id);
   }
 
