@@ -20,8 +20,8 @@ import {
 } from './dto/vetting.dto';
 
 @Controller('vetting')
-@ApiSecurity('auth')
-@UseGuards(JwtAuthGuard)
+// @ApiSecurity('auth')
+// @UseGuards(JwtAuthGuard)
 @ApiTags('Vettings')
 export class VettingController {
   constructor(

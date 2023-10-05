@@ -52,7 +52,7 @@ export class FiatController {
     );
   }
 
-  @Get('transactions/export')
+  @Get('transactions/export/excel')
   async exportAllTransactions(
     @Query() query: QueryFiatTransactionsDto,
     @Res() res: Response,
@@ -82,7 +82,7 @@ export class FiatController {
     );
   }
 
-  @Get('transactions/:id/export')
+  @Get('transactions/:id/export/excel')
   async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
     return await this.fiatService.exportOneTransactions(res, id);
   }
