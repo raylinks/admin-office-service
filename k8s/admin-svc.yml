@@ -4,7 +4,7 @@ metadata:
   name: admin-svc
   labels:
     name: admin
-  namespace: furex-prod
+  namespace: furex-backend
 spec:
   selector:
     app: admin
