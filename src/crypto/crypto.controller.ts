@@ -59,7 +59,7 @@ export class CryptoController {
     );
   }
 
-  @Get('transactions/export')
+  @Get('transactions/export/excel')
   async exportAllTransactions(
     @Query() query: QueryCryptoTransactionsDto,
     @Res() res: Response,
@@ -78,9 +78,10 @@ export class CryptoController {
     );
   }
 
-  @Get('transactions/:id/export')
-  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
-    return await this.cryptoService.exportOneTransactions(res, id);
+  @Get('transactions/:id/export/excel')
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
+  
+     return await this.cryptoService.exportOneTransactions(res, id);
   }
 
   @Get('disable/:symbol')

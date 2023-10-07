@@ -41,7 +41,7 @@ export class TradeController {
     return this.response.okResponse(res, 'fetched all trades', trades);
   }
 
-  @Get('/export')
+  @Get('/export/excel')
   async exportAllTransactions(
     @Query() query: QueryTradesDto,
     @Res() res: Response,
@@ -119,7 +119,7 @@ export class TradeController {
     return this.response.okResponse(res, 'fetched trade details', trade);
   }
 
-  @Get(':id/export')
+  @Get(':id/export/excel')
   async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
     return await this.tradeService.exportOneTransactions(res, id);
   }
