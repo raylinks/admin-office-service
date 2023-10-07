@@ -42,4 +42,4 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            furextch/${{env.REPO_NAME}}:latest
+            furextch/${{env.REPO_NAME}}:prod
