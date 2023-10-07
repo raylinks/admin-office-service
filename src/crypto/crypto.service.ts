@@ -58,12 +58,13 @@ export class CryptoService {
     );
   }
 
-  async disableAsset(operatorId: string, data: EnableDisableCryptoAssetDto) {
+  async disableAsset(operatorId: string, symbol:string, data: EnableCryptoDto) {
     this.walletClient.emit(
       { cmd: 'crypto.disable' },
       {
-        symbol: data.symbol,
+        symbol: symbol,
         stateType: data.type,
+        pairs: data.pairs,
       },
     );
 
@@ -71,7 +72,7 @@ export class CryptoService {
       data: {
         action: AUDIT_ACTIONS.DISABLE_CRYPTO,
         operatorId,
-        details: `${data.symbol} disabled by ${operatorId}`,
+        details: `${symbol} disabled by ${operatorId}`,
       },
     });
   }

@@ -87,20 +87,16 @@ export class CryptoController {
   @ApiQuery({ name: 'type', enum: CryptoAssetType })
   async disableCrypto(
     @GetAccount() profile: { userId: string },
+    @Body() data: EnableCryptoDto,
     @Param('symbol') symbol: string,
-    @Query('type') type: CryptoAssetType,
     @Res() res: Response,
   ) {
-    await this.cryptoService.disableAsset(profile.userId, {
-      type,
-      symbol,
-    });
+    await this.cryptoService.disableAsset(profile.userId, symbol, data);
 
     return this.response.okResponse(res, 'Asset disabled successfully');
   }
 
   @Post('enable/:symbol')
-  @ApiQuery({ name: 'type', enum: CryptoAssetType })
   async enableCrypto(
     @GetAccount() profile: { userId: string },
     @Body() data: EnableCryptoDto,
