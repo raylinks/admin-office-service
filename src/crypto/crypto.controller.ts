@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -19,7 +18,7 @@ import {
   QueryCryptoTransactionsDto,
   SetCryptoTransactionRateDto,
   SetCryptoFees,
-  updateCryptoTransactionFeeDto,
+  UpdateCryptoTransactionFeeDto,
   EnableCryptoDto,
 } from './crypto.dto';
 import { CryptoService } from './crypto.service';
@@ -33,7 +32,7 @@ export class CryptoController {
   constructor(
     private readonly cryptoService: CryptoService,
     private readonly response: HttpResponse,
-  ) {}
+  ) { }
 
   @Get('balance')
   async fetchCryptoBalance(@Res() res: Response) {
@@ -65,9 +64,7 @@ export class CryptoController {
     @Query() query: QueryCryptoTransactionsDto,
     @Res() res: Response,
   ) {
-    
     return await this.cryptoService.exportAllTransactions(res, query);
-
   }
 
   @Get('transactions/:id')
@@ -82,15 +79,12 @@ export class CryptoController {
   }
 
   @Get('transactions/:id/export')
-  async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
-  
-     return await this.cryptoService.exportOneTransactions(res, id);
-
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    return await this.cryptoService.exportOneTransactions(res, id);
   }
 
-
-  @Post('disable/:symbol')
-  @ApiQuery({})
+  @Get('disable/:symbol')
+  @ApiQuery({ name: 'type', enum: CryptoAssetType })
   async disableCrypto(
     @GetAccount() profile: { userId: string },
     @Body() data: EnableCryptoDto,
@@ -127,7 +121,7 @@ export class CryptoController {
   @Put('set-fee')
   async setCryptoTransactionFees(
     @GetAccount() profile: { userId: string },
-    @Body() data: updateCryptoTransactionFeeDto,
+    @Body() data: UpdateCryptoTransactionFeeDto,
     @Res() res: Response,
   ) {
     await this.cryptoService.setCryptoTransactionFees(profile.userId, data);
@@ -150,7 +144,7 @@ export class CryptoController {
   @Get('rates')
   async fetchTradeRates(@Res() res: Response) {
     const rates = await this.cryptoService.fetchRates();
-    return this.response.okResponse(res, 'Trade rates fetched successfully', {
+    return this.response.okResponse(res, 'Crypto rates fetched successfully', {
       rates,
     });
   }
@@ -158,13 +152,20 @@ export class CryptoController {
   @Get('fees')
   async fetchCryptoFees(@Res() res: Response) {
     const fees = await this.cryptoService.fetchFees();
-    return this.response.okResponse(res, 'Crypto fees fetched successfully', fees);
+    return this.response.okResponse(
+      res,
+      'Crypto fees fetched successfully',
+      fees,
+    );
   }
 
   @Get('fees/:symbol')
-  async fetchCryptoFee(
-    @Param('symbol') symbol: string, @Res() res: Response, ) {
+  async fetchCryptoFee(@Param('symbol') symbol: string, @Res() res: Response) {
     const fee = await this.cryptoService.fetchFee(symbol);
-    return this.response.okResponse(res, 'Crypto fees fetched successfully', fee);
+    return this.response.okResponse(
+      res,
+      'Crypto fees fetched successfully',
+      fee,
+    );
   }
 }

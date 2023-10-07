@@ -116,7 +116,7 @@ export class EnableCryptoDto {
   @ApiProperty()
   @IsOptional()
   @IsArray()
-  pairs?: Array<string>
+  pairs?: Array<string>;
 }
 
 export class SetCryptoTransactionRateDto {
@@ -165,7 +165,7 @@ export class SetCryptoFees {
   event: TransactionEventType;
 }
 
-export class cryptoFeesDto {
+export class CryptoFeesDto {
   @ApiProperty({ enum: ['flat', 'percentage'] })
   @IsNotEmpty()
   @IsEnum(['flat', 'percentage'])
@@ -186,26 +186,26 @@ export class cryptoFeesDto {
   deno: string;
 }
 
-export class updateCryptoTransactionFeeDto {
-  @ApiProperty({ type: cryptoFeesDto })
+export class UpdateCryptoTransactionFeeDto {
+  @ApiProperty({ type: CryptoFeesDto })
   @ValidateNested({ each: true })
-  @Type(() => cryptoFeesDto)
-  buy: cryptoFeesDto;
+  @Type(() => CryptoFeesDto)
+  buy: CryptoFeesDto;
 
-  @ApiProperty({ type: cryptoFeesDto })
+  @ApiProperty({ type: CryptoFeesDto })
   @ValidateNested({ each: true })
-  @Type(() => cryptoFeesDto)
-  sell: cryptoFeesDto;
+  @Type(() => CryptoFeesDto)
+  sell: CryptoFeesDto;
 
-  @ApiProperty({ type: cryptoFeesDto })
+  @ApiProperty({ type: CryptoFeesDto })
   @ValidateNested({ each: true })
-  @Type(() => cryptoFeesDto)
-  swap: cryptoFeesDto;
+  @Type(() => CryptoFeesDto)
+  swap: CryptoFeesDto;
 
-  @ApiProperty({ type: cryptoFeesDto })
+  @ApiProperty({ type: CryptoFeesDto })
   @ValidateNested({ each: true })
-  @Type(() => cryptoFeesDto)
-  send: cryptoFeesDto;
+  @Type(() => CryptoFeesDto)
+  send: CryptoFeesDto;
 
   @ApiProperty()
   @IsString()
@@ -221,5 +221,5 @@ export const DenoArray = [
   '500-999',
   '1000-2999',
   '3000-4999',
-  '5000-9999'
+  '5000-9999',
 ];
