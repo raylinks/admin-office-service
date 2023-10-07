@@ -1,4 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { PrismaClient } from '@prisma/client';
 import { lastValueFrom } from 'rxjs';
@@ -8,7 +12,7 @@ import {
   QueryCryptoTransactionsDto,
   SetCryptoFees,
   TransactionEventType,
-  updateCryptoTransactionFeeDto,
+  UpdateCryptoTransactionFeeDto,
   SetCryptoTransactionRateDto,
   cryptoFeesDto,
   CryptoFeeOptions,
@@ -18,6 +22,7 @@ import {
 import { ExcelService } from 'src/exports/excel.service';
 import { Pool } from 'mysql2/promise';
 import * as cuid from 'cuid';
+import { Response } from 'express';
 
 @Injectable()
 export class CryptoService {
@@ -36,7 +41,10 @@ export class CryptoService {
     );
   }
 
-  async exportAllTransactions(res, query: QueryCryptoTransactionsDto) {
+  async exportAllTransactions(
+    res: Response,
+    query: QueryCryptoTransactionsDto,
+  ) {
     const { transactions } = await this.fetchAllTransactions(query);
     return await this.excelService.export(res, transactions, 'crypto', 'bulk');
   }
@@ -93,7 +101,7 @@ export class CryptoService {
     );
   }
 
-  async exportOneTransactions(res, id: string) {
+  async exportOneTransactions(res: Response, id: string) {
     const transaction = await this.fetchOneTransaction(id);
     return await this.excelService.export(res, transaction, 'crypto', 'single');
   }
@@ -101,76 +109,48 @@ export class CryptoService {
   async fetchRates() {
     const allRates = [];
 
-    const [assets, rates] = await Promise.all([
-      lastValueFrom(
-        this.walletClient.send({ cmd: 'assets.get' }, { service: 'admin' }),
-      ) as Promise<any[]>,
-      lastValueFrom(
-        this.walletClient.send({ cmd: 'tx_fees.get' }, { service: 'admin' }),
-      ) as Promise<any[]>,
+    const [assets, dbRates] = await Promise.all([
+      this.walletDB.query(`SELECT * FROM assets`),
+      this.walletDB.query(`SELECT * FROM tx_fees`),
     ]);
 
-    const symbols = assets.map((asset) => asset.symbol);
-    const eventRates = rates.filter(
-      (rate) =>
-        rate.event === 'BuyEvent' ||
-        rate.event === 'SellEvent' ||
-        rate.event === 'CryptoWithdrawalEvent',
-    );
+    const symbols = (assets[0] as any[]).map((asset) => asset.symbol);
 
     symbols.forEach((symbol) => {
       const rates = [];
-      const rate = eventRates.filter((r) => r.symbol === symbol);
+      const rate = (dbRates[0] as any[]).filter((r) => r.symbol === symbol);
       if (rate.length > 0) {
-        const sell = rate.find((rs) => rs.event === 'SellEvent');
-        const buy = rate.find((rb) => rb.event === 'BuyEvent');
+        const sell = rate.find(
+          (rs) => rs['transaction_event_type'] === 'SellEvent',
+        );
+        const buy = rate.find(
+          (rb) => rb['transaction_event_type'] === 'BuyEvent',
+        );
         const withdrawal = rate.find(
-          (rw) => rw.event === 'CryptoWithdrawalEvent',
+          (rw) => rw['transaction_event_type'] === 'CryptoWithdrawalEvent',
         );
 
         rates.push({
-          sell: sell && {
-            id: sell.id,
-            percentage: sell.feePercentage,
-            flat: sell.feeFlat,
-            minAmount: sell.minAmount,
-            maxAmount: sell.maxAmount,
-          },
-          buy: buy && {
-            id: buy.id,
-            percentage: buy.feePercentage,
-            flat: buy.feeFlat,
-            minAmount: buy.minAmount,
-            maxAmount: buy.maxAmount,
-          },
-          withdrawal: withdrawal && {
-            id: withdrawal.id,
-            percentage: withdrawal.feePercentage,
-            flat: withdrawal.feeFlat,
-            minAmount: withdrawal.minAmount,
-            maxAmount: withdrawal.maxAmount,
-          },
-        });
-      } else {
-        // making sure it sends something back
-        rates.push({
-          sell: {
-            percentage: null,
-            flat: null,
-            minAmount: null,
-            maxAmount: null,
-          },
           buy: {
-            percentage: null,
-            flat: null,
-            minAmount: null,
-            maxAmount: null,
+            id: buy?.id || null,
+            percentage: buy?.fee_percentage || null,
+            flat: buy?.fee_flat || null,
+            minAmount: buy?.min_amount || null,
+            maxAmount: buy?.max_amount || null,
+          },
+          sell: {
+            id: sell?.id || null,
+            percentage: sell?.fee_percentage || null,
+            flat: sell?.fee_flat || null,
+            minAmount: sell?.min_amount || null,
+            maxAmount: sell?.max_amount || null,
           },
           withdrawal: {
-            percentage: null,
-            flat: null,
-            minAmount: null,
-            maxAmount: null,
+            id: withdrawal?.id || null,
+            percentage: withdrawal?.fee_percentage || null,
+            flat: withdrawal?.fee_flat || null,
+            minAmount: withdrawal?.min_amount || null,
+            maxAmount: withdrawal?.max_amount || null,
           },
         });
       }
@@ -184,51 +164,75 @@ export class CryptoService {
   }
 
   async setBuySellRate(operatorId: string, data: SetCryptoTransactionRateDto) {
-    if (data.buy)
-      this.setTransactionRates(operatorId, {
-        event: TransactionEventType.BuyEvent,
-        symbol: data.symbol,
-        feeFlat: data.buy.feeFlat,
-        maxAmount: data.buy.maxAmount,
-        minAmount: data.buy.minAmount,
-        feePercentage: data.buy.feePercentage,
-      });
-    if (data.sell)
-      this.setTransactionRates(operatorId, {
-        event: TransactionEventType.SellEvent,
-        symbol: data.symbol,
-        feeFlat: data.sell.feeFlat,
-        maxAmount: data.sell.maxAmount,
-        minAmount: data.sell.minAmount,
-        feePercentage: data.sell.feePercentage,
-      });
-    if (data.swap)
-      this.setTransactionRates(operatorId, {
-        event: TransactionEventType.SwapEvent,
-        symbol: data.symbol,
-        feeFlat: data.sell.feeFlat,
-        maxAmount: data.sell.maxAmount,
-        minAmount: data.sell.minAmount,
-        feePercentage: data.sell.feePercentage,
-      });
+    try {
+      if (data.buy)
+        await this.setTransactionRates(operatorId, {
+          event: TransactionEventType.BuyEvent,
+          symbol: data.symbol,
+          feeFlat: data.buy.feeFlat,
+          maxAmount: data.buy.maxAmount,
+          minAmount: data.buy.minAmount,
+          feePercentage: data.buy.feePercentage,
+        });
+      if (data.sell)
+        await this.setTransactionRates(operatorId, {
+          event: TransactionEventType.SellEvent,
+          symbol: data.symbol,
+          feeFlat: data.sell.feeFlat,
+          maxAmount: data.sell.maxAmount,
+          minAmount: data.sell.minAmount,
+          feePercentage: data.sell.feePercentage,
+        });
+      if (data.swap)
+        await this.setTransactionRates(operatorId, {
+          event: TransactionEventType.SwapEvent,
+          symbol: data.symbol,
+          feeFlat: data.sell.feeFlat,
+          maxAmount: data.sell.maxAmount,
+          minAmount: data.sell.minAmount,
+          feePercentage: data.sell.feePercentage,
+        });
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException('An error occured, err: ', err);
+    }
   }
-
 
   async setCryptoTransactionFees(
     operatorId: string,
-    data: updateCryptoTransactionFeeDto,
+    data: UpdateCryptoTransactionFeeDto,
   ) {
     if (data.swap) {
-      this.setTransactionFees(operatorId, CryptoFeeOptions.SWAP, data.symbol, data.swap);
+      this.setTransactionFees(
+        operatorId,
+        CryptoFeeOptions.SWAP,
+        data.symbol,
+        data.swap,
+      );
     }
     if (data.sell) {
-      this.setTransactionFees(operatorId, CryptoFeeOptions.SELL, data.symbol, data.sell);
+      this.setTransactionFees(
+        operatorId,
+        CryptoFeeOptions.SELL,
+        data.symbol,
+        data.sell,
+      );
     }
     if (data.buy) {
-      this.setTransactionFees(operatorId, CryptoFeeOptions.BUY, data.symbol, data.buy);
+      this.setTransactionFees(
+        operatorId,
+        CryptoFeeOptions.BUY,
+        data.symbol,
+        data.buy,
+      );
     }
     if (data.send) {
-      this.setTransactionFees(operatorId, CryptoFeeOptions.SEND, data.symbol, data.send);
+      this.setTransactionFees(
+        operatorId,
+        CryptoFeeOptions.SEND,
+        data.symbol,
+        data.send,
+      );
     }
   }
 
@@ -255,8 +259,10 @@ export class CryptoService {
       ) as Promise<any[]>,
     ]);
 
-    const symbols = assets.filter((r) => r.isFiat === false).map((asset) => asset.symbol);  
-    
+    const symbols = assets
+      .filter((r) => r.isFiat === false)
+      .map((asset) => asset.symbol);
+
     const eventFees = fees.filter(
       (fee) =>
         fee.feeOption === 'BUY' ||
@@ -269,26 +275,25 @@ export class CryptoService {
       const fees = [];
       const fee = eventFees.filter((r) => r.symbol === symbol);
 
+      fees.push({
+        send: {
+          flat: this.filterFees(fee, CryptoFeeOptions.SEND, 'flat'),
+          percentage: this.filterFees(fee, CryptoFeeOptions.SEND, 'percentage'),
+        },
+        sell: {
+          flat: this.filterFees(fee, CryptoFeeOptions.SELL, 'flat'),
+          percentage: this.filterFees(fee, CryptoFeeOptions.SELL, 'percentage'),
+        },
+        buy: {
+          flat: this.filterFees(fee, CryptoFeeOptions.BUY, 'flat'),
+          percentage: this.filterFees(fee, CryptoFeeOptions.BUY, 'percentage'),
+        },
+        swap: {
+          flat: this.filterFees(fee, CryptoFeeOptions.SWAP, 'flat'),
+          percentage: this.filterFees(fee, CryptoFeeOptions.SWAP, 'percentage'),
+        },
+      });
 
-        fees.push({
-          send: {
-            "flat": this.filterFees(fee, CryptoFeeOptions.SEND, "flat"),
-            "percentage": this.filterFees(fee, CryptoFeeOptions.SEND, "percentage"),
-          },
-          sell: {
-            "flat": this.filterFees(fee, CryptoFeeOptions.SELL, "flat"),
-            "percentage": this.filterFees(fee, CryptoFeeOptions.SELL, "percentage"),
-          },
-          buy: {
-            "flat": this.filterFees(fee, CryptoFeeOptions.BUY, "flat"),
-            "percentage": this.filterFees(fee, CryptoFeeOptions.BUY, "percentage"),
-          },
-          swap: {
-            "flat": this.filterFees(fee, CryptoFeeOptions.SWAP, "flat"),
-            "percentage": this.filterFees(fee, CryptoFeeOptions.SWAP, "percentage"),
-          }
-        });
-      
       allFees.push({
         symbol,
         fees,
@@ -296,84 +301,99 @@ export class CryptoService {
     });
 
     return allFees;
+  }
 
-  } 
-
-  filterFees(data, feeOption, feeType) {
-    const feeOptionData = data.filter((rb) => rb.feeOption === feeOption);
-    const feeTypeData = feeOptionData.filter((rb) => rb.feeType == feeType);
+  filterFees(data: any, feeOption: CryptoFeeOptions, feeType: string) {
+    const feeOptionData = data.filter(
+      (rb: { feeOption: CryptoFeeOptions }) => rb.feeOption === feeOption,
+    );
+    const feeTypeData = feeOptionData.filter(
+      (rb: { feeType: string }) => rb.feeType == feeType,
+    );
     const fee = DenoArray.reduce((accumulator, value) => {
-      let datum = feeTypeData.find((rb) => rb.deno == value);
-      datum = datum ? datum : { id: null, value: 0, capAmount: 0 }
-      return { ...accumulator, [value]: { "id": datum.id, "value": datum.value, "cap": datum.capAmount } };
+      let datum = feeTypeData.find((rb: { deno: string }) => rb.deno == value);
+      datum = datum ? datum : { id: null, value: 0, capAmount: 0 };
+      return {
+        ...accumulator,
+        [value]: { id: datum.id, value: datum.value, cap: datum.capAmount },
+      };
     }, {});
     return fee;
   }
 
   async fetchFee(symbol: string) {
-    const fee = await lastValueFrom(this.walletClient.send({ cmd: 'fetch.crypto.fee.single' }, symbol),);
+    const fee = await lastValueFrom(
+      this.walletClient.send({ cmd: 'fetch.crypto.fee.single' }, symbol),
+    );
     return {
       send: {
-        "flat": this.filterFees(fee, CryptoFeeOptions.SEND, "flat"),
-        "percentage": this.filterFees(fee, CryptoFeeOptions.SEND, "percentage"),
+        flat: this.filterFees(fee, CryptoFeeOptions.SEND, 'flat'),
+        percentage: this.filterFees(fee, CryptoFeeOptions.SEND, 'percentage'),
       },
       sell: {
-        "flat": this.filterFees(fee, CryptoFeeOptions.SELL, "flat"),
-        "percentage": this.filterFees(fee, CryptoFeeOptions.SELL, "percentage"),
+        flat: this.filterFees(fee, CryptoFeeOptions.SELL, 'flat'),
+        percentage: this.filterFees(fee, CryptoFeeOptions.SELL, 'percentage'),
       },
       buy: {
-        "flat": this.filterFees(fee, CryptoFeeOptions.BUY, "flat"),
-        "percentage": this.filterFees(fee, CryptoFeeOptions.BUY, "percentage"),
+        flat: this.filterFees(fee, CryptoFeeOptions.BUY, 'flat'),
+        percentage: this.filterFees(fee, CryptoFeeOptions.BUY, 'percentage'),
       },
       swap: {
-        "flat": this.filterFees(fee, CryptoFeeOptions.SWAP, "flat"),
-        "percentage": this.filterFees(fee, CryptoFeeOptions.SWAP, "percentage"),
+        flat: this.filterFees(fee, CryptoFeeOptions.SWAP, 'flat'),
+        percentage: this.filterFees(fee, CryptoFeeOptions.SWAP, 'percentage'),
       },
-    }
+    };
   }
 
   async setTransactionRates(operatorId: string, data: SetCryptoFees) {
-    // this.walletClient.emit({ cmd: 'crypto.fees.set' }, data);
-    const [result] = await this.walletDB.query(
-      `SELECT * FROM tx_fees WHERE symbol = ? AND event = ?`,
-      [data.symbol, data.event],
-    );
-    const fee = result[0];
-    if (!fee)
-      await this.walletDB.execute(
-        `
-        INSERT INTO tx_fees (
-          id, event, fee_flat, max_amount, min_amount, fee_percentage, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, NOW()`,
-        [
-          cuid(),
-          data.event,
-          data.feeFlat || 0,
-          data.maxAmount || 0,
-          data.minAmount || 0,
-          data.feePercentage || 0,
-        ],
+    try {
+      const [result] = await this.walletDB.query(
+        `SELECT * FROM tx_fees WHERE symbol = ? AND transaction_event_type = ?`,
+        [data.symbol, data.event],
       );
-    else
-      await this.walletDB.execute(
-        `UPDATE tx_fees
+      const fee = result[0];
+      if (fee)
+        await this.walletDB.execute(
+          `UPDATE tx_fees
           SET
-          fee_flat = ?, max_amount = ?, min_amount = ?, fee_percentage = ?, updated_at = NOW()`,
-        [
-          data.feeFlat || fee.fee_flat,
-          data.maxAmount || fee.max_amount,
-          data.minAmount || fee.min_amount,
-          data.feePercentage || fee.fee_percentage,
-        ],
-      );
+          fee_flat = ?, max_amount = ?, min_amount = ?, fee_percentage = ?, updated_at = NOW() WHERE id = ?`,
+          [
+            data.feeFlat || fee.fee_flat,
+            data.maxAmount || fee.max_amount,
+            data.minAmount || fee.min_amount,
+            data.feePercentage || fee.fee_percentage,
+            fee.id,
+          ],
+        );
+      else
+        await this.walletDB.execute(
+          `
+        INSERT INTO tx_fees (
+          id, transaction_event_type, fee_flat, max_amount, min_amount, fee_percentage, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, NOW()`,
+          [
+            cuid(),
+            data.event,
+            data.feeFlat || 0,
+            data.maxAmount || 0,
+            data.minAmount || 0,
+            data.feePercentage || 0,
+          ],
+        );
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
-        operatorId,
-        details: `${data.symbol} rates set by ${operatorId}`,
-      },
-    });
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
+          operatorId,
+          details: `${data.symbol} rates set by ${operatorId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Rate could not be set, err: ',
+        err,
+      );
+    }
   }
 
   async setTransactionFees(
@@ -381,7 +401,7 @@ export class CryptoService {
     feeOption: CryptoFeeOptions,
     symbol: string,
     data: cryptoFeesDto,
-  ) { 
+  ) {
     const [result] = await this.walletDB.query(
       `SELECT * FROM crypto_fees WHERE symbol = ? AND fee_option = ?  AND fee_type = ? AND deno = ?`,
       [symbol, feeOption, data.feeType, data.deno],
