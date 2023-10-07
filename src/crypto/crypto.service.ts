@@ -8,13 +8,12 @@ import { PrismaClient } from '@prisma/client';
 import { lastValueFrom } from 'rxjs';
 import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import {
-  EnableDisableCryptoAssetDto,
   QueryCryptoTransactionsDto,
   SetCryptoFees,
   TransactionEventType,
   UpdateCryptoTransactionFeeDto,
   SetCryptoTransactionRateDto,
-  cryptoFeesDto,
+  CryptoFeesDto,
   CryptoFeeOptions,
   EnableCryptoDto,
   DenoArray,
@@ -58,7 +57,11 @@ export class CryptoService {
     );
   }
 
-  async disableAsset(operatorId: string, symbol:string, data: EnableCryptoDto) {
+  async disableAsset(
+    operatorId: string,
+    symbol: string,
+    data: EnableCryptoDto,
+  ) {
     this.walletClient.emit(
       { cmd: 'crypto.disable' },
       {
@@ -401,7 +404,7 @@ export class CryptoService {
     operatorId: string,
     feeOption: CryptoFeeOptions,
     symbol: string,
-    data: cryptoFeesDto,
+    data: CryptoFeesDto,
   ) {
     const [result] = await this.walletDB.query(
       `SELECT * FROM crypto_fees WHERE symbol = ? AND fee_option = ?  AND fee_type = ? AND deno = ?`,
