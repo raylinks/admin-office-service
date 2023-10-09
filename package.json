@@ -29,6 +29,8 @@
     "@nestjs/platform-express": "^9.4.2",
     "@nestjs/swagger": "^6.3.0",
     "@prisma/client": "^4.16.1",
+    "@sentry/node": "^7.73.0",
+    "@sentry/profiling-node": "^1.2.1",
     "amqp-connection-manager": "^4.1.13",
     "amqplib": "^0.10.3",
     "axios": "^1.4.0",

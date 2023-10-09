@@ -6,6 +6,7 @@ import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { HttpResponse } from 'src/reponses/http.response';
 import { PrismaClient } from '@prisma/client';
+import { createPool } from 'mysql2/promise';
 
 @Module({
   imports: [
@@ -21,6 +22,16 @@ import { PrismaClient } from '@prisma/client';
     ]),
   ],
   controllers: [GiftcardController],
-  providers: [GiftcardService, HttpResponse, PrismaClient],
+  providers: [
+    GiftcardService,
+    HttpResponse,
+    PrismaClient,
+    {
+      provide: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',
+      useFactory: async () => {
+        return createPool(config.db.giftCardService);
+      },
+    },
+  ],
 })
-export class GiftcardModule { }
+export class GiftcardModule {}
