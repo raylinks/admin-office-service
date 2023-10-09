@@ -49,4 +49,5 @@ export default {
     clientId: process.env.OAUTH_CLIENT_ID,
     clientSecret: process.env.OAUTH_CLIENT_SECRET,
   },
+  sentryDSN: process.env.ADMIN_SERVICE_SENTRY_DSN,
 };

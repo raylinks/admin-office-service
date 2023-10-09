@@ -1,14 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { HttpResponse } from 'src/reponses/http.response';
 import { FinanceService } from './finance.service';
 import { PassThrough } from 'stream';
-import { QueryTradesDto } from 'src/trade/dto/trade.dto';
 import { QueryLedgerDto } from './dto/finance.dto';
 
 @Controller('finance')
+@ApiTags('Finance')
 export class FinanceController {
   constructor(
     private readonly financeService: FinanceService,
@@ -26,7 +25,7 @@ export class FinanceController {
   }
 
   @Get('ledger/deposit')
-  async deposit( @Query() query: QueryLedgerDto, @Res() res: Response) {
+  async deposit(@Query() query: QueryLedgerDto, @Res() res: Response) {
     const deposit = await this.financeService.deposit(query);
     return this.response.okResponse(
       res,
@@ -36,7 +35,7 @@ export class FinanceController {
   }
 
   @Get('ledger/withdrawal')
-  async withdrawal( @Query() query: QueryLedgerDto, @Res() res: Response) {
+  async withdrawal(@Query() query: QueryLedgerDto, @Res() res: Response) {
     const withdrawal = await this.financeService.withdrawal(query);
     return this.response.okResponse(
       res,
@@ -124,12 +123,18 @@ export class FinanceController {
   }
 
   @Get('/ledger/deposit/export/excel')
-  async exportDepositLedgerInExcel( @Query() query: QueryLedgerDto, @Res() res: Response) {
+  async exportDepositLedgerInExcel(
+    @Query() query: QueryLedgerDto,
+    @Res() res: Response,
+  ) {
     return await this.financeService.exportDepositLedgerInExcel(res, query);
   }
 
   @Get('/ledger/withdrawal/export/excel')
-  async exportWithdrawalLedgerInExcel( @Query() query: QueryLedgerDto, @Res() res: Response) {
+  async exportWithdrawalLedgerInExcel(
+    @Query() query: QueryLedgerDto,
+    @Res() res: Response,
+  ) {
     return await this.financeService.exportWithdrawalLedgerInExcel(res, query);
   }
 

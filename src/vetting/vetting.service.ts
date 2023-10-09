@@ -1,11 +1,5 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
-import { PrismaClient } from '@prisma/client';
 import { RMQ_NAMES, VETTING_STATUS } from 'src/utils/constants';
 
 import { lastValueFrom } from 'rxjs';
@@ -17,10 +11,7 @@ import {
 
 @Injectable()
 export class VettingService {
-  private readonly logger = new Logger(VettingService.name);
-
   constructor(
-    private prisma: PrismaClient,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private excelService: ExcelService,
   ) {}
@@ -56,9 +47,9 @@ export class VettingService {
 
   /**
    * Approve or reject withdrawal request
-   * @param operatorId 
-   * @param data 
-   * @returns 
+   * @param operatorId
+   * @param data
+   * @returns
    */
   async approveRejectWithdrawal(
     operatorId: string,
@@ -73,41 +64,42 @@ export class VettingService {
 
     if (data.status === 'approve')
       await this.approveWithdrawal(operatorId, transaction.transactionId);
-    if (data.status === 'reject') await this.declineWithdrawal(operatorId,transaction.transactionId);
+    if (data.status === 'reject')
+      await this.declineWithdrawal(operatorId, transaction.transactionId);
 
     return this.fetchVettingDetails(data.transactionId);
   }
 
   /**
    * Approve withdrawal
-   * @param operatorId 
-   * @param transactionId 
+   * @param operatorId
+   * @param transactionId
    */
-  private async approveWithdrawal(
-    operatorId: string,
-    transactionId: string,
-  ) { 
-    this.walletClient.emit({cmd:'vetting.action'}, {
-      operatorId,
-      transactionId,
-      status: VETTING_STATUS.APPROVE_WITHDRAWAL_REQUEST
-    });
+  private async approveWithdrawal(operatorId: string, transactionId: string) {
+    this.walletClient.emit(
+      { cmd: 'vetting.action' },
+      {
+        operatorId,
+        transactionId,
+        status: VETTING_STATUS.APPROVE_WITHDRAWAL_REQUEST,
+      },
+    );
   }
 
   /**
    * Decline withdrawal
-   * @param operatorId 
-   * @param transactionId 
+   * @param operatorId
+   * @param transactionId
    */
-  private async declineWithdrawal(
-    operatorId: string,
-    transactionId: string,
-  ) {
-    this.walletClient.emit({cmd:'vetting.action'}, {
-      operatorId,
-      transactionId,
-      status: VETTING_STATUS.REJECT_WITHDRAWAL_REQUEST
-    });
+  private async declineWithdrawal(operatorId: string, transactionId: string) {
+    this.walletClient.emit(
+      { cmd: 'vetting.action' },
+      {
+        operatorId,
+        transactionId,
+        status: VETTING_STATUS.REJECT_WITHDRAWAL_REQUEST,
+      },
+    );
   }
 
   /**
@@ -118,8 +110,8 @@ export class VettingService {
    * @returns
    */
   async exportAllTransactions(res, query?: QueryVettingsDto) {
-      const vettings = await this.listVetting(query);
-      return await this.excelService.export(res, vettings, 'vetting', 'bulk');
+    const vettings = await this.listVetting(query);
+    return await this.excelService.export(res, vettings, 'vetting', 'bulk');
   }
 
   /**
@@ -133,5 +125,4 @@ export class VettingService {
     const withdrawal = await this.fetchVettingDetails(id);
     return await this.excelService.export(res, withdrawal, 'vetting', 'single');
   }
-
 }

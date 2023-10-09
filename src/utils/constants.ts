@@ -41,6 +41,11 @@ export enum AUDIT_ACTIONS {
 }
 
 export enum VETTING_STATUS {
-  APPROVE_WITHDRAWAL_REQUEST = "APPROVE",
-  REJECT_WITHDRAWAL_REQUEST = "REJECT",
+  APPROVE_WITHDRAWAL_REQUEST = 'APPROVE',
+  REJECT_WITHDRAWAL_REQUEST = 'REJECT',
 }
+
+export const apiURLS = {
+  dev: 'https://k8s.myfurex.co',
+  prod: 'https://api.myfurex.co',
+};
