@@ -11,6 +11,26 @@ export class CreateCardDto {
   @IsString()
   @IsNotEmpty()
   card: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  value: number;
+
+  @IsString()
+  @IsNotEmpty()
+  margin: string;
+
+  @IsString()
+  @IsNotEmpty()
+  productId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  operator: string;
 }
 
 export class CreateCardCurrencyDto {
