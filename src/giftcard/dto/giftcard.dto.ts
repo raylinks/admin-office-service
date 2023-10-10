@@ -14,23 +14,23 @@ export class CreateCardDto {
 
   @IsNumber()
   @IsNotEmpty()
-  price: number;
+  price?: number;
 
   @IsNumber()
   @IsNotEmpty()
-  value: number;
+  value?: number;
 
   @IsString()
   @IsNotEmpty()
-  margin: string;
+  margin?: string;
 
   @IsString()
   @IsNotEmpty()
-  productId: string;
+  productId?: string;
 
   @IsString()
   @IsNotEmpty()
-  operator: string;
+  operator?: string;
 }
 
 export class CreateCardCurrencyDto {
