@@ -12,24 +12,29 @@ export class CreateCardDto {
   @IsNotEmpty()
   card: string;
 
+  @ApiPropertyOptional()
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   price?: number;
 
+  @ApiPropertyOptional()
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   value?: number;
 
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   margin?: string;
 
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   productId?: string;
 
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   operator?: string;
 }
 
