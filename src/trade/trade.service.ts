@@ -146,7 +146,7 @@ export class TradeService {
       const trade = await this.fetchTradeDetails(tradeId);
 
       await this.giftcardDB.execute(
-        `UPDATE trades SET rate = ?, status = 'RATE_SET', updated_at = NOW() WHERE id = ?`,
+        `UPDATE trades SET rate = ?, updated_at = NOW() WHERE id = ?`,
         [data.rate, tradeId],
       );
 
