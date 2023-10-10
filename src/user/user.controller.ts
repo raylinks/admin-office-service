@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Response } from 'express';
 import { GetUsersDTO } from './dto/get-users.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { HttpResponse } from 'src/reponses/http.response';
 import { UserService } from './user.service';
 import { GetNairaWalletTransactionsDto } from './dto/get-naira-wallet-transactions.dto';
@@ -15,6 +15,7 @@ import { ExportDataDto } from './dto/export-data.dto';
 import { FlagTransactionDTO } from './dto/flag-transaction.dto';
 
 @Controller('user')
+@ApiTags('User')
 export class UserController {
   constructor(
     private readonly userService: UserService,

@@ -1,16 +1,22 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
 import { PrismaClient } from '@prisma/client';
 import { lastValueFrom, timeout } from 'rxjs';
+import { Pool } from 'mysql2/promise';
 
 @Injectable()
 export class GiftcardService {
-  private readonly logger = new Logger(GiftcardService.name);
   constructor(
     private prisma: PrismaClient,
     @Inject(RMQ_NAMES.GIFTCARD_SERVICE) private giftcardClient: ClientRMQ,
+    @Inject('GIFTCARD_SERVICE_DATABASE_CONNECTION') private giftcardDB: Pool,
   ) {}
 
   async createCard(operatorId: string, data: CreateGiftCardDto) {
@@ -42,89 +48,205 @@ export class GiftcardService {
   }
 
   async disableCard(operatorId: string, cardId: string) {
-    this.giftcardClient.emit('giftcard.disable', cardId);
+    try {
+      const [giftcard] = await this.giftcardDB.query(
+        `SELECT id FROM cards WHERE id = ?`,
+        [cardId],
+      );
+      if (!giftcard[0]) throw new NotFoundException('Giftcard does not exist');
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
-        operatorId,
-        details: `Disabled giftcard \n id: ${cardId}`,
-      },
-    });
+      await this.giftcardDB.execute(
+        `UPDATE cards SET is_disabled=1 WHERE id = ? LIMIT 1`,
+        [cardId],
+      );
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
+          operatorId,
+          details: `Disabled giftcard \n id: ${cardId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: DISABLE_GIFTCARD failed',
+        err,
+      );
+    }
   }
 
   async enableCard(operatorId: string, cardId: string) {
-    this.giftcardClient.emit('giftcard.enable', cardId);
+    try {
+      const [giftcard] = await this.giftcardDB.query(
+        `SELECT id FROM cards WHERE id = ?`,
+        [cardId],
+      );
+      if (!giftcard[0]) throw new NotFoundException('Giftcard does not exist');
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
-        operatorId,
-        details: `Enabled giftcard \n id: ${cardId}`,
-      },
-    });
+      await this.giftcardDB.execute(
+        `UPDATE cards SET is_disabled=0 WHERE id = ? LIMIT 1`,
+        [cardId],
+      );
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_DISABLED,
+          operatorId,
+          details: `Enabled giftcard \n id: ${cardId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: ENABLE_GIFTCARD failed',
+        err,
+      );
+    }
   }
 
   async setCardRate(operatorId: string, data: SetCardRateDto) {
-    this.giftcardClient.emit('giftcard.rate.set', data);
+    try {
+      const [denomination] = await this.giftcardDB.query(
+        `SELECT * FROM card_denominations WHERE id = ? LIMIT 1`,
+        [data.denominationId],
+      );
+      if (!denomination[0])
+        throw new NotFoundException('Denomination for card does not exist');
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_RATE_SET,
-        operatorId,
-        details: `Rate set for giftcard\n ${data}`,
-      },
-    });
+      await this.giftcardDB.execute(
+        `UPDATE card_denominations SET rate= ? WHERE id = ? LIMIT 1`,
+        [data.rate, data.denominationId],
+      );
 
-    return await this.fetchCard(data.cardId);
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_RATE_SET,
+          operatorId,
+          details: `Rate set for giftcard\n ${data}`,
+        },
+      });
+
+      return await this.fetchCard(data.cardId);
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: SET_GIFCARD_RATE failed',
+        err,
+      );
+    }
   }
 
   async deleteCardNumber(operatorId: string, numberId: string) {
-    this.giftcardClient.emit('giftcard.delete.number', numberId);
+    try {
+      const [cardnumber] = await this.giftcardDB.query(
+        `SELECT * FROM card_numbers WHERE id = ? LIMIT 1`,
+        [numberId],
+      );
+      if (!cardnumber[0])
+        throw new NotFoundException('Card Number for card does not exist');
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_UPDATED,
-        operatorId,
-        details: `Card number deleted\n id: ${numberId}`,
-      },
-    });
+      await this.giftcardDB.execute(`DELETE FROM card_numbers WHERE id = ?`, [
+        numberId,
+      ]);
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_UPDATED,
+          operatorId,
+          details: `Card number deleted\n id: ${numberId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: DELETE_CARD_NUMBER failed',
+        err,
+      );
+    }
   }
 
   async deleteCardDenomination(operatorId: string, denominationId: string) {
-    this.giftcardClient.emit('giftcard.delete.denomination', denominationId);
+    try {
+      const [denomination] = await this.giftcardDB.query(
+        `SELECT * FROM card_denominations WHERE id = ? LIMIT 1`,
+        [denominationId],
+      );
+      if (!denomination[0])
+        throw new NotFoundException(
+          'Card Denomination for card does not exist',
+        );
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_DELETED,
-        operatorId,
-        details: `Card denomination deleted\n id: ${denominationId}`,
-      },
-    });
+      await this.giftcardDB.execute(
+        `DELETE FROM card_denominations WHERE id = ?`,
+        [denominationId],
+      );
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_DELETED,
+          operatorId,
+          details: `Card denomination deleted\n id: ${denominationId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: DELETE_CARD_DENOMINATION failed',
+        err,
+      );
+    }
   }
 
   async deleteCardReceipt(operatorId: string, receiptId: string) {
-    this.giftcardClient.emit('giftcard.delete.reciept', receiptId);
+    try {
+      const [denomination] = await this.giftcardDB.query(
+        `SELECT * FROM card_receipts WHERE id = ? LIMIT 1`,
+        [receiptId],
+      );
+      if (!denomination[0])
+        throw new NotFoundException('Card Receipt for card does not exist');
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_DELETED,
-        operatorId,
-        details: `Card receipt deleted\n id: ${receiptId}`,
-      },
-    });
+      await this.giftcardDB.execute(`DELETE FROM card_receipts WHERE id = ?`, [
+        receiptId,
+      ]);
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_DELETED,
+          operatorId,
+          details: `Card receipt deleted\n id: ${receiptId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: DELETE_CARD_RECEIPT failed',
+        err,
+      );
+    }
   }
 
   async deleteCardCurrency(operatorId: string, currencyId: string) {
-    this.giftcardClient.emit('giftcard.delete.currency', currencyId);
+    try {
+      const [currency] = await this.giftcardDB.query(
+        `SELECT * FROM card_currencies WHERE id = ? LIMIT 1`,
+        [currencyId],
+      );
+      if (!currency[0])
+        throw new NotFoundException('Card Currency for card does not exist');
 
-    await this.prisma.auditLog.create({
-      data: {
-        action: AUDIT_ACTIONS.GIFTCARD_DELETED,
-        operatorId,
-        details: `Card currency deleted\n id: ${currencyId}`,
-      },
-    });
+      await this.giftcardDB.execute(
+        `DELETE FROM card_currencies WHERE id = ?`,
+        [currencyId],
+      );
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: AUDIT_ACTIONS.GIFTCARD_DELETED,
+          operatorId,
+          details: `Card currency deleted\n id: ${currencyId}`,
+        },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Operation: DELETE_CARD_CURRENCY failed',
+        err,
+      );
+    }
   }
 
   /// giftcard buy services
@@ -208,7 +330,10 @@ export class GiftcardService {
   }
 
   async deleteCardBuyDenomination(operatorId: string, denominationId: string) {
-    this.giftcardClient.emit('giftcard.buy.delete.denomination', denominationId);
+    this.giftcardClient.emit(
+      'giftcard.buy.delete.denomination',
+      denominationId,
+    );
 
     await this.prisma.auditLog.create({
       data: {

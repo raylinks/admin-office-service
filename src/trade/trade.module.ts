@@ -39,7 +39,7 @@ import { ExcelService } from 'src/exports/excel.service';
     {
       provide: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',
       useFactory: async () => {
-        return createPool(process.env.GIFT_SERVICE_DATABASE_URL);
+        return createPool(config.db.giftCardService);
       },
     },
   ],
