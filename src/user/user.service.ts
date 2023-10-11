@@ -27,6 +27,15 @@ export class UserService {
     } catch (error) {}
   }
 
+  async allUserForExport() {
+    try {
+      const users = await lastValueFrom(
+        this.userClient.send({ cmd: 'admin.user.raw' }, {}),
+      );
+      return users;
+    } catch (error) {}
+  }
+
   async getUserById(id: string) {
     try {
       const user = await lastValueFrom(
@@ -145,8 +154,8 @@ export class UserService {
     } catch (error) {}
   }
 
-  async exportAllUsersrInExcel(query, res) {
-    const { users } = await this.index(query);
+  async exportAllUsersrInExcel(res) {
+    const  users  = await this.allUserForExport();
     return await this.excelService.export(res, users, 'users', 'bulk');
   }
 
