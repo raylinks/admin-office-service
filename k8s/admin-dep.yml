@@ -5,7 +5,7 @@ metadata:
   name: admin-dep
   labels:
     app: admin
-  namespace: furex-backend
+  namespace: furex-prod
   annotations:
     keel.sh/policy: force
     keel.sh/trigger: poll
@@ -27,7 +27,7 @@ spec:
         envFrom:
             - secretRef:
                 name: doppler-token
-        image: furextch/admin-service:dev
+        image: furextch/admin-service:prod
         imagePullPolicy: Always
         ports:
         - containerPort: 80
