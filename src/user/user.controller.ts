@@ -202,9 +202,10 @@ export class UserController {
 
   @Get('/export/excel')
   async exportAllUsersInExcel(
+    @Query() query: GetUsersDTO,
     @Res() res: Response,
   ) {
-    return await this.userService.exportAllUsersrInExcel(res);
+    return await this.userService.exportAllUsersrInExcel(query, res);
   }
 
   @Post('/transaction/wallet/export/excel/:id')
