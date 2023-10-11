@@ -56,9 +56,9 @@ export class VettingService {
     data: ApproveDeclineWithdrawalDto,
   ) {
     const transaction = await this.fetchVettingDetails(data.transactionId);
-    if (transaction.stats === 'INIT' && transaction.status === 'CONFIRMED')
+    if (transaction.transaction.status === 'INIT' && transaction.status === 'CONFIRMED')
       throw new BadRequestException('Withdrawal is already approved');
-    if (transaction.stats === 'INIT' && transaction.status === 'CANCELLED')
+    if (transaction.transaction.status === 'INIT' && transaction.status === 'CANCELLED')
       throw new BadRequestException('Withdrawal is already declined');
 
     if (data.status === 'approve')
