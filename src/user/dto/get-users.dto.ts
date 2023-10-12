@@ -27,6 +27,15 @@ export class GetUsersDTO {
   lastName: string;
 
   @ApiPropertyOptional({
+    description: 'furex id',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  // @Matches(/^[a-zA-Z ]*$/, { message: 'lastName must be alphabets' })
+  furexId: string;
+
+  @ApiPropertyOptional({
     description: 'customer partial phoneNumber',
     required: false,
   })
