@@ -15,6 +15,10 @@ export class GetUsersDTO {
 
   @ApiPropertyOptional()
   @IsOptional()
+  id?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   firstName?: string;
 
   @ApiPropertyOptional({
