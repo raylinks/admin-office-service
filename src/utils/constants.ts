@@ -22,6 +22,10 @@ export enum QUEUE_NAMES {
   FUREX_GIFTCARD_QUEUE = 'furex-giftcard-service',
 }
 
+export enum GiftCardEventType {
+  SELL = 'SELL',
+}
+
 export enum AUDIT_ACTIONS {
   GIFTCARD_CREATED = 'GIFT_CARD_CREATED',
   GIFTCARD_UPDATED = 'GIFT_CARD_UPDATED',
