@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,7 +7,6 @@ import {
   Param,
   Post,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { GiftcardService } from './giftcard.service';
@@ -111,7 +111,7 @@ export class GiftcardController {
   ) {
 
     this.checkIfUserHasPermission(profile.userEmail);
-    
+
     await this.giftcardService.deleteCardCurrency(profile.userId, id);
 
     return this.response.okResponse(res, 'card currency deleted successfully');
@@ -320,7 +320,7 @@ export class GiftcardController {
     const allowedEmails = ['phenomenal@myfurex.co'];
     if(!allowedEmails.includes(email))
     {
-      throw new UnauthorizedException("You do not have permission to perform this action")
+      throw new BadRequestException("You do not have permission to perform this action")
     }
   }
 }
