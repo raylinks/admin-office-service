@@ -367,4 +367,13 @@ export class GiftcardService {
       },
     });
   }
+
+  async fetchUserById(userId: string)
+  {
+    return await this.prisma.user.findFirst({
+      where :{
+        userId
+      }
+    })
+  }
 }
