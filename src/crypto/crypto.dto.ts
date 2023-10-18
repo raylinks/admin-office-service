@@ -36,10 +36,15 @@ export enum TransactionEventType {
 }
 
 export enum CryptoFeeOptions {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  SWAP = 'SWAP',
-  SEND = 'SEND',
+  BUY = 'BuyEvent',
+  SELL = 'SellEvent',
+  SWAP = 'SwapEvent',
+  SEND = 'CryptoWithdrawalEvent',
+}
+
+export enum CryptoFeeType {
+  FLAT = 'flat',
+  PERCENTAGE = 'percentage'
 }
 
 export class QueryCryptoTransactionsDto {
