@@ -45,8 +45,8 @@ export class FinanceController {
   }
 
   @Get('ledger/swap')
-  async swap(@Res() res: Response) {
-    const swap = await this.financeService.swap();
+  async swap(@Res() res: Response, @Query() query: QueryLedgerDto) {
+    const swap = await this.financeService.swap(query);
     return this.response.okResponse(
       res,
       'Fetched swap ledgers successfully',
