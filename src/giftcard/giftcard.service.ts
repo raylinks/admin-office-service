@@ -372,7 +372,7 @@ export class GiftcardService {
   {
     return await this.prisma.user.findFirst({
       where :{
-        userId
+        id: userId
       }
     })
   }
