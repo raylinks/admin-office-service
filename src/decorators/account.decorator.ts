@@ -6,6 +6,6 @@ export const GetAccount = createParamDecorator(
     const request = ctx.switchToHttp().getRequest<Request>();
     const user = request.user as any;
 
-    return { userId: user.userId, userEmail: user.email};
+    return { userId: user.userId};
   },
 );
