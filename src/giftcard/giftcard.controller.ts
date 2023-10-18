@@ -66,7 +66,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
     await this.giftcardService.disableCard(profile.userId, id);
 
     return this.response.okResponse(
@@ -83,7 +82,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
     await this.giftcardService.enableCard(profile.userId, id);
 
     return this.response.okResponse(res, 'giftcard enabled successfully', null);
@@ -111,8 +109,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
-
     await this.giftcardService.deleteCardCurrency(profile.userId, id);
 
     return this.response.okResponse(res, 'card currency deleted successfully');
@@ -124,8 +120,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
-    await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.deleteCardDenomination(profile.userId, id);
 
@@ -139,8 +133,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
-
     await this.giftcardService.deleteCardNumber(profile.userId, id);
 
     return this.response.okResponse(res, 'card number deleted successfully');
@@ -152,8 +144,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
-    await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.deleteCardReceipt(profile.userId, id);
 
@@ -202,8 +192,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
-
     await this.giftcardService.disableCardBuy(profile.userId, id);
 
     return this.response.okResponse(
@@ -219,8 +207,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
-    await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.enableCardBuy(profile.userId, id);
 
@@ -256,8 +242,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
-
     await this.giftcardService.deleteCardBuyCurrency(profile.userId, id);
 
     return this.response.okResponse(
@@ -272,8 +256,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
-    await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.deleteCardBuyDenomination(profile.userId, id);
 
@@ -290,8 +272,6 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
-
     await this.giftcardService.deleteCardBuyNumber(profile.userId, id);
 
     return this.response.okResponse(
@@ -306,8 +286,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
-    await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.deleteCardBuyReceipt(profile.userId, id);
 
