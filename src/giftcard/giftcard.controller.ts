@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { GiftcardService } from './giftcard.service';
@@ -43,10 +44,11 @@ export class GiftcardController {
 
   @Post('new')
   async createCard(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Body() data: CreateGiftCardDto,
     @Res() res: Response,
   ) {
+    this.checkIfUserHasPermission(profile.userEmail);
     await this.giftcardService.createCard(profile.userId, data);
 
     return this.response.createdResponse(
@@ -58,10 +60,12 @@ export class GiftcardController {
 
   @Post('disable/:id')
   async disableCard(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string},
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
     await this.giftcardService.disableCard(profile.userId, id);
 
     return this.response.okResponse(
@@ -73,10 +77,12 @@ export class GiftcardController {
 
   @Post('enable/:id')
   async enableCard(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
     await this.giftcardService.enableCard(profile.userId, id);
 
     return this.response.okResponse(res, 'giftcard enabled successfully', null);
@@ -99,10 +105,13 @@ export class GiftcardController {
 
   @Delete('delete/currency/:id')
   async deleteCardCurrency(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+    
     await this.giftcardService.deleteCardCurrency(profile.userId, id);
 
     return this.response.okResponse(res, 'card currency deleted successfully');
@@ -110,10 +119,13 @@ export class GiftcardController {
 
   @Delete('delete/denomination/:id')
   async deleteCardDenomination(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardDenomination(profile.userId, id);
 
     return this.response.okResponse(res, 'denomination deleted successfully');
@@ -121,10 +133,13 @@ export class GiftcardController {
 
   @Delete('delete/number/:id')
   async deleteCardNumber(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardNumber(profile.userId, id);
 
     return this.response.okResponse(res, 'card number deleted successfully');
@@ -132,10 +147,13 @@ export class GiftcardController {
 
   @Delete('delete/receipt/:id')
   async deleteCardReceipt(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardReceipt(profile.userId, id);
 
     return this.response.okResponse(res, 'card receipt deleted successfully');
@@ -160,10 +178,13 @@ export class GiftcardController {
 
   @Post('card/buy/new')
   async createCardBuy(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Body() data: CreateGiftCardDto,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.createCardBuy(profile.userId, data);
 
     return this.response.createdResponse(
@@ -175,10 +196,13 @@ export class GiftcardController {
 
   @Post('card/buy/disable/:id')
   async disableCardBuy(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.disableCardBuy(profile.userId, id);
 
     return this.response.okResponse(
@@ -190,10 +214,13 @@ export class GiftcardController {
 
   @Post('card/buy/enable/:id')
   async enableCardBuy(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.enableCardBuy(profile.userId, id);
 
     return this.response.okResponse(
@@ -223,10 +250,13 @@ export class GiftcardController {
 
   @Delete('card/buy/delete/currency/:id')
   async deleteCardBuyCurrency(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardBuyCurrency(profile.userId, id);
 
     return this.response.okResponse(
@@ -237,10 +267,13 @@ export class GiftcardController {
 
   @Delete('card/buy/delete/denomination/:id')
   async deleteCardBuyDenomination(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardBuyDenomination(profile.userId, id);
 
     return this.response.okResponse(
@@ -251,10 +284,13 @@ export class GiftcardController {
 
   @Delete('card/buy/delete/number/:id')
   async deleteCardBuyNumber(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardBuyNumber(profile.userId, id);
 
     return this.response.okResponse(
@@ -265,15 +301,26 @@ export class GiftcardController {
 
   @Delete('card/buy/delete/receipt/:id')
   async deleteCarBuydReceipt(
-    @GetAccount() profile: { userId: string },
+    @GetAccount() profile: { userId: string, userEmail: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+
+    this.checkIfUserHasPermission(profile.userEmail);
+
     await this.giftcardService.deleteCardBuyReceipt(profile.userId, id);
 
     return this.response.okResponse(
       res,
       'card buy receipt deleted successfully',
     );
+  }
+
+  private checkIfUserHasPermission(email:string){
+    const allowedEmails = ['phenomenal@myfurex.co'];
+    if(!allowedEmails.includes(email))
+    {
+      throw new UnauthorizedException("You do not have permission to perform this action")
+    }
   }
 }

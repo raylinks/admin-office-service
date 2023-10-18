@@ -21,7 +21,7 @@ export class GiftcardService {
 
   async createCard(operatorId: string, data: CreateGiftCardDto) {
     this.giftcardClient.emit('giftcard.create', data).pipe(timeout(5_000));
-
+ 
     await this.prisma.auditLog.create({
       data: {
         action: AUDIT_ACTIONS.GIFTCARD_CREATED,
