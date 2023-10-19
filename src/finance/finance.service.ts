@@ -1,19 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { RMQ_NAMES } from 'src/utils/constants';
-import { Db } from 'mongodb';
 import { lastValueFrom } from 'rxjs';
-import { QueryTradesDto } from 'src/trade/dto/trade.dto';
 import { ExcelService } from 'src/exports/excel.service';
 import { QueryLedgerDto } from './dto/finance.dto';
+import { RMQ_NAMES } from 'src/utils/constants';
 
 @Injectable()
 export class FinanceService {
   constructor(
-    @Inject('USER_DB_CONNECTION') private userDb: Db,
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
-    @Inject(RMQ_NAMES.USERDATA_SERVICE) private userClient: ClientRMQ,
     private excelService: ExcelService,
   ) {}
 
@@ -44,13 +40,10 @@ export class FinanceService {
     } catch (error) {}
   }
 
-  async swap() {
-    try {
-      const swap = await lastValueFrom(
-        this.walletClient.send('admin.ledger.swap', true),
-      );
-      return swap;
-    } catch (error) {}
+  async swap(query?: QueryLedgerDto) {
+    return await lastValueFrom(
+      this.walletClient.send('admin.ledger.swap', query),
+    );
   }
 
   async giftcardSell() {
@@ -105,7 +98,12 @@ export class FinanceService {
 
   async exportWithdrawalLedgerInExcel(res, query: QueryLedgerDto) {
     const { withdrawal } = await this.withdrawal(query);
-    return await this.excelService.export(res, withdrawal, 'withdrawal', 'bulk');
+    return await this.excelService.export(
+      res,
+      withdrawal,
+      'withdrawal',
+      'bulk',
+    );
   }
 
   async exportSwapLedgerInExcel(res) {

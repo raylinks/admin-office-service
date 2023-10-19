@@ -6,7 +6,7 @@ import {
 import { ClientRMQ } from '@nestjs/microservices';
 import { PrismaClient } from '@prisma/client';
 import { lastValueFrom } from 'rxjs';
-import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
+import { AUDIT_ACTIONS, DB_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import {
   QueryCryptoTransactionsDto,
   SetCryptoFees,
@@ -30,9 +30,20 @@ export class CryptoService {
     @Inject(RMQ_NAMES.WALLET_SERVICE) private walletClient: ClientRMQ,
     private prisma: PrismaClient,
     private excelService: ExcelService,
-    @Inject('WALLET_SERVICE_DATABASE_CONNECTION') private walletDB: Pool,
-  ) { }
+    @Inject(DB_NAMES.WALLET) private walletDB: Pool,
+  ) {}
   async fetchAllTransactions(query: QueryCryptoTransactionsDto) {
+    if (query.eventType) query.events.push(query.eventType);
+    if (
+      query.eventType === TransactionEventType.SwapEvent &&
+      query.events.length === 0
+    )
+      query.events.push(
+        TransactionEventType.BuyEvent,
+        TransactionEventType.SellEvent,
+        TransactionEventType.SwapEvent,
+      );
+
     return await lastValueFrom(
       this.walletClient.send(
         { cmd: 'fetch.transactions' },

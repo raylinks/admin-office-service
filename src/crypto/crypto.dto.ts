@@ -55,29 +55,40 @@ export class QueryCryptoTransactionsDto {
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()
   page?: number;
+
   @ApiPropertyOptional()
   userId?: string;
+
   @ApiPropertyOptional()
   from?: Date;
+
   @ApiPropertyOptional()
   to?: Date;
+
   @ApiPropertyOptional()
   transactionId?: string;
+
   @ApiPropertyOptional({
     enum: ['INIT', 'PENDING', 'CONFIRMED', 'FAILED', 'CANCELLED'],
   })
   status?: 'INIT' | 'PENDING' | 'CONFIRMED' | 'FAILED' | 'CANCELLED';
+
   @ApiPropertyOptional()
   symbol?: string;
+
   @ApiPropertyOptional()
   amount?: number;
+
   @ApiPropertyOptional()
   pairSwap?: string;
+
   @ApiPropertyOptional({
     enum: TransactionEventType,
   })
-  @Expose({ name: 'event' })
   eventType?: TransactionEventType;
+
+  @ApiHideProperty()
+  events: TransactionEventType[];
 }
 
 export class EnableDisableCryptoAssetDto {
