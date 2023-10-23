@@ -53,12 +53,12 @@ export class FinanceService {
     } catch (error) {}
   }
 
-  async giftcardSell() {
+  async giftcardSell(query: QueryLedgerDto) {
     try {
-      const swap = await lastValueFrom(
-        this.walletClient.send('admin.ledger.giftcard-sell', true),
+      const giftcardSell = await lastValueFrom(
+        this.walletClient.send('admin.ledger.giftcard-sell', query),
       );
-      return swap;
+      return giftcardSell;
     } catch (error) {}
   }
 
@@ -105,7 +105,12 @@ export class FinanceService {
 
   async exportWithdrawalLedgerInExcel(res, query: QueryLedgerDto) {
     const { withdrawal } = await this.withdrawal(query);
-    return await this.excelService.export(res, withdrawal, 'withdrawal', 'bulk');
+    return await this.excelService.export(
+      res,
+      withdrawal,
+      'withdrawal',
+      'bulk',
+    );
   }
 
   async exportSwapLedgerInExcel(res) {
