@@ -36,10 +36,15 @@ export enum TransactionEventType {
 }
 
 export enum CryptoFeeOptions {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  SWAP = 'SWAP',
-  SEND = 'SEND',
+  BUY = 'BuyEvent',
+  SELL = 'SellEvent',
+  SWAP = 'SwapEvent',
+  SEND = 'CryptoWithdrawalEvent',
+}
+
+export enum CryptoFeeType {
+  FLAT = 'flat',
+  PERCENTAGE = 'percentage'
 }
 
 export class QueryCryptoTransactionsDto {
@@ -50,29 +55,40 @@ export class QueryCryptoTransactionsDto {
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()
   page?: number;
+
   @ApiPropertyOptional()
   userId?: string;
+
   @ApiPropertyOptional()
   from?: Date;
+
   @ApiPropertyOptional()
   to?: Date;
+
   @ApiPropertyOptional()
   transactionId?: string;
+
   @ApiPropertyOptional({
     enum: ['INIT', 'PENDING', 'CONFIRMED', 'FAILED', 'CANCELLED'],
   })
   status?: 'INIT' | 'PENDING' | 'CONFIRMED' | 'FAILED' | 'CANCELLED';
+
   @ApiPropertyOptional()
   symbol?: string;
+
   @ApiPropertyOptional()
   amount?: number;
+
   @ApiPropertyOptional()
   pairSwap?: string;
+
   @ApiPropertyOptional({
     enum: TransactionEventType,
   })
-  @Expose({ name: 'event' })
   eventType?: TransactionEventType;
+
+  @ApiHideProperty()
+  events: TransactionEventType[];
 }
 
 export class EnableDisableCryptoAssetDto {

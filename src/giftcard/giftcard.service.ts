@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
@@ -20,8 +21,16 @@ export class GiftcardService {
   ) {}
 
   async createCard(operatorId: string, data: CreateGiftCardDto) {
-    this.giftcardClient.emit('giftcard.create', data).pipe(timeout(5_000));
+    const user = await this.prisma.user.findFirst({
+      where: { id: operatorId },
+    });
 
+    // HACK: until permissions and roles is setup
+    if (user.email !== 'phenomenal@myfurex.co')
+      throw new UnauthorizedException('You are not allowd to this resource');
+
+    this.giftcardClient.emit('giftcard.create', data).pipe(timeout(5_000));
+ 
     await this.prisma.auditLog.create({
       data: {
         action: AUDIT_ACTIONS.GIFTCARD_CREATED,
@@ -366,5 +375,14 @@ export class GiftcardService {
         details: `Card currency deleted\n id: ${currencyId}`,
       },
     });
+  }
+
+  async fetchUserById(userId: string)
+  {
+    return await this.prisma.user.findFirst({
+      where :{
+        id: userId
+      }
+    })
   }
 }
