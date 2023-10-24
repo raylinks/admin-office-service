@@ -46,12 +46,12 @@ export class FinanceService {
     );
   }
 
-  async giftcardSell() {
+  async giftcardSell(query: QueryLedgerDto) {
     try {
-      const swap = await lastValueFrom(
-        this.walletClient.send('admin.ledger.giftcard-sell', true),
+      const giftcardSell = await lastValueFrom(
+        this.walletClient.send('admin.ledger.giftcard-sell', query),
       );
-      return swap;
+      return giftcardSell;
     } catch (error) {}
   }
 
