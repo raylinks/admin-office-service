@@ -45,8 +45,8 @@ export class FinanceController {
   }
 
   @Get('ledger/swap')
-  async swap(@Res() res: Response) {
-    const swap = await this.financeService.swap();
+  async swap(@Res() res: Response, @Query() query: QueryLedgerDto) {
+    const swap = await this.financeService.swap(query);
     return this.response.okResponse(
       res,
       'Fetched swap ledgers successfully',
@@ -55,8 +55,8 @@ export class FinanceController {
   }
 
   @Get('ledger/giftcard-sell')
-  async giftCardSell(@Res() res: Response) {
-    const giftcardSell = await this.financeService.giftcardSell();
+  async giftCardSell(@Query() query: QueryLedgerDto, @Res() res: Response) {
+    const giftcardSell = await this.financeService.giftcardSell(query);
     return this.response.okResponse(
       res,
       'Fetched giftcard sell ledgers successfully',

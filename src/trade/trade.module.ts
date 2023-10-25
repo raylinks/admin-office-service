@@ -3,7 +3,7 @@ import { TradeService } from './trade.service';
 import { TradeController } from './trade.controller';
 import { PrismaClient } from '@prisma/client';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
+import { DB_NAMES, QUEUE_NAMES, RMQ_NAMES } from 'src/utils/constants';
 import config from 'src/config';
 import { HttpResponse } from 'src/reponses/http.response';
 import { createPool } from 'mysql2/promise';
@@ -37,7 +37,7 @@ import { ExcelService } from 'src/exports/excel.service';
     HttpResponse,
     ExcelService,
     {
-      provide: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',
+      provide: DB_NAMES.GIFTCARD,
       useFactory: async () => {
         return createPool(config.db.giftCardService);
       },

@@ -49,3 +49,12 @@ export const apiURLS = {
   dev: 'https://k8s.myfurex.co',
   prod: 'https://api.myfurex.co',
 };
+export enum GiftCardEventType {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+export const DB_NAMES = {
+  GIFTCARD: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',
+  WALLET: 'WALLET_SERVICE_DATABASE_CONNECTION',
+} as const;

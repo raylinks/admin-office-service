@@ -11,6 +11,31 @@ export class CreateCardDto {
   @IsString()
   @IsNotEmpty()
   card: string;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  price?: number;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  value?: number;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  margin?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  productId?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  operator?: string;
 }
 
 export class CreateCardCurrencyDto {

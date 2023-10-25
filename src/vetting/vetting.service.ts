@@ -38,10 +38,11 @@ export class VettingService {
    * @returns
    */
   async fetchVettingDetails(id: string) {
+    console.log({id});
     const vetting = await lastValueFrom(
       this.walletClient.send({ cmd: 'vetting.details.get' }, id),
     );
-
+      console.log({vetting})
     return vetting;
   }
 
@@ -57,9 +58,9 @@ export class VettingService {
   ) {
     const transaction = await this.fetchVettingDetails(data.transactionId);
 
-    if (transaction.status === 'CONFIRMED')
+    if (transaction.transaction.status !== 'INIT' && transaction.transaction.status !== 'CANCELLED')
       throw new BadRequestException('Withdrawal is already approved');
-    if (transaction.status === 'CANCELLED')
+    if (transaction.transaction.status !== 'INIT' && transaction.transaction.status === 'CANCELLED')
       throw new BadRequestException('Withdrawal is already declined');
 
     if (data.status === 'approve')

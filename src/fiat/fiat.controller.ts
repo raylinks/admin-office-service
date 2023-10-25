@@ -25,7 +25,7 @@ export class FiatController {
   constructor(
     private readonly fiatService: FiatService,
     private response: HttpResponse,
-  ) { }
+  ) {}
 
   @Get('balance')
   async fetchCryptoBalance(@Res() res: Response) {
@@ -57,7 +57,7 @@ export class FiatController {
     @Query() query: QueryFiatTransactionsDto,
     @Res() res: Response,
   ) {
-    return await this.fiatService.exportAllTransactions(res,query);
+    return await this.fiatService.exportAllTransactions(res, query);
   }
 
   @Get('transactions/:id')

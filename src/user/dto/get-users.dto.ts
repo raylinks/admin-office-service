@@ -15,6 +15,10 @@ export class GetUsersDTO {
 
   @ApiPropertyOptional()
   @IsOptional()
+  id?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   firstName?: string;
 
   @ApiPropertyOptional({
@@ -25,6 +29,15 @@ export class GetUsersDTO {
   @IsOptional()
   // @Matches(/^[a-zA-Z ]*$/, { message: 'lastName must be alphabets' })
   lastName: string;
+
+  @ApiPropertyOptional({
+    description: 'furex id',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  // @Matches(/^[a-zA-Z ]*$/, { message: 'lastName must be alphabets' })
+  furexId: string;
 
   @ApiPropertyOptional({
     description: 'customer partial phoneNumber',

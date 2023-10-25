@@ -8,7 +8,11 @@ import {
 } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { PrismaClient } from '@prisma/client';
-import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
+import {
+  AUDIT_ACTIONS,
+  GiftCardEventType,
+  RMQ_NAMES,
+} from 'src/utils/constants';
 import {
   ApproveDeclineTradeDto,
   CreateMessageDto,
@@ -146,7 +150,7 @@ export class TradeService {
       const trade = await this.fetchTradeDetails(tradeId);
 
       await this.giftcardDB.execute(
-        `UPDATE trades SET rate = ?, status = 'RATE_SET', updated_at = NOW() WHERE id = ?`,
+        `UPDATE trades SET rate = ?, updated_at = NOW() WHERE id = ?`,
         [data.rate, tradeId],
       );
 
@@ -188,6 +192,7 @@ export class TradeService {
         amount: finalAmount,
         symbol: 'NGN',
         userId: trade.userId,
+        type: GiftCardEventType.SELL,
       },
     });
 
