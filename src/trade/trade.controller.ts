@@ -41,6 +41,12 @@ export class TradeController {
     return this.response.okResponse(res, 'fetched all trades', trades);
   }
 
+  @Get('count')
+  async getTradeCount(@Res() res: Response) {
+    const count = await this.tradeService.countTrades();
+    return this.response.okResponse(res, '', count);
+  }
+
   @Get('/export/excel')
   async exportAllTransactions(
     @Query() query: QueryTradesDto,

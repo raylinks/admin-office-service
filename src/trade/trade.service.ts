@@ -85,6 +85,14 @@ export class TradeService {
     return trades;
   }
 
+  async countTrades() {
+    const count = await lastValueFrom(
+      this.giftcardClient.send('trade.count', true),
+    );
+
+    return count;
+  }
+
   async exportAllTransactions(res: Response, query?: QueryTradesDto) {
     const { trades } = await this.listTrades(query);
     return await this.excelService.export(res, trades, 'trades', 'bulk');
