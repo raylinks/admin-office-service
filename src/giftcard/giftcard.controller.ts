@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { GetAccount } from 'src/decorators/account.decorator';
 import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
+import { CreateCardBuyRangeDto } from './dto/create-card-buy-range.dto';
 
 @Controller('giftcards')
 @ApiTags('Giftcard')
@@ -48,7 +49,7 @@ export class GiftcardController {
     @Body() data: CreateGiftCardDto,
     @Res() res: Response,
   ) {
-    await this.checkIfUserHasPermission(profile.userId); 
+    await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.createCard(profile.userId, data);
 
@@ -61,11 +62,10 @@ export class GiftcardController {
 
   @Post('disable/:id')
   async disableCard(
-    @GetAccount() profile: { userId: string},
+    @GetAccount() profile: { userId: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.disableCard(profile.userId, id);
 
     return this.response.okResponse(
@@ -81,7 +81,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.enableCard(profile.userId, id);
 
     return this.response.okResponse(res, 'giftcard enabled successfully', null);
@@ -108,7 +107,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardCurrency(profile.userId, id);
 
     return this.response.okResponse(res, 'card currency deleted successfully');
@@ -120,7 +118,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardDenomination(profile.userId, id);
 
     return this.response.okResponse(res, 'denomination deleted successfully');
@@ -132,7 +129,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardNumber(profile.userId, id);
 
     return this.response.okResponse(res, 'card number deleted successfully');
@@ -144,7 +140,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardReceipt(profile.userId, id);
 
     return this.response.okResponse(res, 'card receipt deleted successfully');
@@ -173,7 +168,6 @@ export class GiftcardController {
     @Body() data: CreateGiftCardDto,
     @Res() res: Response,
   ) {
-
     await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.createCardBuy(profile.userId, data);
@@ -185,13 +179,29 @@ export class GiftcardController {
     );
   }
 
+  @Post('card/buy/range')
+  async createCardBuyRange(
+    @GetAccount() profile: { userId: string },
+    @Body() payload: CreateCardBuyRangeDto,
+    @Res() res: Response,
+  ) {
+    await this.checkIfUserHasPermission(profile.userId);
+
+    await this.giftcardService.createCardBuyRange("23456234", payload);
+
+    return this.response.createdResponse(
+      res,
+      'giftcard buy range created successfully',
+      null,
+    );
+  }
+
   @Post('card/buy/disable/:id')
   async disableCardBuy(
     @GetAccount() profile: { userId: string },
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.disableCardBuy(profile.userId, id);
 
     return this.response.okResponse(
@@ -207,7 +217,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.enableCardBuy(profile.userId, id);
 
     return this.response.okResponse(
@@ -241,7 +250,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardBuyCurrency(profile.userId, id);
 
     return this.response.okResponse(
@@ -256,7 +264,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardBuyDenomination(profile.userId, id);
 
     return this.response.okResponse(
@@ -271,7 +278,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardBuyNumber(profile.userId, id);
 
     return this.response.okResponse(
@@ -286,7 +292,6 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-
     await this.giftcardService.deleteCardBuyReceipt(profile.userId, id);
 
     return this.response.okResponse(
@@ -295,16 +300,14 @@ export class GiftcardController {
     );
   }
 
-  private async checkIfUserHasPermission(userId:string){
-
+  private async checkIfUserHasPermission(userId: string) {
     const user = await this.giftcardService.fetchUserById(userId);
 
     const allowedEmails = ['phenomenal@myfurex.co'];
-    if(!allowedEmails.includes(user.email))
-    {
-      throw new BadRequestException("You do not have permission to perform this action")
+    if (!allowedEmails.includes(user.email)) {
+      throw new BadRequestException(
+        'You do not have permission to perform this action',
+      );
     }
   }
-
-
 }

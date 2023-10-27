@@ -11,6 +11,7 @@ import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
 import { PrismaClient } from '@prisma/client';
 import { lastValueFrom, timeout } from 'rxjs';
 import { Pool } from 'mysql2/promise';
+import { CreateCardBuyRangeDto } from './dto/create-card-buy-range.dto';
 
 @Injectable()
 export class GiftcardService {
@@ -30,7 +31,7 @@ export class GiftcardService {
       throw new UnauthorizedException('You are not allowd to this resource');
 
     this.giftcardClient.emit('giftcard.create', data).pipe(timeout(5_000));
- 
+
     await this.prisma.auditLog.create({
       data: {
         action: AUDIT_ACTIONS.GIFTCARD_CREATED,
@@ -265,9 +266,23 @@ export class GiftcardService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: AUDIT_ACTIONS.GIFTCARD_CREATED,
+        action: AUDIT_ACTIONS.GIFTCARD_BUY_CREATED,
         operatorId,
         details: `Added a new giftcard details for ${data.card.card}`,
+      },
+    });
+  }
+
+  async createCardBuyRange(operatorId: string, data: CreateCardBuyRangeDto) {
+    this.giftcardClient
+      .emit('giftcard.buy.create-range', data)
+      .pipe(timeout(5_000));
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.GIFTCARD_RANGE_CREATED,
+        operatorId,
+        details: 'Added a new giftcard range details',
       },
     });
   }
@@ -377,12 +392,11 @@ export class GiftcardService {
     });
   }
 
-  async fetchUserById(userId: string)
-  {
+  async fetchUserById(userId: string) {
     return await this.prisma.user.findFirst({
-      where :{
-        id: userId
-      }
-    })
+      where: {
+        id: userId,
+      },
+    });
   }
 }
