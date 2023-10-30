@@ -12,6 +12,7 @@ import { HttpResponse } from './reponses/http.response';
 import { BannerModule } from './banner/banner.module';
 import { FinanceModule } from './finance/finance.module';
 import { VettingModule } from './vetting/vetting.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { VettingModule } from './vetting/vetting.module';
     FiatModule,
     BannerModule,
     VettingModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService, HttpResponse],
