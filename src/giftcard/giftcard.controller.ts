@@ -310,4 +310,48 @@ export class GiftcardController {
       );
     }
   }
+
+  @Get('card/buy/range/all/:id')
+  async getCardBuyRange(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.getBuyRange(id);
+
+    return this.response.okResponse(
+      res,
+      'giftcard buy range retrieved successfully',
+      null,
+    );
+  }
+
+  @Post('card/buy/range/disable/:id')
+  async disableCardBuyRange(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.disableCardBuyRange(profile.userId, id);
+
+    return this.response.okResponse(
+      res,
+      'giftcard buy range disabled successfully',
+      null,
+    );
+  }
+
+  @Post('card/buy/range/enable/:id')
+  async enableCardBuyRange(
+    @GetAccount() profile: { userId: string },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.giftcardService.enableCardBuy(profile.userId, id);
+
+    return this.response.okResponse(
+      res,
+      'giftcard buy range enabled successfully',
+      null,
+    );
+  }
 }

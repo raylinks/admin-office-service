@@ -399,4 +399,32 @@ export class GiftcardService {
       },
     });
   }
+
+  async getBuyRange(currencyId: string) {
+    this.giftcardClient.emit('giftcard.buy.ranges.all', currencyId);
+  }
+
+  async disableCardBuyRange(operatorId: string, cardId: string) {
+    this.giftcardClient.emit('giftcard.buy.range.disable', cardId);
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.GIFTCARD_RANGE_DISABLED,
+        operatorId,
+        details: `Disabled giftcard range \n id: ${cardId}`,
+      },
+    });
+  }
+
+  async enableCardBuyRange(operatorId: string, cardId: string) {
+    this.giftcardClient.emit('giftcard.buy.range.enable', cardId);
+
+    await this.prisma.auditLog.create({
+      data: {
+        action: AUDIT_ACTIONS.GIFTCARD_RANGE_ENABLED,
+        operatorId,
+        details: `Enabled giftcard  range \n id: ${cardId}`,
+      },
+    });
+  }
 }
