@@ -9,13 +9,13 @@ export class CreateCardBuyRangeDto {
   @IsNotEmpty()
   currency: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  price: number;
+  price: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  value: number;
+  value: string;
 
   @IsString()
   @IsNotEmpty()
