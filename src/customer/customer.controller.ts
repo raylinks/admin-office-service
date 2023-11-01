@@ -2,7 +2,8 @@ import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { HttpResponse } from 'src/reponses/http.response';
 import { Response } from 'express';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { CURRENCY } from 'src/utils/constants';
 
 @Controller('customer')
 @ApiTags('Customer')
@@ -15,8 +16,13 @@ export class CustomerController {
   ) {}
 
   @Get(':id/balance')
-  async fetchWalletBalance(@Param('id') id: string, @Res() res: Response) {
-    const balance = await this.customerService.fetchWalletBalance(id);
+  @ApiQuery({ name: 'currency', required: false, enum: ['USD', 'NGN'] })
+  async fetchWalletBalance(
+    @Param('id') id: string,
+    @Query('currency') currency: CURRENCY,
+    @Res() res: Response,
+  ) {
+    const balance = await this.customerService.fetchWalletBalance(id, currency);
 
     return this.response.okResponse(
       res,
