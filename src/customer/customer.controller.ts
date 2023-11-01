@@ -2,9 +2,10 @@ import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { HttpResponse } from 'src/reponses/http.response';
 import { Response } from 'express';
-import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CURRENCY } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { FetchWalletBalanceResponseDto } from './dto/customer.dto';
 
 @Controller('customer')
 @ApiTags('Customer')
@@ -18,6 +19,7 @@ export class CustomerController {
 
   @Get(':id/balance')
   @ApiQuery({ name: 'currency', required: false, enum: ['USD', 'NGN'] })
+  @ApiOkResponse({ type: FetchWalletBalanceResponseDto })
   async fetchWalletBalance(
     @Param('id') id: string,
     @Query('currency') currency: CURRENCY,
