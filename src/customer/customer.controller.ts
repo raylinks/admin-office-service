@@ -5,7 +5,10 @@ import { Response } from 'express';
 import { ApiOkResponse, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CURRENCY } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
-import { FetchWalletBalanceResponseDto } from './dto/customer.dto';
+import {
+  FetchCustomerTransactionsResponseDto,
+  FetchWalletBalanceResponseDto,
+} from './dto/customer.dto';
 
 @Controller('customer')
 @ApiTags('Customer')
@@ -36,6 +39,7 @@ export class CustomerController {
 
   @Get(':id/transactions')
   @ApiQuery({ name: 'currency', required: false, enum: ['USD', 'NGN'] })
+  @ApiOkResponse({ type: FetchCustomerTransactionsResponseDto })
   async fetchTransactions(
     @Param('id') id: string,
     @Query('currency') currency: CURRENCY,
