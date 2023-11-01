@@ -113,9 +113,9 @@ export class AuthService {
         emailVerified: data.emailVerified,
         role: {
           connectOrCreate: {
-            where: { namw: 'OPERATION' },
+            where: { name: 'OPERATION' },
             create: {
-              namw: 'OPERATION',
+              name: 'OPERATION',
             },
           },
         },
