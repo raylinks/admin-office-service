@@ -1,13 +1,14 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { HttpResponse } from 'src/reponses/http.response';
 import { Response } from 'express';
 import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CURRENCY } from 'src/utils/constants';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('customer')
 @ApiTags('Customer')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiSecurity('auth')
 export class CustomerController {
   constructor(

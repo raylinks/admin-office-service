@@ -16,7 +16,10 @@ export class CustomerService {
 
   async fetchWalletBalance(id: string, currency?: CURRENCY) {
     currency = currency || 'USD';
-    const balance: object | null = {};
+    const balance: object | null = {
+      fiat: [],
+      crypto: [],
+    };
     let totalBalance = 0;
     let totalDepositAmount = 0;
     let totalWithdrawalAmount = 0;
@@ -49,10 +52,11 @@ export class CustomerService {
           else value = amount;
         }
         totalBalance += value;
-        balance[wallet.symbol] = {
-          balance: parseFloat(amount.toFixed(getDP(wallet.symbol))),
+        balance[this.balanceType(wallet.symbol)].push({
+          symbol: wallet.symbol,
+          balance: parseFloat(amount.toFixed(this.getDP(wallet.symbol))),
           value: parseFloat(value.toFixed(2)),
-        };
+        });
       }
 
       for (const deposit of deposits as {
@@ -89,8 +93,8 @@ export class CustomerService {
       return {
         balance,
         totalBalance: parseFloat(totalBalance.toFixed(2)),
-        totalDepositAmount: parseFloat(totalDepositAmount.toFixed(2)),
-        totalWithdrawalAmount: parseFloat(totalWithdrawalAmount.toFixed(2)),
+        totalDepositedAmount: parseFloat(totalDepositAmount.toFixed(2)),
+        totalWithdrawnAmount: parseFloat(totalWithdrawalAmount.toFixed(2)),
       };
     } catch (err) {
       throw new InternalServerErrorException(
@@ -118,7 +122,10 @@ export class CustomerService {
     if (!rate) return 0;
     return rate.sell_rate;
   }
-}
-function getDP(symbol: string): number {
-  return ['USD', 'NGN'].includes(symbol) ? 2 : 8;
+  private getDP(symbol: string): number {
+    return ['USD', 'NGN'].includes(symbol) ? 2 : 8;
+  }
+  private balanceType(symbol: string) {
+    return ['USD', 'NGN'].includes(symbol) ? 'fiat' : 'crypto';
+  }
 }
