@@ -112,7 +112,59 @@ export class CustomerService {
     return asset.price * b.amount;
   }
 
-  async fetchTransactions(id: string) {}
+  async fetchTransactions(id: string, currency?: CURRENCY) {
+    let rate = 0;
+    try {
+      // preload rate if currency is set to NGN
+      if (currency === 'NGN') rate = await this.fetchCurrentNGNRate();
+
+      const [result] = await this.walletDB.query(
+        `SELECT
+        asset_symbol AS symbol,
+        eventType,
+        SUM(amount) as amount,
+        MAX(created_at) AS createdAt,
+        MAX(type) AS type
+      FROM transactions
+        WHERE user_id=? AND status='CONFIRMED'
+      GROUP BY asset_symbol,eventType`,
+        [id],
+      );
+
+      let transactions = await Promise.all(
+        (result as any[]).map(async (transaction) => {
+          if (currency)
+            if (currency !== transaction.symbol)
+              transaction.amount = await this.getUSDValue({
+                symbol: transaction.symbol,
+                amount: transaction.amount,
+              });
+          if (currency === 'NGN' && transaction.symbol !== 'NGN')
+            transaction.amount *= rate;
+          transaction.amount = parseFloat(
+            transaction.amount.toFixed(
+              currency ? 2 : this.getDP(transaction.symbol),
+            ),
+          );
+          return transaction;
+        }),
+      );
+
+      transactions = transactions.reduce((transactions, transaction) => {
+        const symbol = transaction.symbol;
+        if (!transactions[symbol]) transactions[symbol] = [];
+        transactions[symbol].push(transaction);
+
+        return transactions;
+      }, {});
+
+      return transactions;
+    } catch (err) {
+      throw new InternalServerErrorException(
+        `There was an issue fetching transactions: ${err}`,
+      );
+    }
+  }
 
   private async fetchCurrentNGNRate(): Promise<number> {
     const [result] = await this.walletDB.query(
