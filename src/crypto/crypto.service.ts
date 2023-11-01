@@ -294,19 +294,35 @@ export class CryptoService {
       fees.push({
         send: {
           flat: this.filterFees(fee, CryptoFeeOptions.SEND, CryptoFeeType.FLAT),
-          percentage: this.filterFees(fee, CryptoFeeOptions.SEND, CryptoFeeType.PERCENTAGE),
+          percentage: this.filterFees(
+            fee,
+            CryptoFeeOptions.SEND,
+            CryptoFeeType.PERCENTAGE,
+          ),
         },
         sell: {
           flat: this.filterFees(fee, CryptoFeeOptions.SELL, CryptoFeeType.FLAT),
-          percentage: this.filterFees(fee, CryptoFeeOptions.SELL, CryptoFeeType.PERCENTAGE),
+          percentage: this.filterFees(
+            fee,
+            CryptoFeeOptions.SELL,
+            CryptoFeeType.PERCENTAGE,
+          ),
         },
         buy: {
           flat: this.filterFees(fee, CryptoFeeOptions.BUY, CryptoFeeType.FLAT),
-          percentage: this.filterFees(fee, CryptoFeeOptions.BUY, CryptoFeeType.PERCENTAGE),
+          percentage: this.filterFees(
+            fee,
+            CryptoFeeOptions.BUY,
+            CryptoFeeType.PERCENTAGE,
+          ),
         },
         swap: {
           flat: this.filterFees(fee, CryptoFeeOptions.SWAP, CryptoFeeType.FLAT),
-          percentage: this.filterFees(fee, CryptoFeeOptions.SWAP, CryptoFeeType.PERCENTAGE),
+          percentage: this.filterFees(
+            fee,
+            CryptoFeeOptions.SWAP,
+            CryptoFeeType.PERCENTAGE,
+          ),
         },
       });
 
@@ -320,7 +336,6 @@ export class CryptoService {
   }
 
   filterFees(data: any, event: CryptoFeeOptions, feeType: CryptoFeeType) {
-
     const feeOptionData = data.filter(
       (rb: { event: CryptoFeeOptions }) => rb.event === event,
     );
@@ -328,14 +343,21 @@ export class CryptoService {
       (rb: { feeType: string }) => rb.feeType == feeType.toUpperCase(),
     );
     const fee = DenoArray.reduce((accumulator, value) => {
-      let minAmount = parseFloat(value.split('-')[0])
-      let maxAmount = parseFloat(value.split('-')[1])
+      const minAmount = parseFloat(value.split('-')[0]);
+      const maxAmount = parseFloat(value.split('-')[1]);
 
-      let datum = feeTypeData.find((rb: { maxAmount: number, minAmount: number }) => {
-
-        return (rb.minAmount >= minAmount) || (rb.maxAmount <= maxAmount)
-      });
-      datum = datum ? datum : { id: null, value: 0, capAmount: 0 };
+      let datum = feeTypeData.find(
+        (rb: { maxAmount: number; minAmount: number }) => {
+          return rb.minAmount >= minAmount || rb.maxAmount <= maxAmount;
+        },
+      );
+      datum = datum
+        ? datum
+        : {
+            id: null,
+            value: 0,
+            capAmount: 0,
+          };
       return {
         ...accumulator,
         [value]: { id: datum.id, value: datum.value, cap: datum.capAmount },
@@ -343,27 +365,47 @@ export class CryptoService {
     }, {});
     return fee;
   }
-
   async fetchFee(symbol: string) {
     const fee = await lastValueFrom(
-      this.walletClient.send({ cmd: 'fetch.crypto.fee.single' }, symbol),
+      this.walletClient.send(
+        {
+          cmd: 'fetch.crypto.fee.single',
+        },
+        symbol,
+      ),
     );
     return {
       send: {
         flat: this.filterFees(fee, CryptoFeeOptions.SEND, CryptoFeeType.FLAT),
-        percentage: this.filterFees(fee, CryptoFeeOptions.SEND, CryptoFeeType.PERCENTAGE),
+        percentage: this.filterFees(
+          fee,
+          CryptoFeeOptions.SEND,
+          CryptoFeeType.PERCENTAGE,
+        ),
       },
       sell: {
         flat: this.filterFees(fee, CryptoFeeOptions.SELL, CryptoFeeType.FLAT),
-        percentage: this.filterFees(fee, CryptoFeeOptions.SELL, CryptoFeeType.PERCENTAGE),
+        percentage: this.filterFees(
+          fee,
+          CryptoFeeOptions.SELL,
+          CryptoFeeType.PERCENTAGE,
+        ),
       },
       buy: {
         flat: this.filterFees(fee, CryptoFeeOptions.BUY, CryptoFeeType.FLAT),
-        percentage: this.filterFees(fee, CryptoFeeOptions.BUY, CryptoFeeType.PERCENTAGE),
+        percentage: this.filterFees(
+          fee,
+          CryptoFeeOptions.BUY,
+          CryptoFeeType.PERCENTAGE,
+        ),
       },
       swap: {
         flat: this.filterFees(fee, CryptoFeeOptions.SWAP, CryptoFeeType.FLAT),
-        percentage: this.filterFees(fee, CryptoFeeOptions.SWAP, CryptoFeeType.PERCENTAGE),
+        percentage: this.filterFees(
+          fee,
+          CryptoFeeOptions.SWAP,
+          CryptoFeeType.PERCENTAGE,
+        ),
       },
     };
   }
@@ -404,6 +446,18 @@ export class CryptoService {
           ],
         );
 
+      // TODO: optimize rate update
+      if (
+        ['BuyEvent', 'SellEvent'].includes(data.event) &&
+        data.feeFlat !== null
+      ) {
+        const field = data.event === 'BuyEvent' ? 'buy_rate' : 'sell_rate';
+        await this.walletDB.execute(
+          `UPDATE trade_rates SET ${field}=?, updated_at=NOW() WHERE fiat_symbol='NGN'`,
+          [data.feeFlat],
+        );
+      }
+
       await this.prisma.auditLog.create({
         data: {
           action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
@@ -425,8 +479,8 @@ export class CryptoService {
     symbol: string,
     data: CryptoFeesDto,
   ) {
-    const min_amount = data.deno.split("-")[0];
-    const max_amount = data.deno.split("-")[1];
+    const min_amount = data.deno.split('-')[0];
+    const max_amount = data.deno.split('-')[1];
     const [result] = await this.walletDB.query(
       `SELECT * FROM crypto_fees WHERE symbol = ? AND event = ?  AND fee_type = ? AND max_amount = ?  AND min_amount = ?`,
       [symbol, event, data.feeType.toUpperCase(), max_amount, min_amount],
@@ -469,7 +523,8 @@ export class CryptoService {
       data: {
         action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
         operatorId,
-        details: `${symbol} fees set by ${operatorId}`,
+        details: `${symbol}
+      fees set by ${operatorId}`,
       },
     });
   }
