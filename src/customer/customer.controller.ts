@@ -35,9 +35,21 @@ export class CustomerController {
   }
 
   @Get(':id/transactions')
-  fetchTransactions(
+  @ApiQuery({ name: 'currency', required: false, enum: ['USD', 'NGN'] })
+  async fetchTransactions(
     @Param('id') id: string,
-    @Query('currency') currency: string,
+    @Query('currency') currency: CURRENCY,
     @Res() res: Response,
-  ) {}
+  ) {
+    const transactions = await this.customerService.fetchTransactions(
+      id,
+      currency,
+    );
+
+    return this.response.okResponse(
+      res,
+      'Fetched Transactions Successfully',
+      transactions,
+    );
+  }
 }
