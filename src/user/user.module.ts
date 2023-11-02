@@ -7,6 +7,7 @@ import config from 'src/config';
 import { Db, MongoClient } from 'mongodb';
 import { HttpResponse } from 'src/reponses/http.response';
 import { ExcelService } from 'src/exports/excel.service';
+import { PrismaClient } from '@prisma/client';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ExcelService } from 'src/exports/excel.service';
         return client.db('auth_service');
       },
     },
+    PrismaClient,
   ],
 })
 export class UserModule {}
