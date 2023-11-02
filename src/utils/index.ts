@@ -1,6 +1,13 @@
 import * as crypto from 'crypto';
 import config from 'src/config';
 
+export type PaginationDto = {
+  size: number;
+  totalItems: number;
+  nextPage: number;
+  previousPage: number;
+};
+
 export const encrypt = (text: string) => {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv('aes-256-gcm', config.encKey, iv);
@@ -41,3 +48,20 @@ export function excludeField<T, Key extends keyof T>(
 
   return obj;
 }
+
+export const paging = (
+  totalItems: number,
+  resultTotal: number,
+  page: number,
+  size: number,
+): PaginationDto => {
+  const nextPage = Number(page) + 1;
+  const pages = Math.ceil(totalItems / Number(size));
+
+  return {
+    size: resultTotal,
+    totalItems,
+    nextPage: (nextPage > pages ? pages : nextPage) || 1,
+    previousPage: page < 1 ? page : page - 1,
+  };
+};
