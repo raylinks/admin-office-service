@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Response } from 'express';
 import { GetUsersDTO } from './dto/get-users.dto';
@@ -13,9 +22,13 @@ import { BlacklistUserDTO } from './dto/blacklist-user.dto';
 import { PassThrough } from 'stream';
 import { ExportDataDto } from './dto/export-data.dto';
 import { FlagTransactionDTO } from './dto/flag-transaction.dto';
+import { ResetIdetityDto } from './dto/identity.dto';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { GetAccount } from 'src/decorators/account.decorator';
 
 @Controller('user')
 @ApiTags('User')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -201,9 +214,7 @@ export class UserController {
   }
 
   @Get('/export/excel')
-  async exportAllUsersInExcel(
-    @Res() res: Response,
-  ) { 
+  async exportAllUsersInExcel(@Res() res: Response) {
     return await this.userService.exportAllUsersrInExcel(res);
   }
 
@@ -220,5 +231,26 @@ export class UserController {
       query,
       res,
     );
+  }
+
+  @Post('identity/reset')
+  async resetUserIdentity(
+    @GetAccount() profile: { userId: string },
+    @Body() data: ResetIdetityDto,
+    @Res() res: Response,
+  ) {
+    await this.userService.resetUserIdentity(profile.userId, data);
+
+    return this.response.okResponse(res, 'User Identity Reset Successfully');
+  }
+
+  @Post('identity/verify')
+  async verifyIdentityStatus(
+    @GetAccount() profile: { userId: string },
+    @Body() data: ResetIdetityDto,
+    @Res() res: Response,
+  ) {
+    await this.userService.reverifyUserKycStatus(profile.userId, data);
+    return this.response.okResponse(res, 'User Identity Verified Successfully');
   }
 }
