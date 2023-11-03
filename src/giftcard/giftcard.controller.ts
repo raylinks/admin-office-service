@@ -26,7 +26,7 @@ export class GiftcardController {
   constructor(
     private readonly giftcardService: GiftcardService,
     private response: HttpResponse,
-  ) {}
+  ) { }
 
   @Get('')
   async fetchAllCards(@Res() res: Response) {
@@ -168,7 +168,9 @@ export class GiftcardController {
     @Body() data: CreateGiftCardDto,
     @Res() res: Response,
   ) {
+
     await this.checkIfUserHasPermission(profile.userId);
+
 
     await this.giftcardService.createCardBuy(profile.userId, data);
 
@@ -301,13 +303,14 @@ export class GiftcardController {
   }
 
   private async checkIfUserHasPermission(userId: string) {
+
     const user = await this.giftcardService.fetchUserById(userId);
 
     const allowedEmails = ['phenomenal@myfurex.co'];
     if (!allowedEmails.includes(user.email)) {
-      throw new BadRequestException(
-        'You do not have permission to perform this action',
-      );
+
+      throw new BadRequestException("You do not have permission to perform this action")
+
     }
   }
 

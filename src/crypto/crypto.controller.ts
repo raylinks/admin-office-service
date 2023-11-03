@@ -25,7 +25,7 @@ import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('crypto')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @ApiTags('Crypto')
 @ApiSecurity('auth')
 export class CryptoController {

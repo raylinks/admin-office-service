@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 async function seed() {
   await prisma.role.upsert({
-    where: { namw: 'OPERATION' },
+    where: { name: 'OPERATION' },
     update: {},
     create: {
-      namw: 'OPERATION',
+      name: 'OPERATION',
     },
   });
 }
