@@ -8,6 +8,7 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import {
   FetchCustomerTransactionsResponseDto,
   FetchWalletBalanceResponseDto,
+  QueryCustomerTransactionDto,
 } from './dto/customer.dto';
 
 @Controller('customer')
@@ -38,16 +39,15 @@ export class CustomerController {
   }
 
   @Get(':id/transactions')
-  @ApiQuery({ name: 'currency', required: false, enum: ['USD', 'NGN'] })
   @ApiOkResponse({ type: FetchCustomerTransactionsResponseDto })
   async fetchTransactions(
     @Param('id') id: string,
-    @Query('currency') currency: CURRENCY,
+    @Query() query: QueryCustomerTransactionDto,
     @Res() res: Response,
   ) {
     const transactions = await this.customerService.fetchTransactions(
       id,
-      currency,
+      query,
     );
 
     return this.response.okResponse(

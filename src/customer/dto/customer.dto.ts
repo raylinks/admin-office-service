@@ -1,5 +1,11 @@
-import { ApiResponseProperty, PartialType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  ApiResponseProperty,
+  PartialType,
+} from '@nestjs/swagger';
 import { OkResponseDto } from 'src/reponses/response.dto';
+import { CURRENCY } from 'src/utils/constants';
 
 export class FetchWalletBalanceResponseDto extends PartialType(OkResponseDto) {
   @ApiResponseProperty({ example: 'Balance Fetched Successfully' })
@@ -151,3 +157,14 @@ export class FetchCustomerTransactionsResponseDto extends PartialType(
   })
   data: Record<string, unknown>;
 }
+
+export class QueryCustomerTransactionDto {
+  @ApiPropertyOptional({ enum: ['USD', 'NGN'] })
+  currency?: CURRENCY;
+  @ApiPropertyOptional({ default: 50 })
+  limit?: number;
+  @ApiPropertyOptional({ default: 0 })
+  page?: number;
+}
+
+// cld9ano540008o90qe4hamci3

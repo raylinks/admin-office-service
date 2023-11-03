@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { ClientKafka, ClientProxy, ClientRMQ } from '@nestjs/microservices';
+import { Injectable } from '@nestjs/common';
+import { ClientRMQ } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { AUDIT_ACTIONS, RMQ_NAMES } from 'src/utils/constants';
 import { Db } from 'mongodb';
