@@ -6,6 +6,8 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { Pool } from 'mysql2/promise';
 import { DB_NAMES, RMQ_NAMES, CURRENCY } from 'src/utils/constants';
+import { QueryCustomerTransactionDto } from './dto/customer.dto';
+import { paging } from 'src/utils';
 
 @Injectable()
 export class CustomerService {
@@ -30,11 +32,13 @@ export class CustomerService {
         [id],
       );
       const [deposits] = await this.walletDB.query(
-        `SELECT asset_symbol,SUM(amount) as amount FROM transactions WHERE eventType IN ('FiatDepositEvent', 'CryptoDepositEvent') AND user_id = ? AND status='CONFIRMED' GROUP BY asset_symbol;`,
+        `SELECT asset_symbol,SUM(amount) as amount FROM transactions WHERE eventType IN ('FiatDepositEvent',
+'CryptoDepositEvent') AND user_id = ? AND status='CONFIRMED' GROUP BY asset_symbol;`,
         [id],
       );
       const [withdrawals] = await this.walletDB.query(
-        `SELECT asset_symbol,SUM(amount) as amount FROM transactions WHERE eventType IN ('FiatWithdrawalEvent', 'CryptoWithdrawalEvent') AND user_id = ? AND status='CONFIRMED' GROUP BY asset_symbol;`,
+        `SELECT asset_symbol,SUM(amount) as amount FROM transactions WHERE eventType IN ('FiatWithdrawalEvent',
+'CryptoWithdrawalEvent') AND user_id = ? AND status='CONFIRMED' GROUP BY asset_symbol;`,
         [id],
       );
 
@@ -112,26 +116,35 @@ export class CustomerService {
     return asset.price * b.amount;
   }
 
-  async fetchTransactions(id: string, currency?: CURRENCY) {
+  async fetchTransactions(id: string, query: QueryCustomerTransactionDto) {
     let rate = 0;
+    const { limit = 50, page = 0, currency } = query;
+
+    let offset = 0;
+    if (page) offset = Math.max(page - 1, 0) * limit;
     try {
       // preload rate if currency is set to NGN
       if (currency === 'NGN') rate = await this.fetchCurrentNGNRate();
 
       const [result] = await this.walletDB.query(
         `SELECT
-        asset_symbol AS symbol,
-        eventType,
-        SUM(amount) as amount,
-        MAX(created_at) AS createdAt,
-        MAX(type) AS type
-      FROM transactions
-        WHERE user_id=? AND status='CONFIRMED'
-      GROUP BY asset_symbol,eventType`,
+          id,
+          amount,
+          eventType as event,
+          asset_symbol as symbol,
+          type,
+          created_at as createdAt
+        FROM transactions
+          WHERE user_id=? AND status='CONFIRMED'
+        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`,
+        [id],
+      );
+      const [count] = await this.walletDB.query(
+        `SELECT COUNT(*) as count FROM transactions WHERE user_id=? AND status='CONFIRMED'`,
         [id],
       );
 
-      let transactions = await Promise.all(
+      const transactions = await Promise.all(
         (result as any[]).map(async (transaction) => {
           if (currency)
             if (currency !== transaction.symbol)
@@ -146,19 +159,15 @@ export class CustomerService {
               currency ? 2 : this.getDP(transaction.symbol),
             ),
           );
+
           return transaction;
         }),
       );
 
-      transactions = transactions.reduce((transactions, transaction) => {
-        const symbol = transaction.symbol;
-        if (!transactions[symbol]) transactions[symbol] = [];
-        transactions[symbol].push(transaction);
-
-        return transactions;
-      }, {});
-
-      return transactions;
+      return {
+        transactions,
+        meta: paging(count[0].count, transactions.length, page, limit),
+      };
     } catch (err) {
       throw new InternalServerErrorException(
         `There was an issue fetching transactions: ${err}`,
