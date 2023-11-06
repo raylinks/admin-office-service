@@ -351,13 +351,8 @@ export class CryptoService {
           return rb.minAmount >= minAmount || rb.maxAmount <= maxAmount;
         },
       );
-      datum = datum
-        ? datum
-        : {
-            id: null,
-            value: 0,
-            capAmount: 0,
-          };
+      
+      datum = datum ? datum : { id: null, value: 0, capAmount: 0 };
       return {
         ...accumulator,
         [value]: { id: datum.id, value: datum.value, cap: datum.capAmount },
@@ -466,9 +461,9 @@ export class CryptoService {
         },
       });
     } catch (err) {
+      console.error(err);
       throw new InternalServerErrorException(
-        'Rate could not be set, err: ',
-        err,
+        `Rate could not be set, err: ${err}`,
       );
     }
   }
