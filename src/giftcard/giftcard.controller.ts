@@ -187,7 +187,7 @@ export class GiftcardController {
     @Body() payload: CreateCardBuyRangeDto,
     @Res() res: Response,
   ) {
-    await this.checkIfUserHasPermission(profile.userId);
+   // await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.createCardBuyRange(profile.userId, payload);
 
