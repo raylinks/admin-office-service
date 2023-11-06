@@ -169,7 +169,7 @@ export class GiftcardController {
     @Res() res: Response,
   ) {
 
-    await this.checkIfUserHasPermission(profile.userId);
+    //await this.checkIfUserHasPermission(profile.userId);
 
 
     await this.giftcardService.createCardBuy(profile.userId, data);
