@@ -351,6 +351,7 @@ export class CryptoService {
           return rb.minAmount >= minAmount || rb.maxAmount <= maxAmount;
         },
       );
+      
       datum = datum ? datum : { id: null, value: 0, capAmount: 0 };
       return {
         ...accumulator,
@@ -359,10 +360,14 @@ export class CryptoService {
     }, {});
     return fee;
   }
-
   async fetchFee(symbol: string) {
     const fee = await lastValueFrom(
-      this.walletClient.send({ cmd: 'fetch.crypto.fee.single' }, symbol),
+      this.walletClient.send(
+        {
+          cmd: 'fetch.crypto.fee.single',
+        },
+        symbol,
+      ),
     );
     return {
       send: {
@@ -436,6 +441,18 @@ export class CryptoService {
           ],
         );
 
+      // TODO: optimize rate update
+      if (
+        ['BuyEvent', 'SellEvent'].includes(data.event) &&
+        data.feeFlat !== null
+      ) {
+        const field = data.event === 'BuyEvent' ? 'buy_rate' : 'sell_rate';
+        await this.walletDB.execute(
+          `UPDATE trade_rates SET ${field}=?, updated_at=NOW() WHERE fiat_symbol='NGN'`,
+          [data.feeFlat],
+        );
+      }
+
       await this.prisma.auditLog.create({
         data: {
           action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
@@ -501,7 +518,8 @@ export class CryptoService {
       data: {
         action: AUDIT_ACTIONS.SET_CRYPTO_FEE,
         operatorId,
-        details: `${symbol} fees set by ${operatorId}`,
+        details: `${symbol}
+      fees set by ${operatorId}`,
       },
     });
   }

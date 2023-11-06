@@ -83,7 +83,7 @@ export class CryptoController {
     return await this.cryptoService.exportOneTransactions(res, id);
   }
 
-  @Get('disable/:symbol')
+  @Post('disable/:symbol')
   @ApiQuery({ name: 'type', enum: CryptoAssetType })
   async disableCrypto(
     @GetAccount() profile: { userId: string },
