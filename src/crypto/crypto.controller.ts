@@ -25,14 +25,14 @@ import { CryptoService } from './crypto.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('crypto')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiTags('Crypto')
 @ApiSecurity('auth')
 export class CryptoController {
   constructor(
     private readonly cryptoService: CryptoService,
     private readonly response: HttpResponse,
-  ) { }
+  ) {}
 
   @Get('balance')
   async fetchCryptoBalance(@Res() res: Response) {
@@ -79,9 +79,8 @@ export class CryptoController {
   }
 
   @Get('transactions/:id/export/excel')
-  async exportOneTransactions(@Param('id') id: string, @Res() res: Response ) {
-  
-     return await this.cryptoService.exportOneTransactions(res, id);
+  async exportOneTransactions(@Param('id') id: string, @Res() res: Response) {
+    return await this.cryptoService.exportOneTransactions(res, id);
   }
 
   @Get('disable/:symbol')
