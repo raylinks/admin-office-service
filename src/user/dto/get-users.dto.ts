@@ -21,6 +21,10 @@ export class GetUsersDTO {
   @IsOptional()
   firstName?: string;
 
+  @IsString()
+  @IsOptional()
+  kycLevel?: string;
+
   @ApiPropertyOptional({
     description: 'user partial lastName',
     required: false,
