@@ -1,5 +1,6 @@
-import {  ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, Matches } from 'class-validator';
+import {  ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
+import { KycLevel } from 'src/utils/constants';
 
 /**
  * A DTO representing data to be sent when getting users.
@@ -20,6 +21,13 @@ export class GetUsersDTO {
   @ApiPropertyOptional()
   @IsOptional()
   firstName?: string;
+
+  @ApiProperty({
+    enum: KycLevel,
+  })
+  @IsEnum(KycLevel)
+  @IsOptional()
+  kycLevel?: KycLevel;
 
   @ApiPropertyOptional({
     description: 'user partial lastName',

@@ -62,6 +62,12 @@ export enum GiftCardEventType {
   BUY = 'BUY',
   SELL = 'SELL',
 }
+export enum KycLevel {
+  LEVEL_0 = 'LEVEL_0',
+  LEVEL_1 = 'LEVEL_1',
+  LEVEL_2 = 'LEVEL_2',
+  LEVEL_3 = 'LEVEL_3',
+}
 
 export const DB_NAMES = {
   GIFTCARD: 'GIFTCARD_SERVICE_DATABASE_CONNECTION',

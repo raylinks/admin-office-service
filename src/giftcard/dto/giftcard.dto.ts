@@ -30,6 +30,11 @@ export class CreateCardDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
+  rate?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   productId?: string;
 
   @ApiPropertyOptional()
