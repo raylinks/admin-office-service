@@ -1,5 +1,5 @@
 import {  ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, Matches } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { KycLevel } from 'src/utils/constants';
 
 /**
@@ -25,6 +25,7 @@ export class GetUsersDTO {
   @ApiProperty({
     enum: KycLevel,
   })
+  @IsEnum(KycLevel)
   @IsOptional()
   kycLevel?: KycLevel;
 
