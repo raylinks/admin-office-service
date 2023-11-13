@@ -12,6 +12,7 @@ import { PrismaClient } from '@prisma/client';
 import { lastValueFrom, timeout } from 'rxjs';
 import { Pool } from 'mysql2/promise';
 import { CreateCardBuyRangeDto } from './dto/create-card-buy-range.dto';
+import { QueryCardBuyDto } from './dto/query-card-buy.dto';
 
 @Injectable()
 export class GiftcardService {
@@ -426,5 +427,14 @@ export class GiftcardService {
         details: `Enabled giftcard  range \n id: ${cardId}`,
       },
     });
+  }
+
+  async cardBuyTransactions(query: QueryCardBuyDto) {
+    try {
+      const result = await lastValueFrom(
+        this.giftcardClient.send('giftcard.buy.transactions', query),
+      );
+      return result;
+    } catch (error) {}
   }
 }
