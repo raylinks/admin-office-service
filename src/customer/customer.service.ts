@@ -133,7 +133,8 @@ export class CustomerService {
           eventType as event,
           asset_symbol as symbol,
           type,
-          created_at as createdAt
+          created_at as createdAt,
+          (GREATEST(previous_balance, new_balance) - LEAST(previous_balance,new_balance)) as balance
         FROM transactions
           WHERE user_id=? AND status='CONFIRMED'
         ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`,
@@ -159,6 +160,12 @@ export class CustomerService {
               currency ? 2 : this.getDP(transaction.symbol),
             ),
           );
+          transaction.balance = parseFloat(
+            transaction.balance.toFixed(
+              currency ? 2 : this.getDP(transaction.symbol),
+            ),
+          );
+
 
           return transaction;
         }),
