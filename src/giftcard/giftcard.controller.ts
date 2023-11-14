@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,8 @@ import { ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { GetAccount } from 'src/decorators/account.decorator';
 import { CreateGiftCardDto, SetCardRateDto } from './dto/giftcard.dto';
 import { CreateCardBuyRangeDto } from './dto/create-card-buy-range.dto';
+import { QueryLedgerDto } from 'src/finance/dto/finance.dto';
+import { QueryCardBuyDto } from './dto/query-card-buy.dto';
 
 @Controller('giftcards')
 @ApiTags('Giftcard')
@@ -26,7 +29,7 @@ export class GiftcardController {
   constructor(
     private readonly giftcardService: GiftcardService,
     private response: HttpResponse,
-  ) { }
+  ) {}
 
   @Get('')
   async fetchAllCards(@Res() res: Response) {
@@ -168,9 +171,7 @@ export class GiftcardController {
     @Body() data: CreateGiftCardDto,
     @Res() res: Response,
   ) {
-
     //await this.checkIfUserHasPermission(profile.userId);
-
 
     await this.giftcardService.createCardBuy(profile.userId, data);
 
@@ -187,7 +188,7 @@ export class GiftcardController {
     @Body() payload: CreateCardBuyRangeDto,
     @Res() res: Response,
   ) {
-   // await this.checkIfUserHasPermission(profile.userId);
+    // await this.checkIfUserHasPermission(profile.userId);
 
     await this.giftcardService.createCardBuyRange(profile.userId, payload);
 
@@ -303,22 +304,18 @@ export class GiftcardController {
   }
 
   private async checkIfUserHasPermission(userId: string) {
-
     const user = await this.giftcardService.fetchUserById(userId);
 
     const allowedEmails = ['phenomenal@myfurex.co'];
     if (!allowedEmails.includes(user.email)) {
-
-      throw new BadRequestException("You do not have permission to perform this action")
-
+      throw new BadRequestException(
+        'You do not have permission to perform this action',
+      );
     }
   }
 
   @Get('card/buy/range/all/:id')
-  async getCardBuyRange(
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async getCardBuyRange(@Param('id') id: string, @Res() res: Response) {
     await this.giftcardService.getBuyRange(id);
 
     return this.response.okResponse(
@@ -349,12 +346,25 @@ export class GiftcardController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+    
     await this.giftcardService.enableCardBuy(profile.userId, id);
 
     return this.response.okResponse(
       res,
       'giftcard buy range enabled successfully',
       null,
+    );
+  }
+
+  @Get('buy/transaction')
+  async cardBuyTransactions(@Query() query: QueryCardBuyDto,@Res() res: Response,
+  ) {
+     const cards = await this.giftcardService.cardBuyTransactions(query);
+
+    return this.response.okResponse(
+      res,
+      'giftcard buy transactions retrieved successfully',
+      cards,
     );
   }
 }
