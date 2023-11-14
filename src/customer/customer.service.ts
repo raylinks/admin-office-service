@@ -145,6 +145,7 @@ export class CustomerService {
         [id],
       );
 
+
       const transactions = await Promise.all(
         (result as any[]).map(async (transaction) => {
           if (currency)
@@ -160,12 +161,12 @@ export class CustomerService {
               currency ? 2 : this.getDP(transaction.symbol),
             ),
           );
-          transaction.balance = parseFloat(
-            transaction.balance.toFixed(
-              currency ? 2 : this.getDP(transaction.symbol),
-            ),
-          );
-
+          if (transaction.balance)
+            transaction.balance = parseFloat(
+              transaction.balance.toFixed(
+                currency ? 2 : this.getDP(transaction.symbol),
+              ),
+            );
 
           return transaction;
         }),
