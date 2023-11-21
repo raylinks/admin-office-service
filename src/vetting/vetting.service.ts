@@ -28,7 +28,7 @@ export class VettingService {
       this.walletClient.send({ cmd: 'fetch.vettings' }, query),
     );
 
-    return vettings?.transactions;
+    return vettings;  
   }
 
   /**
@@ -38,11 +38,9 @@ export class VettingService {
    * @returns
    */
   async fetchVettingDetails(id: string) {
-    console.log({id});
     const vetting = await lastValueFrom(
       this.walletClient.send({ cmd: 'vetting.details.get' }, id),
     );
-      console.log({vetting})
     return vetting;
   }
 
@@ -68,7 +66,7 @@ export class VettingService {
     if (data.status === 'reject')
       await this.declineWithdrawal(operatorId, transaction.transactionId);
 
-    return this.fetchVettingDetails(data.transactionId);
+    return await this.fetchVettingDetails(transaction.transactionId);
   }
 
   /**
