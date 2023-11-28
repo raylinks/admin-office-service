@@ -6,12 +6,19 @@ import { ExceptionFilter } from './src//exceptions/http.exception';
 import { AppModule } from 'src/app.module';
 import * as Sentry from '@sentry/node';
 import { ProfilingIntegration } from '@sentry/profiling-node';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { apiURLS } from 'src/utils/constants';
 
 let port: number;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+ 
+   const appOptions = { cors: true };
+
+   const app = await NestFactory.create<NestExpressApplication>(
+     AppModule,
+     appOptions,
+   );
 
   app.useGlobalFilters(new ExceptionFilter());
   app.useGlobalPipes(
@@ -25,7 +32,23 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({ origin: true });
+ 
+    app.use(function (req, res, next) {
+      if (process.env.BACKEND_ENV === 'production' && req.secure) {
+        res.setHeader(
+          'Strict-Transport-Security',
+          'max-age=63072000; includeSubDomains; preload',
+        );
+        res.setHeader('Referrer-policy', 'strict-origin-when-cross-origin');
+      }
+      next(); 
+    });
+
+    //app.enableCors({ origin: true });
+    app.enableCors({
+      origin: '64.226.113.249',
+    });
+
   app.enableShutdownHooks();
   port = config.port;
 
