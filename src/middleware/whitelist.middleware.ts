@@ -1,58 +1,19 @@
-import { BadRequestException, Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 
-
-import { Logger } from '@nestjs/common';
-
-const logger = new Logger('MaintenanceMiddleware');
 @Injectable()
-export class WhitelistMiddleware
+export class WhitelistMiddleware implements NestMiddleware {
+  private logger = new Logger();
 
-  implements NestMiddleware
-{
-  private readonly maintenanceMode: boolean = process.env.MAINTENANCE_MODE == 'true';
-   private readonly emailWhitelist: string[] =
-process.env.WHITElIST_EMAILS.split(',') || [];
+  use(request: Request, response: Response, next: NextFunction): Boolean {
+    const allowedIp = ['64.226.113.249'];
 
-  constructor(private readonly jwtService: JwtService) {
-  }
+    const { ip, method, originalUrl } = request;
 
-  use(req: Request, res: Response, next: NextFunction) {
-    const token = req.headers.authorization?.split(' ')[1];
-
-    const allowedPaths = [
-      
-    ];
-
-    if (!allowedPaths.includes(req.originalUrl)) {
-      let email = '';
-      if (!token) {
-        // Handle missing or invalid token
-        email = req.body?.email;
-      } else {
-        try {
-          const decodedToken: any = this.jwtService.verify(token, {
-            secret: process.env.JWT_SECRET,
-            ignoreExpiration: true,
-          });
-
-          email = decodedToken.password;
-        } catch (err) {
-          logger.error(err, 'JWT ERROR');
-          // Handle invalid or expired token
-          // return res.status(401).send(this.sendFailedResponse({}, 'Your session has expired.Please log in again.'));
-        }
-      }
-
-      if (this.maintenanceMode) {
-        if (!email || !this.emailWhitelist.includes(email)) {
-          // Handle unauthorized access for users not on the whitelist
-          throw new BadRequestException(
-            'The app is currently in maintenance mode.Please try again later.',
-          );
-        }
-      }
+    if (allowedIp.includes(ip)) {
+      return true;
+    } else {
+      return false;
     }
 
     next();

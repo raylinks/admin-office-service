@@ -42,12 +42,14 @@
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.6.0",
     "mysql2": "^3.3.5",
+    "nestjs-real-ip": "^3.0.1",
     "otplib": "^12.0.1",
     "passport": "^0.6.0",
     "passport-google-oauth": "^2.0.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
+    "request-ip": "^3.3.0",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
@@ -60,6 +62,7 @@
     "@types/passport-google-oauth": "^1.0.42",
     "@types/passport-google-oauth20": "^2.0.11",
     "@types/passport-jwt": "^3.0.8",
+    "@types/request-ip": "^0.0.41",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",

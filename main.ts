@@ -11,14 +11,15 @@ import { apiURLS } from 'src/utils/constants';
 
 let port: number;
 
-async function bootstrap() {
- 
-   const appOptions = { cors: true };
+  const corsOrigins = process.env.ALLOWED_CORS_ORIGINS;
 
-   const app = await NestFactory.create<NestExpressApplication>(
-     AppModule,
-     appOptions,
-   );
+  const corsOriginsArray = corsOrigins
+    ? corsOrigins.trim().split(',') || []
+    : '';
+
+async function bootstrap() {
+
+   const app = await NestFactory.create(AppModule);
 
   app.useGlobalFilters(new ExceptionFilter());
   app.useGlobalPipes(
@@ -44,9 +45,11 @@ async function bootstrap() {
       next(); 
     });
 
-    //app.enableCors({ origin: true });
     app.enableCors({
-      origin: '64.226.113.249',
+      origin: corsOriginsArray,
+      methods: ['POST','GET','PUT', 'PATCH','DELETE'],
+      credentials:true,
+      maxAge:3600
     });
 
   app.enableShutdownHooks();
