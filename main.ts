@@ -6,7 +6,7 @@ import { ExceptionFilter } from './src//exceptions/http.exception';
 import { AppModule } from 'src/app.module';
 import * as Sentry from '@sentry/node';
 import { ProfilingIntegration } from '@sentry/profiling-node';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import * as requestIp from 'request-ip';
 import { apiURLS } from 'src/utils/constants';
 
 let port: number;
@@ -14,13 +14,14 @@ let port: number;
   const corsOrigins = process.env.ALLOWED_CORS_ORIGINS;
 
   const corsOriginsArray = corsOrigins
-    ? corsOrigins.trim().split(',') || []
-    : '';
+    ? corsOrigins.trim().split(',').concat('*')
+    : ['*'];
 
 async function bootstrap() {
 
    const app = await NestFactory.create(AppModule);
 
+  app.use(requestIp.mw());
   app.useGlobalFilters(new ExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -34,16 +35,16 @@ async function bootstrap() {
   );
 
  
-    app.use(function (req, res, next) {
-      if (process.env.BACKEND_ENV === 'production' && req.secure) {
-        res.setHeader(
-          'Strict-Transport-Security',
-          'max-age=63072000; includeSubDomains; preload',
-        );
-        res.setHeader('Referrer-policy', 'strict-origin-when-cross-origin');
-      }
-      next(); 
-    });
+    // app.use(function (req, res, next) {
+    //   if (process.env.BACKEND_ENV === 'production' && req.secure) {
+    //     res.setHeader(
+    //       'Strict-Transport-Security',
+    //       'max-age=63072000; includeSubDomains; preload',
+    //     );
+    //     res.setHeader('Referrer-policy', 'strict-origin-when-cross-origin');
+    //   }
+    //   next(); 
+    // });
 
     app.enableCors({
       origin: corsOriginsArray,
