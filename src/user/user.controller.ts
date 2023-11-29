@@ -28,7 +28,7 @@ import { GetAccount } from 'src/decorators/account.decorator';
 
 @Controller('user')
 @ApiTags('User')
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly userService: UserService,
