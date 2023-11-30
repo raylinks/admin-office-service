@@ -28,7 +28,7 @@ async function bootstrap() {
     //    maxAge: 3600,
     //  });
 
-  app.use(requestIp.mw());
+  //app.use(requestIp.mw());
   app.useGlobalFilters(new ExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -54,7 +54,7 @@ async function bootstrap() {
     // });
 
   
-
+  app.enableCors({ origin: true });
   app.enableShutdownHooks();
   port = config.port;
 
