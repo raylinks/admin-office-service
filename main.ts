@@ -11,12 +11,12 @@ import { apiURLS } from 'src/utils/constants';
 
 let port: number;
 
-  const corsOrigins =  '*';
+  const corsOrigins = ['*'];
   //process.env.ALLOWED_CORS_ORIGINS;
 
   const corsOriginsArray = corsOrigins
-    ? corsOrigins.trim().split(',').concat('*')
-    : ['*'];
+    // ? corsOrigins.trim().split(',').concat('*')
+    // : ['*'];
 
 async function bootstrap() {
 
