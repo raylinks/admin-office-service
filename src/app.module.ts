@@ -40,7 +40,7 @@ import { UserController } from './user/user.controller';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(WhitelistMiddleware).forRoutes(UserController);
+    consumer.apply(WhitelistMiddleware).forRoutes('*');
   }
 }
 
