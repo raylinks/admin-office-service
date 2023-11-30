@@ -38,9 +38,9 @@ import { UserController } from './user/user.controller';
   controllers: [AppController],
   providers: [AppService, HttpResponse],
 })
-export class AppModule  {
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer.apply(WhitelistMiddleware).forRoutes('*');
-  // }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(WhitelistMiddleware).forRoutes('*');
+  }
 }
 
