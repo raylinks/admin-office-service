@@ -21,6 +21,12 @@ let port: number;
 async function bootstrap() {
 
    const app = await NestFactory.create(AppModule);
+    //  app.enableCors({
+    //    origin: corsOriginsArray,
+    //    methods: ['POST', 'GET', 'PUT', 'PATCH', 'DELETE'],
+    //    credentials: true,
+    //    maxAge: 3600,
+    //  });
 
   app.use(requestIp.mw());
   app.useGlobalFilters(new ExceptionFilter());
@@ -47,12 +53,7 @@ async function bootstrap() {
     //   next(); 
     // });
 
-    app.enableCors({
-      origin: corsOriginsArray,
-      methods: ['POST','GET','PUT', 'PATCH','DELETE'],
-      credentials:true,
-      maxAge:3600
-    });
+  
 
   app.enableShutdownHooks();
   port = config.port;
