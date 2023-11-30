@@ -7,9 +7,10 @@ export class WhitelistMiddleware implements NestMiddleware {
 
   use(request: Request, response: Response, next: NextFunction) {
     const allowedIp = process.env.WHITELISTED_IPS;
-
+  console.log("enb-ip",process.env.WHITELISTED_IPS);
+  
     const { ip, method, originalUrl } = request;
-
+console.log('ip',ip);
     if (allowedIp.includes(ip)) {
        console.log("true");
       next();
