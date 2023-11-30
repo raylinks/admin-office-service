@@ -6,7 +6,7 @@ export class WhitelistMiddleware implements NestMiddleware {
   private logger = new Logger();
 
   use(request: Request, response: Response, next: NextFunction) {
-    const allowedIp = ['64.226.113.249'];
+    const allowedIp = process.env.WHITELISTED_IPS;
 
     const { ip, method, originalUrl } = request;
 
