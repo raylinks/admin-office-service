@@ -41,9 +41,12 @@ export class FinanceService {
   }
 
   async swap(query?: QueryLedgerDto) {
-    return await lastValueFrom(
+    
+    const swapTrans = await lastValueFrom(
       this.walletClient.send('admin.ledger.swap', query),
     );
+    
+    return swapTrans;
   }
 
   async giftcardSell(query: QueryLedgerDto) {
@@ -106,8 +109,17 @@ export class FinanceService {
     );
   }
 
-  async exportSwapLedgerInExcel(res) {
-    const { swap } = await this.swap();
-    return await this.excelService.export(res, swap, 'swap', 'bulk');
+  async exportSwapLedgerInExcel(res, query: QueryLedgerDto) {
+    try {
+      const {transactions} = await this.swap(query);
+      return await this.excelService.export(
+        res,
+        transactions,
+        'transactions',
+        'bulk',
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

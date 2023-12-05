@@ -139,7 +139,10 @@ export class FinanceController {
   }
 
   @Get('/ledger/swap/export/excel')
-  async exportSwapLedgerInExcel(@Res() res: Response) {
-    return await this.financeService.exportSwapLedgerInExcel(res);
+  async exportSwapLedgerInExcel(
+    @Res() res: Response,
+    @Query() query: QueryLedgerDto,
+  ) {
+    return await this.financeService.exportSwapLedgerInExcel(res,query);
   }
 }
