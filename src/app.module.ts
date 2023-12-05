@@ -39,8 +39,8 @@ import { UserController } from './user/user.controller';
   providers: [AppService, HttpResponse],
 })
 export class AppModule  {
-   configure(consumer: MiddlewareConsumer) {
-     consumer.apply(WhitelistMiddleware).forRoutes('*');
-   }
+  //  configure(consumer: MiddlewareConsumer) {
+  //    consumer.apply(WhitelistMiddleware).forRoutes('*');
+  //  }
 }
 
