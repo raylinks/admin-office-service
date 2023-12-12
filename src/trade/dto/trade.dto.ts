@@ -90,6 +90,9 @@ export class QueryTradesDto {
   to?: Date;
   @ApiPropertyOptional()
   tradeId?: string;
+
+  @ApiPropertyOptional()
+  furexId: string;
 }
 
 export class QueryMessageDto {

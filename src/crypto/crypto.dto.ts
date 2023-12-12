@@ -89,6 +89,9 @@ export class QueryCryptoTransactionsDto {
 
   @ApiHideProperty()
   events: TransactionEventType[];
+
+  @ApiPropertyOptional()
+  furexId?: string;
 }
 
 export class EnableDisableCryptoAssetDto {
