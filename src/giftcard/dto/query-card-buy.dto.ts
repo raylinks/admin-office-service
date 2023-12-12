@@ -55,7 +55,7 @@ export class QueryCardBuyDto {
   })
   @IsString()
   @IsOptional()
-  // @Matches(/^[a-zA-Z ]*$/, { message: 'lastName must be alphabets' })
+  // @Matches(/^[a-zA-Z ]*$/, { message: 'cardName must be alphabets' })
   cardName: string;
 
   @ApiPropertyOptional({
@@ -64,7 +64,7 @@ export class QueryCardBuyDto {
   })
   @IsString()
   @IsOptional()
-  // @Matches(/^[a-zA-Z ]*$/, { message: 'lastName must be alphabets' })
+  // @Matches(/^[a-zA-Z ]*$/, { message: 'country must be alphabets' })
   country: string;
 
   @ApiPropertyOptional({
@@ -73,6 +73,6 @@ export class QueryCardBuyDto {
   })
   @IsString()
   @IsOptional()
-  // @Matches(/^[a-zA-Z ]*$/, { message: 'lastName must be alphabets' })
+  // @Matches(/^[a-zA-Z ]*$/, { message: 'currency must be alphabets' })
   currency: string;
 }
