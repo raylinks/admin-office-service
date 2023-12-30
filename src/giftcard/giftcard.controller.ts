@@ -23,8 +23,8 @@ import { QueryCardBuyDto } from './dto/query-card-buy.dto';
 
 @Controller('giftcards')
 @ApiTags('Giftcard')
-@ApiSecurity('auth')
-@UseGuards(JwtAuthGuard)
+//@ApiSecurity('auth')
+//@UseGuards(JwtAuthGuard)
 export class GiftcardController {
   constructor(
     private readonly giftcardService: GiftcardService,
